@@ -1,7 +1,7 @@
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 #![feature(min_specialization)]
 
-//! World Chain EVM configuration.
+//! My Chain EVM configuration.
 
 use alloy_consensus::Header;
 use alloy_eips::eip2718::Encodable2718;
@@ -20,7 +20,7 @@ pub use reth_optimism_evm::{
 use reth_optimism_primitives::OpPrimitives;
 use reth_provider::{BlockReader, HeaderProvider, StateProvider, StateProviderFactory};
 use revm_database::BundleState;
-use world_chain_chainspec::WorldChainSpec;
+use my_chain_chainspec::MyChainSpec;
 
 mod cache;
 mod collector;
@@ -47,7 +47,7 @@ use reth_optimism_payload_builder::OpExecData;
 use reth_primitives_traits::{Block, BlockBody, NodePrimitives, SealedBlock, SealedHeader};
 use reth_revm::{State, witness::ExecutionWitnessRecord};
 
-use crate::factory::WorldChainBlockExecutorFactory;
+use crate::factory::MyChainBlockExecutorFactory;
 
 /// The provider capabilities required by this crate's internals (e.g. witness collection).
 ///
@@ -84,22 +84,22 @@ pub struct BlockExecutionWitness {
     pub record: ExecutionWitnessRecord,
 }
 
-/// The underlying OP EVM configuration that [`WorldChainEvmConfig`] defaults to, fixed to World
+/// The underlying OP EVM configuration that [`MyChainEvmConfig`] defaults to, fixed to World
 /// Chain's production primitives.
 pub(crate) type OpConfig =
-    OpEvmConfig<WorldChainSpec, OpPrimitives, OpRethReceiptBuilder, OpEvmFactory<OpTx>>;
+    OpEvmConfig<MyChainSpec, OpPrimitives, OpRethReceiptBuilder, OpEvmFactory<OpTx>>;
 
-/// The bounds an inner EVM config `E` must satisfy to be wrapped by [`WorldChainEvmConfig`].
+/// The bounds an inner EVM config `E` must satisfy to be wrapped by [`MyChainEvmConfig`].
 ///
 /// Bundles the requirements of the wrapper's [`ConfigureEvm`] impl into a single alias trait: the
 /// inner block-executor factory must be cloneable/debuggable and thread-safe, and the inner
-/// assembler must assemble blocks for the wrapping [`WorldChainBlockExecutorFactory`]. Any
+/// assembler must assemble blocks for the wrapping [`MyChainBlockExecutorFactory`]. Any
 /// `ConfigureEvm` that meets these (e.g. [`OpConfig`]) is blanket-implemented.
 pub trait EvmBounds:
     ConfigureEvm<
         BlockExecutorFactory: Clone + core::fmt::Debug + Send + Sync + Unpin,
         BlockAssembler: BlockAssembler<
-            WorldChainBlockExecutorFactory<Self>,
+            MyChainBlockExecutorFactory<Self>,
             Block = <Self::Primitives as NodePrimitives>::Block,
         >,
     > + 'static
@@ -110,22 +110,22 @@ impl<E> EvmBounds for E where
     E: ConfigureEvm<
             BlockExecutorFactory: Clone + core::fmt::Debug + Send + Sync + Unpin,
             BlockAssembler: BlockAssembler<
-                WorldChainBlockExecutorFactory<E>,
+                MyChainBlockExecutorFactory<E>,
                 Block = <E::Primitives as NodePrimitives>::Block,
             >,
         > + 'static
 {
 }
 
-/// World Chain EVM configuration.
-pub struct WorldChainEvmConfig<E: EvmBounds = OpConfig> {
+/// My Chain EVM configuration.
+pub struct MyChainEvmConfig<E: EvmBounds = OpConfig> {
     /// The underlying EVM configuration.
     inner: E,
-    /// The [`WorldChainBlockExecutorFactory`] built from `inner`'s factory.
-    factory: WorldChainBlockExecutorFactory<E>,
+    /// The [`MyChainBlockExecutorFactory`] built from `inner`'s factory.
+    factory: MyChainBlockExecutorFactory<E>,
 }
 
-impl<E: EvmBounds> Clone for WorldChainEvmConfig<E> {
+impl<E: EvmBounds> Clone for MyChainEvmConfig<E> {
     fn clone(&self) -> Self {
         Self {
             inner: self.inner.clone(),
@@ -134,22 +134,22 @@ impl<E: EvmBounds> Clone for WorldChainEvmConfig<E> {
     }
 }
 
-impl<E: EvmBounds> core::fmt::Debug for WorldChainEvmConfig<E> {
+impl<E: EvmBounds> core::fmt::Debug for MyChainEvmConfig<E> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.debug_struct("WorldChainEvmConfig")
+        f.debug_struct("MyChainEvmConfig")
             .field("inner", &self.inner)
             .field("factory", &self.factory)
             .finish()
     }
 }
 
-impl WorldChainEvmConfig<OpConfig> {
+impl MyChainEvmConfig<OpConfig> {
     /// Creates a new configuration with the given chain spec and receipt builder.
     ///
     /// Witness capture is disabled; arm it with [`with_witness_sender`](Self::with_witness_sender).
-    pub fn new(chain_spec: Arc<WorldChainSpec>, receipt_builder: OpRethReceiptBuilder) -> Self {
+    pub fn new(chain_spec: Arc<MyChainSpec>, receipt_builder: OpRethReceiptBuilder) -> Self {
         let inner = OpConfig::new(chain_spec, receipt_builder);
-        let factory = WorldChainBlockExecutorFactory::<OpConfig>::new(
+        let factory = MyChainBlockExecutorFactory::<OpConfig>::new(
             inner.block_executor_factory().clone(),
             None,
         );
@@ -159,12 +159,12 @@ impl WorldChainEvmConfig<OpConfig> {
     /// Creates a new configuration for OP chains with the default receipt builder.
     ///
     /// Witness capture is disabled; arm it with [`with_witness_sender`](Self::with_witness_sender).
-    pub fn optimism(chain_spec: Arc<WorldChainSpec>) -> Self {
+    pub fn optimism(chain_spec: Arc<MyChainSpec>) -> Self {
         Self::new(chain_spec, OpRethReceiptBuilder::default())
     }
 
     /// Returns the chain spec associated with this configuration.
-    pub fn chain_spec(&self) -> &Arc<WorldChainSpec> {
+    pub fn chain_spec(&self) -> &Arc<MyChainSpec> {
         self.inner.chain_spec()
     }
 
@@ -173,7 +173,7 @@ impl WorldChainEvmConfig<OpConfig> {
     /// When `sender` is [`Some`], every executed block's [`BlockExecutionWitness`] is forwarded over the
     /// channel; [`None`] leaves the config a pure passthrough.
     pub fn with_witness_sender(mut self, sender: Option<Sender<BlockExecutionWitness>>) -> Self {
-        self.factory = WorldChainBlockExecutorFactory::<OpConfig>::new(
+        self.factory = MyChainBlockExecutorFactory::<OpConfig>::new(
             self.inner.block_executor_factory().clone(),
             sender,
         );
@@ -181,11 +181,11 @@ impl WorldChainEvmConfig<OpConfig> {
     }
 }
 
-impl<E: EvmBounds> ConfigureEvm for WorldChainEvmConfig<E> {
+impl<E: EvmBounds> ConfigureEvm for MyChainEvmConfig<E> {
     type Primitives = E::Primitives;
     type Error = E::Error;
     type NextBlockEnvCtx = E::NextBlockEnvCtx;
-    type BlockExecutorFactory = WorldChainBlockExecutorFactory<E>;
+    type BlockExecutorFactory = MyChainBlockExecutorFactory<E>;
     type BlockAssembler = E::BlockAssembler;
 
     fn block_executor_factory(&self) -> &Self::BlockExecutorFactory {
@@ -227,7 +227,7 @@ impl<E: EvmBounds> ConfigureEvm for WorldChainEvmConfig<E> {
     }
 }
 
-impl<E: EvmBounds + ConfigurePostExecEvm> ConfigurePostExecEvm for WorldChainEvmConfig<E> {
+impl<E: EvmBounds + ConfigurePostExecEvm> ConfigurePostExecEvm for MyChainEvmConfig<E> {
     type Snapshot = E::Snapshot;
 
     fn post_exec_executor_for_block<'a, DB: Database>(
@@ -270,7 +270,7 @@ impl<E: EvmBounds + ConfigurePostExecEvm> ConfigurePostExecEvm for WorldChainEvm
 }
 
 impl<E: EvmBounds + ConfigureEngineEvm<OpExecData>> ConfigureEngineEvm<OpExecData>
-    for WorldChainEvmConfig<E>
+    for MyChainEvmConfig<E>
 {
     fn evm_env_for_payload(&self, payload: &OpExecData) -> Result<EvmEnvFor<Self>, Self::Error> {
         self.inner.evm_env_for_payload(payload)
@@ -301,15 +301,15 @@ pub trait BlockBuilderExt: BlockBuilder {
     ) -> Result<(BlockBuilderOutcome<Self::Primitives>, BundleState), BlockExecutionError>;
 }
 
-/// Executor builder that constructs the [`WorldChainEvmConfig`].
+/// Executor builder that constructs the [`MyChainEvmConfig`].
 ///
 /// When a witness sender is provided, the resulting EVM captures each block's execution witness
 /// during import and forwards it over the channel. With no sender (the [`Default`]) the config is a
 /// pure passthrough and the EVM behaves identically to the underlying OP EVM config.
 #[derive(Debug, Clone, Default)]
-pub struct WorldChainExecutorBuilder(Option<crossbeam_channel::Sender<BlockExecutionWitness>>);
+pub struct MyChainExecutorBuilder(Option<crossbeam_channel::Sender<BlockExecutionWitness>>);
 
-impl WorldChainExecutorBuilder {
+impl MyChainExecutorBuilder {
     /// Creates a builder that forwards captured block witnesses over `witness_sender`.
     pub const fn new(
         witness_sender: Option<crossbeam_channel::Sender<BlockExecutionWitness>>,
@@ -318,15 +318,15 @@ impl WorldChainExecutorBuilder {
     }
 }
 
-impl<Node> ExecutorBuilder<Node> for WorldChainExecutorBuilder
+impl<Node> ExecutorBuilder<Node> for MyChainExecutorBuilder
 where
-    Node: FullNodeTypes<Types: NodeTypes<ChainSpec = WorldChainSpec, Primitives = OpPrimitives>>,
+    Node: FullNodeTypes<Types: NodeTypes<ChainSpec = MyChainSpec, Primitives = OpPrimitives>>,
 {
-    type EVM = WorldChainEvmConfig;
+    type EVM = MyChainEvmConfig;
 
     async fn build_evm(self, ctx: &BuilderContext<Node>) -> eyre::Result<Self::EVM> {
         Ok(
-            WorldChainEvmConfig::new(ctx.chain_spec(), OpRethReceiptBuilder::default())
+            MyChainEvmConfig::new(ctx.chain_spec(), OpRethReceiptBuilder::default())
                 .with_witness_sender(self.0),
         )
     }
@@ -337,19 +337,19 @@ mod tests {
     use super::*;
 
     #[test]
-    fn world_chain_config_passthrough_construction() {
-        let chain_spec = WorldChainSpec::dev();
-        let config = WorldChainEvmConfig::optimism(chain_spec.clone());
+    fn my_chain_config_passthrough_construction() {
+        let chain_spec = MyChainSpec::dev();
+        let config = MyChainEvmConfig::optimism(chain_spec.clone());
 
         assert!(Arc::ptr_eq(config.chain_spec(), &chain_spec));
         // The config exposes its own witness-capturing factory even when capture is disarmed.
-        let _factory: &WorldChainBlockExecutorFactory<OpConfig> = config.block_executor_factory();
+        let _factory: &MyChainBlockExecutorFactory<OpConfig> = config.block_executor_factory();
     }
 
     #[test]
-    fn world_chain_config_defaults_to_world_chain_spec() {
-        let chain_spec = WorldChainSpec::dev();
-        let evm_config = WorldChainEvmConfig::optimism(chain_spec.clone());
+    fn my_chain_config_defaults_to_my_chain_spec() {
+        let chain_spec = MyChainSpec::dev();
+        let evm_config = MyChainEvmConfig::optimism(chain_spec.clone());
 
         assert!(std::sync::Arc::ptr_eq(evm_config.chain_spec(), &chain_spec));
     }

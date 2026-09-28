@@ -28,8 +28,8 @@ pub struct EmbeddedVkeyManifest {
 
 /// Computes hashes and on-chain vkeys from the guest ELFs embedded in this binary.
 pub async fn embedded_vkey_manifest() -> Result<EmbeddedVkeyManifest> {
-    let range_elf = world_chain_proof_sp1_elfs::range_elf();
-    let aggregation_elf = world_chain_proof_sp1_elfs::aggregation_elf();
+    let range_elf = my_chain_proof_sp1_elfs::range_elf();
+    let aggregation_elf = my_chain_proof_sp1_elfs::aggregation_elf();
     let range_sha256 = hex::encode(Sha256::digest(&*range_elf));
     let aggregation_sha256 = hex::encode(Sha256::digest(&*aggregation_elf));
     let client = EnvProver::Cpu(CpuProver::new().await);

@@ -22,7 +22,7 @@ const GAS_FETCH_MAX_CONCURRENCY: usize = 8;
 /// Default SP1 range-proof cycle ceiling; the planning gas target derives from it.
 pub const DEFAULT_RANGE_CYCLE_LIMIT: u64 = 1_500_000_000_000;
 /// Conservative worst-case zkVM cycles per L2 gas (keccak/precompile-heavy blocks); typical
-/// blocks measure ~5-15. Unmeasured on World Chain — replace once `prover-sp1 execute`
+/// blocks measure ~5-15. Unmeasured on My Chain — replace once `prover-sp1 execute`
 /// numbers exist.
 pub const DEFAULT_CYCLES_PER_GAS: u64 = 25;
 /// Caps witness size and build time per range regardless of how empty the blocks are.

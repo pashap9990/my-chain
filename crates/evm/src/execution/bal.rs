@@ -40,8 +40,8 @@ use reth_evm::{
 use reth_provider::StateProvider;
 use revm::database::states::bundle_state::BundleRetention;
 use std::{sync::Arc, time::Instant};
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_primitives::access_list::FlashblockAccessList;
+use my_chain_chainspec::MyChainSpec;
+use my_chain_primitives::access_list::FlashblockAccessList;
 
 const OP_L1_BLOCK_BAL_READ_SLOTS: [U256; 6] = [
     L1_BASE_FEE_SLOT,
@@ -149,11 +149,11 @@ impl BalExecutorError {
 
 /// A wrapper around the [`BasicBlockBuilder`] for flashblocks.
 pub struct BalBlockBuilder<'a, R: OpReceiptBuilder, N: NodePrimitives, Evm> {
-    pub executor: OpBlockExecutor<Evm, R, Arc<WorldChainSpec>>,
+    pub executor: OpBlockExecutor<Evm, R, Arc<MyChainSpec>>,
     pub ctx: OpBlockExecutionCtx,
     pub transactions: Vec<Recovered<N::SignedTx>>,
     pub parent: &'a SealedHeader<N::BlockHeader>,
-    pub assembler: OpBlockAssembler<WorldChainSpec>,
+    pub assembler: OpBlockAssembler<MyChainSpec>,
     pub access_list_sender: crossbeam_channel::Sender<FlashblockAccessList>,
     pub counter: BlockAccessIndexCounter,
     pub committed_bundle: BundleState,
@@ -165,16 +165,16 @@ where
     DB: Database + 'a,
     E: Evm<DB = &'a mut State<DB>, Tx = OpTx, Spec = OpSpecId, BlockEnv = BlockEnv>,
     E: PostExecEvm,
-    OpBlockExecutor<E, R, Arc<WorldChainSpec>>:
+    OpBlockExecutor<E, R, Arc<MyChainSpec>>:
         BlockExecutor<Evm = E, Transaction = OpTransactionSigned, Receipt = OpReceipt>,
 {
     /// Creates a new [`FlashblocksBlockBuilder`] with the given executor factory and assembler.
     pub fn new(
         ctx: OpBlockExecutionCtx,
         parent: &'a SealedHeader<N::BlockHeader>,
-        mut executor: OpBlockExecutor<E, R, Arc<WorldChainSpec>>,
+        mut executor: OpBlockExecutor<E, R, Arc<MyChainSpec>>,
         transactions: Vec<Recovered<N::SignedTx>>,
-        chain_spec: Arc<WorldChainSpec>,
+        chain_spec: Arc<MyChainSpec>,
         tx: crossbeam_channel::Sender<FlashblockAccessList>,
         committed_bundle: BundleState,
     ) -> Self {
@@ -232,11 +232,11 @@ where
         >,
     E: PostExecEvm,
     R: OpReceiptBuilder<Receipt = OpReceipt, Transaction = OpTransactionSigned>,
-    OpBlockExecutor<E, R, Arc<WorldChainSpec>>:
+    OpBlockExecutor<E, R, Arc<MyChainSpec>>:
         BlockExecutor<Evm = E, Transaction = OpTransactionSigned, Receipt = OpReceipt>,
 {
     type Primitives = N;
-    type Executor = OpBlockExecutor<E, R, Arc<WorldChainSpec>>;
+    type Executor = OpBlockExecutor<E, R, Arc<MyChainSpec>>;
 
     fn apply_pre_execution_changes(&mut self) -> Result<(), BlockExecutionError> {
         self.executor.apply_pre_execution_changes()?;
@@ -307,7 +307,7 @@ where
         >,
     E: PostExecEvm,
     R: OpReceiptBuilder<Receipt = OpReceipt, Transaction = OpTransactionSigned>,
-    OpBlockExecutor<E, R, Arc<WorldChainSpec>>:
+    OpBlockExecutor<E, R, Arc<MyChainSpec>>:
         BlockExecutor<Evm = E, Transaction = OpTransactionSigned, Receipt = OpReceipt>,
 {
     fn finish_with_bundle(
@@ -352,7 +352,7 @@ where
         let block = self.assembler.assemble_block(BlockAssemblerInput::<
             '_,
             '_,
-            OpBlockExecutorFactory<OpRethReceiptBuilder, WorldChainSpec>,
+            OpBlockExecutorFactory<OpRethReceiptBuilder, MyChainSpec>,
         >::new(
             evm_env,
             self.ctx,

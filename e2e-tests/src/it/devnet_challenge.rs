@@ -3,8 +3,8 @@ use std::time::Duration;
 use alloy_primitives::{Address, B256, U256, address, utils::parse_ether};
 use alloy_provider::Provider;
 use eyre::eyre::{ensure, eyre};
-use world_chain_proof_protocol::{IDisputeGameFactory, LineageProvider};
-use world_chain_proposer::{Proposal, ProposerClient};
+use my_chain_proof_protocol::{IDisputeGameFactory, LineageProvider};
+use my_chain_proposer::{Proposal, ProposerClient};
 
 use crate::it::utils::{
     bindings::IFaultDisputeGame::{GameStatus, IFaultDisputeGameInstance},
@@ -15,7 +15,7 @@ use crate::it::utils::{
     },
 };
 
-/// In-process World Chain challenger (`WORLD_CHALLENGER_PRIVATE_KEY` in
+/// In-process My Chain challenger (`WORLD_CHALLENGER_PRIVATE_KEY` in
 /// `crates/devnet/src/full_stack.rs`).
 const WORLD_CHALLENGER_ADDRESS: Address = address!("0x743dAA55063C608894C125Cf8eC82Afe83B2d5c5");
 /// Long enough for several challenger poll ticks after the game is L1-finalized.
@@ -27,7 +27,7 @@ const CHALLENGER_IDLE_OBSERVATION: Duration = Duration::from_secs(20);
 ///
 /// The fault-injection counterpart to `devnet_withdrawal`'s happy path — that proves an honest root
 /// reaches finalization, this proves a dishonest one doesn't. Same shape as Optimism's op-e2e
-/// dispute-game tests, but exercising World Chain's own services rather than op-challenger.
+/// dispute-game tests, but exercising My Chain's own services rather than op-challenger.
 #[ignore = "requires Docker, Foundry, and the full local OP Stack"]
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn bad_root_proposal_is_challenged_and_invalidated() -> eyre::Result<()> {
@@ -68,7 +68,7 @@ async fn bad_root_proposal_is_challenged_and_invalidated() -> eyre::Result<()> {
 
     let game = game_at(game_address, malicious_provider.clone());
 
-    // The real World Chain challenger recomputes the output root from consensus and disagrees.
+    // The real My Chain challenger recomputes the output root from consensus and disagrees.
     let challenger = wait_for_challenge(&game).await?;
     println!("devnet challenge: challenged by {challenger}");
 

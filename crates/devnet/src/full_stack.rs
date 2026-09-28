@@ -41,48 +41,48 @@ use tokio::{
 };
 use tracing::{Instrument, debug, info, info_span, warn};
 use url::{Host, Url};
-use world_chain_chainspec::{WorldChainHardfork, WorldChainSpec};
-use world_chain_challenger::{
+use my_chain_chainspec::{MyChainHardfork, MyChainSpec};
+use my_chain_challenger::{
     AlloyChallengerClient, BondManager as ChallengerBondManager,
     BondManagerConfig as ChallengerBondManagerConfig, ChallengerConfig,
     DEFAULT_L1_TX_CONFIRMATIONS, OwnedGames, ResolutionManager, ResolutionManagerConfig,
-    WorldChainChallenger,
+    MyChainChallenger,
 };
-use world_chain_defender::{
+use my_chain_defender::{
     AlloyDefenderClient, DEFAULT_L1_TX_CONFIRMATIONS as DEFAULT_DEFENDER_L1_TX_CONFIRMATIONS,
-    DefenderConfig, WorldChainDefender,
+    DefenderConfig, MyChainDefender,
 };
 use world_chain_proof_core::{
     boot::TransitionPublicValues, hash_world_rollup_config, range::WorldRangeHardforkConfig,
 };
-use world_chain_proof_kona_host::online::OnlineHostConfig;
-use world_chain_proof_protocol::{
+use my_chain_proof_kona_host::online::OnlineHostConfig;
+use my_chain_proof_protocol::{
     AlloyProofGameProvider, IERC20StakingVault, OptimismConsensusClient, PROOF_SYSTEM_VERSION,
     PROOF_THRESHOLD,
 };
-use world_chain_proof_sp1_host::{
+use my_chain_proof_sp1_host::{
     Sp1ProverKind, WorldSuccinctProver,
     cpu_prover::{CpuSuccinctProver, SP1ProofMode},
     mock_prover::MockSuccinctProver,
     network_prover::{NetworkSuccinctProver, SignerType},
 };
-use world_chain_proof_sp1_worker::{Sp1Backend, Sp1BackendConfig};
-use world_chain_proof_worker::{
+use my_chain_proof_sp1_worker::{Sp1Backend, Sp1BackendConfig};
+use my_chain_proof_worker::{
     ClaimedProofJobHandler, ProofJob, ProofWorker, ProofWorkerConfig, RetryConfig,
     WorkerHeartbeatConfig,
 };
-use world_chain_proposer::{
-    AlloyProofSystemClient, BondManager, BondManagerConfig, ProposerConfig, WorldChainProposer,
+use my_chain_proposer::{
+    AlloyProofSystemClient, BondManager, BondManagerConfig, ProposerConfig, MyChainProposer,
 };
-use world_chain_prover_service::{
+use my_chain_prover_service::{
     ProofBackend, ProofData, ProverService, ProverServiceConfig, RpcProverServiceClient,
     run_status_poller, start_rpc_server,
 };
-use world_chain_test_utils::DEV_CHAIN_ID;
+use my_chain_test_utils::DEV_CHAIN_ID;
 
 use crate::{
     DevnetComponent, DevnetComponentKind, DevnetComponentStatus, DevnetPortMode, L1DevChain,
-    L1DevChainConfig, MetricsTarget, ObservabilityStack, WorldChainHardforkConfig,
+    L1DevChainConfig, MetricsTarget, ObservabilityStack, MyChainHardforkConfig,
     component::ContainerImage,
     op_stack::{HaSequencerConfig, HaSequencerTopology},
     process_logs::{ProcessLogTarget, container_log_consumer, emit_process_log},
@@ -116,15 +116,15 @@ const SP1_WORKER_POLL_INTERVAL: Duration = Duration::from_secs(5);
 const SP1_WORKER_PROVER_ENV: &str = "DEVNET_SP1_WORKER_PROVER";
 /// SP1 network private key. Required when `DEVNET_SP1_WORKER_PROVER=network`.
 const SP1_PRIVATE_KEY_ENV: &str = "SP1_PRIVATE_KEY";
-/// Delay between World Chain proof-system proposal attempts.
+/// Delay between My Chain proof-system proposal attempts.
 const WORLD_PROPOSER_POLL_INTERVAL: Duration = Duration::from_secs(2);
-/// Delay between World Chain proof-system challenger scans.
+/// Delay between My Chain proof-system challenger scans.
 const WORLD_CHALLENGER_POLL_INTERVAL: Duration = Duration::from_secs(2);
-/// Delay between World Chain proof-system defender scans.
+/// Delay between My Chain proof-system defender scans.
 const WORLD_DEFENDER_POLL_INTERVAL: Duration = Duration::from_secs(2);
-/// Balance, in wei, allocated to the World Chain challenger account in the L1 genesis for gas.
+/// Balance, in wei, allocated to the My Chain challenger account in the L1 genesis for gas.
 const WORLD_CHALLENGER_GENESIS_BALANCE_WEI: &str = "0x56bc75e2d63100000";
-/// Balance, in wei, allocated to the World Chain defender account in the L1
+/// Balance, in wei, allocated to the My Chain defender account in the L1
 /// genesis so it can submit proof-lane transactions. (100 ether)
 const WORLD_DEFENDER_GENESIS_BALANCE_WEI: &str = "0x56bc75e2d63100000";
 /// Mock bond tokens deposited for each bond-paying proof-system service (100 tokens).
@@ -147,7 +147,7 @@ const PROPOSER_PRIVATE_KEY: &str =
     "0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97";
 const CHALLENGER_PRIVATE_KEY: &str =
     "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6";
-/// Signing key for the in-process World Chain proof-system challenger.
+/// Signing key for the in-process My Chain proof-system challenger.
 ///
 /// Dedicated key (address `0x743dAA55063C608894C125Cf8eC82Afe83B2d5c5`), distinct
 /// from the proposer (Anvil account #1) and the op-challenger (Anvil account #9),
@@ -155,7 +155,7 @@ const CHALLENGER_PRIVATE_KEY: &str =
 /// address is funded via the L1 genesis.
 const WORLD_CHALLENGER_PRIVATE_KEY: &str =
     "0x7c0c9c6f3f4d8a2b1e5d9a8c7b6e5f4a3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f";
-/// Signing key for the in-process World Chain proof-system defender.
+/// Signing key for the in-process My Chain proof-system defender.
 ///
 /// Dedicated key, distinct from the proposer and challengers, so proof-lane
 /// submissions never race another local service on L1 nonces.
@@ -316,7 +316,7 @@ sol! {
     }
 }
 
-/// In-process World Chain proof-system proposer task. Aborted on devnet drop.
+/// In-process My Chain proof-system proposer task. Aborted on devnet drop.
 #[derive(Debug)]
 struct ProposerTask {
     handle: JoinHandle<()>,
@@ -328,7 +328,7 @@ impl Drop for ProposerTask {
     }
 }
 
-/// In-process World Chain proof-system challenger task. Aborted on devnet drop.
+/// In-process My Chain proof-system challenger task. Aborted on devnet drop.
 #[derive(Debug)]
 struct ChallengerTask {
     handle: JoinHandle<()>,
@@ -340,7 +340,7 @@ impl Drop for ChallengerTask {
     }
 }
 
-/// In-process World Chain proof-system defender task. Aborted on devnet drop.
+/// In-process My Chain proof-system defender task. Aborted on devnet drop.
 #[derive(Debug)]
 struct DefenderTask {
     handle: JoinHandle<()>,
@@ -454,7 +454,7 @@ struct OpArtifacts {
 impl FullStackWorldDevnet {
     pub async fn start(
         config: HaSequencerConfig,
-        hardforks: WorldChainHardforkConfig,
+        hardforks: MyChainHardforkConfig,
         port_mode: DevnetPortMode,
         block_time: Duration,
         access_list: bool,
@@ -521,7 +521,7 @@ impl FullStackWorldDevnet {
         let sequencer_plans = (0..sequencer_count)
             .map(|index| plan_sequencer(index, &mut sequencer_port_reservations))
             .collect::<Result<Vec<_>>>()
-            .wrap_err("failed to plan world-chain EL peer mesh")?;
+            .wrap_err("failed to plan my-chain EL peer mesh")?;
         drop(sequencer_port_reservations);
         let trusted_peers = sequencer_plans
             .iter()
@@ -533,7 +533,7 @@ impl FullStackWorldDevnet {
                 .enumerate()
                 .filter_map(|(peer_index, peer)| (peer_index != index).then_some(peer.clone()))
                 .collect::<Vec<_>>();
-            start_world_chain_el(
+            start_my_chain_el(
                 index,
                 &workdir_path,
                 &sequencer_plans[index],
@@ -708,9 +708,9 @@ impl FullStackWorldDevnet {
                 .first()
                 .map(|node| node.rpc_url.clone())
                 .ok_or_else(|| {
-                    eyre!("full-stack devnet has no op-node for the World Chain proposer")
+                    eyre!("full-stack devnet has no op-node for the My Chain proposer")
                 })?;
-            Some(start_world_chain_proposer(&l1_public_rpc, &output_root_rpc, deployment).await?)
+            Some(start_my_chain_proposer(&l1_public_rpc, &output_root_rpc, deployment).await?)
         } else {
             None
         };
@@ -720,9 +720,9 @@ impl FullStackWorldDevnet {
                 .first()
                 .map(|node| node.rpc_url.clone())
                 .ok_or_else(|| {
-                    eyre!("full-stack devnet has no op-node for the World Chain challenger")
+                    eyre!("full-stack devnet has no op-node for the My Chain challenger")
                 })?;
-            Some(start_world_chain_challenger(&l1_public_rpc, &output_root_rpc, deployment).await?)
+            Some(start_my_chain_challenger(&l1_public_rpc, &output_root_rpc, deployment).await?)
         } else {
             None
         };
@@ -735,10 +735,10 @@ impl FullStackWorldDevnet {
                     .first()
                     .map(|node| node.rpc_url.clone())
                     .ok_or_else(|| {
-                        eyre!("full-stack devnet has no op-node for the World Chain defender")
+                        eyre!("full-stack devnet has no op-node for the My Chain defender")
                     })?;
                 Some(
-                    start_world_chain_defender(
+                    start_my_chain_defender(
                         &l1_public_rpc,
                         &output_root_rpc,
                         prover_service_url,
@@ -917,7 +917,7 @@ impl FullStackWorldDevnet {
         }
 
         self._world_defender = Some(
-            start_world_chain_defender(&l1_rpc, &output_root_rpc, &prover_service_url, &deployment)
+            start_my_chain_defender(&l1_rpc, &output_root_rpc, &prover_service_url, &deployment)
                 .await?,
         );
 
@@ -984,7 +984,7 @@ impl FullStackWorldDevnet {
 
 async fn generate_op_artifacts(
     config: &HaSequencerConfig,
-    hardforks: &WorldChainHardforkConfig,
+    hardforks: &MyChainHardforkConfig,
 ) -> Result<OpArtifacts> {
     let workdir = tempfile::Builder::new()
         .prefix("world-devnet-op-")
@@ -1215,7 +1215,7 @@ async fn deploy_world_proof_mocks(
     let mocks: WorldProofMocksDeployment = serde_json::from_value(read_json(&deployment_path)?)
         .wrap_err_with(|| {
             format!(
-                "invalid World Chain proof-mocks deployment JSON at {}",
+                "invalid My Chain proof-mocks deployment JSON at {}",
                 deployment_path.display()
             )
         })?;
@@ -1225,7 +1225,7 @@ async fn deploy_world_proof_mocks(
         tee = %mocks.tee_verifier,
         council = %mocks.security_council,
         bond_token = %mocks.bond_token,
-        "World Chain proof-system test doubles deployed (devnet only)"
+        "My Chain proof-system test doubles deployed (devnet only)"
     );
 
     Ok(mocks)
@@ -1318,7 +1318,7 @@ async fn deploy_world_proof_system(
         .env("TEE_VERIFIER", &mocks.tee_verifier)
         .env("SECURITY_COUNCIL_VERIFIER", &mocks.security_council)
         .env("BOND_TOKEN", &mocks.bond_token)
-        .env("WORLD_CHAIN_L2_CHAIN_ID", DEV_CHAIN_ID.to_string())
+        .env("MY_CHAIN_L2_CHAIN_ID", DEV_CHAIN_ID.to_string())
         .env("ROLLUP_CONFIG_HASH", &rollup_config_hash_hex)
         .env("AGGREGATION_VKEY", DEVNET_AGGREGATION_VKEY.to_string())
         .env(
@@ -1336,7 +1336,7 @@ async fn deploy_world_proof_system(
         l1_rpc_url,
         rollup_config_hash = %rollup_config_hash_hex,
         output = %deployment_path.display(),
-        "deploying World Chain proof-system contracts"
+        "deploying My Chain proof-system contracts"
     );
 
     let output = command
@@ -1371,7 +1371,7 @@ async fn deploy_world_proof_system(
     let deployment: WorldProofSystemDeployment =
         serde_json::from_value(read_json(&deployment_path)?).wrap_err_with(|| {
             format!(
-                "invalid World Chain proof-system deployment JSON at {}",
+                "invalid My Chain proof-system deployment JSON at {}",
                 deployment_path.display()
             )
         })?;
@@ -1384,7 +1384,7 @@ async fn deploy_world_proof_system(
         council = %deployment.security_council,
         bond_token = %deployment.bond_token,
         vault = %deployment.erc20_staking_vault,
-        "World Chain proof-system contracts deployed"
+        "My Chain proof-system contracts deployed"
     );
 
     // `DeployProofSystem` only registers the WIP-1006 implementation on the factory; it never
@@ -1471,7 +1471,7 @@ async fn activate_world_proof_system(
 
     info!(
         anchor = anchor_state_registry,
-        "World Chain proof-system WIP-1006 respected game type activated"
+        "My Chain proof-system WIP-1006 respected game type activated"
     );
 
     Ok(())
@@ -1509,7 +1509,7 @@ async fn fund_world_proof_bond_account(
         .wrap_err("invalid devnet ERC-20 staking-vault address")?;
     let signer: PrivateKeySigner = private_key
         .parse()
-        .wrap_err_with(|| format!("invalid World Chain {role} signing key"))?;
+        .wrap_err_with(|| format!("invalid My Chain {role} signing key"))?;
     let account = signer.address();
     let provider = ProviderBuilder::new()
         .wallet(EthereumWallet::from(signer))
@@ -1525,7 +1525,7 @@ async fn fund_world_proof_bond_account(
         .get_receipt()
         .await?;
     if !mint_receipt.status() {
-        bail!("minting mock bond tokens for the World Chain {role} reverted");
+        bail!("minting mock bond tokens for the My Chain {role} reverted");
     }
     let approval_receipt = mock_bond_token
         .approve(vault_address, amount)
@@ -1534,7 +1534,7 @@ async fn fund_world_proof_bond_account(
         .get_receipt()
         .await?;
     if !approval_receipt.status() {
-        bail!("approving mock bond tokens for the World Chain {role} reverted");
+        bail!("approving mock bond tokens for the My Chain {role} reverted");
     }
     let deposit_receipt = vault
         .deposit(account, amount)
@@ -1543,7 +1543,7 @@ async fn fund_world_proof_bond_account(
         .get_receipt()
         .await?;
     if !deposit_receipt.status() {
-        bail!("depositing mock bond tokens for the World Chain {role} reverted");
+        bail!("depositing mock bond tokens for the My Chain {role} reverted");
     }
     let remaining_allowance = mock_bond_token
         .allowance(account, vault_address)
@@ -1551,11 +1551,11 @@ async fn fund_world_proof_bond_account(
         .await?;
     if !remaining_allowance.is_zero() {
         bail!(
-            "deposit left a bond-token allowance for the World Chain {role}: {remaining_allowance}"
+            "deposit left a bond-token allowance for the My Chain {role}: {remaining_allowance}"
         );
     }
 
-    info!(%role, %account, %vault_address, %amount, "funded World Chain proof-system bond account");
+    info!(%role, %account, %vault_address, %amount, "funded My Chain proof-system bond account");
     Ok(())
 }
 
@@ -1637,23 +1637,23 @@ fn write_l1_genesis(state_path: &Path, output_path: &Path) -> Result<()> {
         .wrap_err("failed to write l1-genesis.json")
 }
 
-/// Returns the address used by the in-process World Chain proof-system challenger.
+/// Returns the address used by the in-process My Chain proof-system challenger.
 fn world_challenger_address() -> Result<Address> {
     let signer: PrivateKeySigner = WORLD_CHALLENGER_PRIVATE_KEY
         .parse()
-        .wrap_err("invalid World Chain challenger signing key")?;
+        .wrap_err("invalid My Chain challenger signing key")?;
     Ok(signer.address())
 }
 
-/// Returns the address used by the in-process World Chain proof-system defender.
+/// Returns the address used by the in-process My Chain proof-system defender.
 fn world_defender_address() -> Result<Address> {
     let signer: PrivateKeySigner = WORLD_DEFENDER_PRIVATE_KEY
         .parse()
-        .wrap_err("invalid World Chain defender signing key")?;
+        .wrap_err("invalid My Chain defender signing key")?;
     Ok(signer.address())
 }
 
-/// Funds the World Chain challenger account in the L1 genesis `alloc` for gas. The account is
+/// Funds the My Chain challenger account in the L1 genesis `alloc` for gas. The account is
 /// dedicated to the challenger, so it is never present in the op-deployer dump.
 fn fund_world_challenger(alloc: &mut Value) -> Result<()> {
     let address = world_challenger_address()?;
@@ -1667,7 +1667,7 @@ fn fund_world_challenger(alloc: &mut Value) -> Result<()> {
     Ok(())
 }
 
-/// Funds the World Chain defender account in the L1 genesis `alloc` so it can
+/// Funds the My Chain defender account in the L1 genesis `alloc` so it can
 /// pay gas for proof-lane submissions.
 fn fund_world_defender(alloc: &mut Value) -> Result<()> {
     let address = world_defender_address()?;
@@ -1684,7 +1684,7 @@ fn fund_world_defender(alloc: &mut Value) -> Result<()> {
 fn patch_l2_hardforks(
     genesis_path: &Path,
     rollup_path: &Path,
-    hardforks: &WorldChainHardforkConfig,
+    hardforks: &MyChainHardforkConfig,
 ) -> Result<()> {
     let mut genesis = read_json(genesis_path)?;
     let mut rollup = read_json(rollup_path)?;
@@ -1699,128 +1699,128 @@ fn patch_l2_hardforks(
     set_time(
         genesis_config,
         "regolithTime",
-        hardforks.is_active(WorldChainHardfork::Regolith),
+        hardforks.is_active(MyChainHardfork::Regolith),
     );
     set_time(
         genesis_config,
         "canyonTime",
-        hardforks.is_active(WorldChainHardfork::Canyon),
+        hardforks.is_active(MyChainHardfork::Canyon),
     );
     set_time(
         genesis_config,
         "ecotoneTime",
-        hardforks.is_active(WorldChainHardfork::Ecotone),
+        hardforks.is_active(MyChainHardfork::Ecotone),
     );
     set_time(
         genesis_config,
         "fjordTime",
-        hardforks.is_active(WorldChainHardfork::Fjord),
+        hardforks.is_active(MyChainHardfork::Fjord),
     );
     set_time(
         genesis_config,
         "graniteTime",
-        hardforks.is_active(WorldChainHardfork::Granite),
+        hardforks.is_active(MyChainHardfork::Granite),
     );
     set_time(
         genesis_config,
         "holoceneTime",
-        hardforks.is_active(WorldChainHardfork::Holocene),
+        hardforks.is_active(MyChainHardfork::Holocene),
     );
     set_time(
         genesis_config,
         "isthmusTime",
-        hardforks.is_active(WorldChainHardfork::Isthmus),
+        hardforks.is_active(MyChainHardfork::Isthmus),
     );
     set_time(
         genesis_config,
         "jovianTime",
-        hardforks.is_active(WorldChainHardfork::Jovian),
+        hardforks.is_active(MyChainHardfork::Jovian),
     );
     set_time(
         genesis_config,
         "karstTime",
-        hardforks.is_active(WorldChainHardfork::Karst),
+        hardforks.is_active(MyChainHardfork::Karst),
     );
     set_time(
         genesis_config,
         "tropoTime",
-        hardforks.is_active(WorldChainHardfork::Tropo),
+        hardforks.is_active(MyChainHardfork::Tropo),
     );
     set_time(
         genesis_config,
         "stratoTime",
-        hardforks.is_active(WorldChainHardfork::Strato),
+        hardforks.is_active(MyChainHardfork::Strato),
     );
     set_time(
         genesis_config,
         "shanghaiTime",
-        hardforks.is_active(WorldChainHardfork::Canyon),
+        hardforks.is_active(MyChainHardfork::Canyon),
     );
     set_time(
         genesis_config,
         "cancunTime",
-        hardforks.is_active(WorldChainHardfork::Ecotone),
+        hardforks.is_active(MyChainHardfork::Ecotone),
     );
     set_time(
         genesis_config,
         "pragueTime",
-        hardforks.is_active(WorldChainHardfork::Isthmus),
+        hardforks.is_active(MyChainHardfork::Isthmus),
     );
 
     set_time(
         rollup_config,
         "regolith_time",
-        hardforks.is_active(WorldChainHardfork::Regolith),
+        hardforks.is_active(MyChainHardfork::Regolith),
     );
     set_time(
         rollup_config,
         "canyon_time",
-        hardforks.is_active(WorldChainHardfork::Canyon),
+        hardforks.is_active(MyChainHardfork::Canyon),
     );
     set_time(
         rollup_config,
         "ecotone_time",
-        hardforks.is_active(WorldChainHardfork::Ecotone),
+        hardforks.is_active(MyChainHardfork::Ecotone),
     );
     set_time(
         rollup_config,
         "fjord_time",
-        hardforks.is_active(WorldChainHardfork::Fjord),
+        hardforks.is_active(MyChainHardfork::Fjord),
     );
     set_time(
         rollup_config,
         "granite_time",
-        hardforks.is_active(WorldChainHardfork::Granite),
+        hardforks.is_active(MyChainHardfork::Granite),
     );
     set_time(
         rollup_config,
         "holocene_time",
-        hardforks.is_active(WorldChainHardfork::Holocene),
+        hardforks.is_active(MyChainHardfork::Holocene),
     );
     set_time(
         rollup_config,
         "isthmus_time",
-        hardforks.is_active(WorldChainHardfork::Isthmus),
+        hardforks.is_active(MyChainHardfork::Isthmus),
     );
     set_time(
         rollup_config,
         "jovian_time",
-        hardforks.is_active(WorldChainHardfork::Jovian),
+        hardforks.is_active(MyChainHardfork::Jovian),
     );
     set_time(
         rollup_config,
         "karst_time",
-        hardforks.is_active(WorldChainHardfork::Karst),
+        hardforks.is_active(MyChainHardfork::Karst),
     );
     set_time(
         rollup_config,
         "tropo_time",
-        hardforks.is_active(WorldChainHardfork::Tropo),
+        hardforks.is_active(MyChainHardfork::Tropo),
     );
     set_time(
         rollup_config,
         "strato_time",
-        hardforks.is_active(WorldChainHardfork::Strato),
+        hardforks.is_active(MyChainHardfork::Strato),
     );
 
     patch_l2_genesis_base_fee_extra_data(&mut genesis, rollup_config, hardforks)?;
@@ -1844,12 +1844,12 @@ fn patch_l2_hardforks(
 fn patch_l2_genesis_base_fee_extra_data(
     genesis: &mut Value,
     rollup_config: &serde_json::Map<String, Value>,
-    hardforks: &WorldChainHardforkConfig,
+    hardforks: &MyChainHardforkConfig,
 ) -> Result<()> {
-    let extra_data = if hardforks.is_active(WorldChainHardfork::Jovian) {
+    let extra_data = if hardforks.is_active(MyChainHardfork::Jovian) {
         encode_jovian_extra_data(B64::ZERO, l2_base_fee_params(rollup_config)?, 0)
             .wrap_err("failed to encode Jovian genesis extraData")?
-    } else if hardforks.is_active(WorldChainHardfork::Holocene) {
+    } else if hardforks.is_active(MyChainHardfork::Holocene) {
         encode_holocene_extra_data(B64::ZERO, l2_base_fee_params(rollup_config)?)
             .wrap_err("failed to encode Holocene genesis extraData")?
     } else {
@@ -1887,7 +1887,7 @@ fn l2_base_fee_params(rollup_config: &serde_json::Map<String, Value>) -> Result<
 fn l2_genesis_hash(genesis: &Value) -> Result<String> {
     let genesis: Genesis = serde_json::from_value(genesis.clone())
         .wrap_err("failed to parse patched L2 genesis for hash derivation")?;
-    let spec = WorldChainSpec::from_genesis(genesis);
+    let spec = MyChainSpec::from_genesis(genesis);
     Ok(format!("{:#x}", spec.genesis_hash()))
 }
 
@@ -1924,7 +1924,7 @@ fn plan_sequencer(_index: usize, reservations: &mut Vec<TcpListener>) -> Result<
     })
 }
 
-async fn start_world_chain_el(
+async fn start_my_chain_el(
     index: usize,
     workdir: &Path,
     plan: &SequencerPlan,
@@ -1933,12 +1933,12 @@ async fn start_world_chain_el(
 ) -> Result<SequencerService> {
     let data_dir = workdir.join(format!("l2data-{index}"));
     fs::create_dir_all(&data_dir).wrap_err("failed to create L2 data dir")?;
-    let binary = world_chain_binary()?;
+    let binary = my_chain_binary()?;
     let genesis = workdir.join("genesis.json");
     let jwt = workdir.join("jwt.hex");
 
     run_native_command(
-        &format!("world-chain init sequencer {index}"),
+        &format!("my-chain init sequencer {index}"),
         &binary,
         &[
             "init".into(),
@@ -2035,7 +2035,7 @@ async fn start_world_chain_el(
         "200".to_string(),
         "--flashblocks.recommit-interval".to_string(),
         "20".to_string(),
-        "--worldchain.disable-bootnodes".to_string(),
+        "--mychain.disable-bootnodes".to_string(),
         "--log.stdout.format".to_string(),
         "log-fmt".to_string(),
         "-vvv".to_string(),
@@ -2044,8 +2044,8 @@ async fn start_world_chain_el(
         args.push("--flashblocks.access-list".to_string());
     }
 
-    let mut process = spawn_native_process(&format!("world-chain-el-{index}"), &binary, &args)
-        .wrap_err_with(|| format!("failed to spawn native world-chain EL process {index}"))?;
+    let mut process = spawn_native_process(&format!("my-chain-el-{index}"), &binary, &args)
+        .wrap_err_with(|| format!("failed to spawn native my-chain EL process {index}"))?;
 
     let rpc_url = format!("http://127.0.0.1:{rpc_port}");
     let ws_url = format!("ws://127.0.0.1:{ws_port}");
@@ -2055,7 +2055,7 @@ async fn start_world_chain_el(
         .await
         .wrap_err_with(|| {
             let status = process.child.try_wait().ok().flatten();
-            format!("world-chain EL {index} RPC did not become ready; process_status={status:?}")
+            format!("my-chain EL {index} RPC did not become ready; process_status={status:?}")
         })?;
 
     info!(
@@ -2065,18 +2065,18 @@ async fn start_world_chain_el(
         p2p = %format!("127.0.0.1:{p2p_port}"),
         metrics = %format!("127.0.0.1:{metrics_port}"),
         binary = %binary.display(),
-        "native world-chain EL started"
+        "native my-chain EL started"
     );
 
     Ok(SequencerService {
-        id: format!("world-chain-el-{index}"),
+        id: format!("my-chain-el-{index}"),
         rpc_url,
         ws_url,
         auth_url,
         flashblocks_url: format!("ws://127.0.0.1:{ws_port}"),
         p2p_host_port: p2p_port,
         metrics_target: MetricsTarget::new(
-            format!("world-chain-el-{index}"),
+            format!("my-chain-el-{index}"),
             format!("host.docker.internal:{metrics_port}"),
         ),
         binary,
@@ -2123,7 +2123,7 @@ async fn connect_execution_peers(sequencers: &[SequencerService]) -> Result<()> 
     let min_total_peer_connections = sequencers.len().saturating_sub(1) as u64 * 2;
     info!(
         nodes = sequencers.len(),
-        min_peers_per_node, min_total_peer_connections, "waiting for world-chain EL peer graph"
+        min_peers_per_node, min_total_peer_connections, "waiting for my-chain EL peer graph"
     );
     let counts = retry_until(Duration::from_secs(120), Duration::from_millis(500), || async {
         redial_execution_peers(sequencers, &enodes).await;
@@ -2147,7 +2147,7 @@ async fn connect_execution_peers(sequencers: &[SequencerService]) -> Result<()> 
     info!(
         count = sequencers.len(),
         peer_counts = %peer_counts_summary(&counts),
-        "world-chain EL trusted peer graph connected"
+        "my-chain EL trusted peer graph connected"
     );
     Ok(())
 }
@@ -2968,12 +2968,12 @@ async fn start_challenger(
     .await
 }
 
-/// Spawns the in-process World Chain proof-system proposer.
+/// Spawns the in-process My Chain proof-system proposer.
 ///
 /// The proposer signs with the dev proposer key (Anvil account #1), funded via
 /// `fundDevAccounts`. Output roots are read from the op-node rollup RPC and
 /// proposals are created through the factory, which locks tokens from the proposer's vault balance.
-async fn start_world_chain_proposer(
+async fn start_my_chain_proposer(
     l1_rpc_url: &str,
     output_root_rpc_url: &str,
     deployment: &WorldProofSystemDeployment,
@@ -2984,7 +2984,7 @@ async fn start_world_chain_proposer(
         .wrap_err("invalid proof-system factory address")?;
     let signer: PrivateKeySigner = DEVNET_PRIVATE_KEY
         .parse()
-        .wrap_err("invalid World Chain proposer signing key")?;
+        .wrap_err("invalid My Chain proposer signing key")?;
     let proposer_address = signer.address();
     let provider = ProviderBuilder::new()
         .wallet(EthereumWallet::from(signer))
@@ -2995,10 +2995,10 @@ async fn start_world_chain_proposer(
         provider,
         factory_address,
         required_confirmations,
-        Duration::from_secs(world_chain_proof_protocol::DEFAULT_L1_TX_RECEIPT_TIMEOUT_SECONDS),
+        Duration::from_secs(my_chain_proof_protocol::DEFAULT_L1_TX_RECEIPT_TIMEOUT_SECONDS),
     )
     .await
-    .wrap_err("failed to bind the World Chain proof system")?;
+    .wrap_err("failed to bind the My Chain proof system")?;
     let mut bond_manager = BondManager::new(
         BondManagerConfig {
             poll_interval: WORLD_PROPOSER_POLL_INTERVAL,
@@ -3012,7 +3012,7 @@ async fn start_world_chain_proposer(
         poll_interval: WORLD_PROPOSER_POLL_INTERVAL,
         max_resolutions_per_tick: ProposerConfig::default().max_resolutions_per_tick,
     };
-    let proposer = WorldChainProposer::new(config, contracts, output_roots);
+    let proposer = MyChainProposer::new(config, contracts, output_roots);
 
     info!(
         l1_rpc_url,
@@ -3022,7 +3022,7 @@ async fn start_world_chain_proposer(
         proposer = %proposer_address,
         domain_hash = %registered.domain_hash,
         block_interval = registered.block_interval,
-        "starting native World Chain proof-system proposer"
+        "starting native My Chain proof-system proposer"
     );
 
     let handle = tokio::spawn(
@@ -3030,32 +3030,32 @@ async fn start_world_chain_proposer(
             tokio::select! {
                 result = proposer.run_forever() => {
                     if let Err(error) = result {
-                        warn!(%error, "World Chain proof-system proposer stopped");
+                        warn!(%error, "My Chain proof-system proposer stopped");
                     }
                 }
                 result = bond_manager.run_forever() => {
                     if let Err(error) = result {
-                        warn!(%error, "World Chain bond manager stopped");
+                        warn!(%error, "My Chain bond manager stopped");
                     }
                 }
             }
         }
         .instrument(info_span!(
-            "world-chain-proposer",
-            process = "world-chain-proposer"
+            "my-chain-proposer",
+            process = "my-chain-proposer"
         )),
     );
 
     Ok(ProposerTask { handle })
 }
 
-/// Spawns the in-process World Chain proof-system challenger.
+/// Spawns the in-process My Chain proof-system challenger.
 ///
 /// The challenger signs with [`WORLD_CHALLENGER_PRIVATE_KEY`], a dedicated dev
 /// account funded with L1 gas and a bond-token vault balance. It scans indexed factory games, recomputes the expected
 /// output root from the op-node rollup RPC, and challenges any game whose
 /// `rootClaim` disagrees by calling `MultiProofGame.challenge` on L1.
-async fn start_world_chain_challenger(
+async fn start_my_chain_challenger(
     l1_rpc_url: &str,
     output_root_rpc_url: &str,
     deployment: &WorldProofSystemDeployment,
@@ -3066,7 +3066,7 @@ async fn start_world_chain_challenger(
         .wrap_err("invalid proof-system factory address")?;
     let signer: PrivateKeySigner = WORLD_CHALLENGER_PRIVATE_KEY
         .parse()
-        .wrap_err("invalid World Chain challenger signing key")?;
+        .wrap_err("invalid My Chain challenger signing key")?;
     let challenger_address = signer.address();
     let provider = ProviderBuilder::new()
         .wallet(EthereumWallet::from(signer))
@@ -3076,17 +3076,17 @@ async fn start_world_chain_challenger(
         provider,
         factory_address,
         DEFAULT_L1_TX_CONFIRMATIONS,
-        Duration::from_secs(world_chain_proof_protocol::DEFAULT_L1_TX_RECEIPT_TIMEOUT_SECONDS),
+        Duration::from_secs(my_chain_proof_protocol::DEFAULT_L1_TX_RECEIPT_TIMEOUT_SECONDS),
     )
     .await
-    .wrap_err("failed to bind the World Chain proof system")?;
+    .wrap_err("failed to bind the My Chain proof system")?;
     let output_roots = OptimismConsensusClient::new(output_root_rpc_url.to_string());
     let config = ChallengerConfig {
         poll_interval: WORLD_CHALLENGER_POLL_INTERVAL,
         ..ChallengerConfig::default()
     };
     let owned_games = OwnedGames::default();
-    let mut challenger = WorldChainChallenger::with_owned_games(
+    let mut challenger = MyChainChallenger::with_owned_games(
         config,
         client.clone(),
         output_roots,
@@ -3112,7 +3112,7 @@ async fn start_world_chain_challenger(
         dispute_game_factory = %deployment.proof_system_factory,
         anchor = %deployment.anchor_state_registry,
         challenger = %challenger_address,
-        "starting native World Chain proof-system challenger"
+        "starting native My Chain proof-system challenger"
     );
 
     let handle = tokio::spawn(
@@ -3120,37 +3120,37 @@ async fn start_world_chain_challenger(
             tokio::select! {
                 result = challenger.run_forever() => {
                     if let Err(error) = result {
-                        warn!(%error, "World Chain proof-system challenger stopped");
+                        warn!(%error, "My Chain proof-system challenger stopped");
                     }
                 }
                 result = resolution_manager.run_forever() => {
                     if let Err(error) = result {
-                        warn!(%error, "World Chain challenger resolution manager stopped");
+                        warn!(%error, "My Chain challenger resolution manager stopped");
                     }
                 }
                 result = bond_manager.run_forever() => {
                     if let Err(error) = result {
-                        warn!(%error, "World Chain challenger bond manager stopped");
+                        warn!(%error, "My Chain challenger bond manager stopped");
                     }
                 }
             }
         }
         .instrument(info_span!(
-            "world-chain-challenger",
-            process = "world-chain-challenger"
+            "my-chain-challenger",
+            process = "my-chain-challenger"
         )),
     );
 
     Ok(ChallengerTask { handle })
 }
 
-/// Spawns the in-process World Chain proof-system defender.
+/// Spawns the in-process My Chain proof-system defender.
 ///
 /// The defender signs with [`WORLD_DEFENDER_PRIVATE_KEY`], a dedicated dev
 /// account that is funded through the L1 genesis. It supplies the initial TEE
 /// proof for valid WIP-1006 games, escalates challenged games to the configured
 /// threshold, and follows the lineage selected from the current anchor.
-async fn start_world_chain_defender(
+async fn start_my_chain_defender(
     l1_rpc_url: &str,
     output_root_rpc_url: &str,
     prover_service_url: &str,
@@ -3163,7 +3163,7 @@ async fn start_world_chain_defender(
 
     let signer: PrivateKeySigner = WORLD_DEFENDER_PRIVATE_KEY
         .parse()
-        .wrap_err("invalid World Chain defender signing key")?;
+        .wrap_err("invalid My Chain defender signing key")?;
     let defender_address = signer.address();
     let provider = ProviderBuilder::new()
         .wallet(EthereumWallet::from(signer))
@@ -3173,7 +3173,7 @@ async fn start_world_chain_defender(
         provider,
         factory_address,
         DEFAULT_DEFENDER_L1_TX_CONFIRMATIONS,
-        Duration::from_secs(world_chain_proof_protocol::DEFAULT_L1_TX_RECEIPT_TIMEOUT_SECONDS),
+        Duration::from_secs(my_chain_proof_protocol::DEFAULT_L1_TX_RECEIPT_TIMEOUT_SECONDS),
         defender_address,
     )
     .await
@@ -3185,7 +3185,7 @@ async fn start_world_chain_defender(
         poll_interval: WORLD_DEFENDER_POLL_INTERVAL,
         ..DefenderConfig::default()
     };
-    let mut defender = WorldChainDefender::new(config, client, output_roots, proof_requester);
+    let mut defender = MyChainDefender::new(config, client, output_roots, proof_requester);
 
     info!(
         l1_rpc_url,
@@ -3193,18 +3193,18 @@ async fn start_world_chain_defender(
         prover_service = %prover_service_url,
         dispute_game_factory = %deployment.proof_system_factory,
         defender = %defender_address,
-        "starting native World Chain proof-system defender"
+        "starting native My Chain proof-system defender"
     );
 
     let handle = tokio::spawn(
         async move {
             if let Err(error) = defender.run_forever().await {
-                warn!(%error, "World Chain proof-system defender stopped");
+                warn!(%error, "My Chain proof-system defender stopped");
             }
         }
         .instrument(info_span!(
-            "world-chain-defender",
-            process = "world-chain-defender"
+            "my-chain-defender",
+            process = "my-chain-defender"
         )),
     );
 
@@ -3265,7 +3265,7 @@ async fn prover_service_database_url() -> Result<(
     }
 
     let data_dir = tempfile::Builder::new()
-        .prefix("world-chain-prover-service-postgres-")
+        .prefix("my-chain-prover-service-postgres-")
         .tempdir()
         .wrap_err("failed to create prover-service postgres tempdir")?;
     let data_dir_path = data_dir.path().to_string_lossy().to_string();
@@ -3333,8 +3333,8 @@ fn start_devnet_nitro_worker(prover_service_url: &str) -> Result<NitroWorkerTask
 /// - `AGG_ELF_PATH` — path to the compiled SP1 aggregation program ELF.
 ///
 /// These must be set before enabling `DEVNET_SP1_WORKER_PROVER`. The standalone
-/// `world-chain-proof-sp1-worker` binary embeds ELFs at **compile time** (via
-/// `world_chain_proof_sp1_elfs`) and does not require these variables.
+/// `my-chain-proof-sp1-worker` binary embeds ELFs at **compile time** (via
+/// `my_chain_proof_sp1_elfs`) and does not require these variables.
 async fn start_sp1_worker(
     l1_rpc_url: &str,
     l2_rpc_url: &str,
@@ -3597,10 +3597,10 @@ async fn run_native_command(label: &str, binary: &Path, args: &[String]) -> Resu
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
     if !stdout.trim().is_empty() {
-        emit_command_logs(label, ProcessLogTarget::WorldChainEl, &stdout);
+        emit_command_logs(label, ProcessLogTarget::MyChainEl, &stdout);
     }
     if !stderr.trim().is_empty() {
-        emit_command_logs(label, ProcessLogTarget::WorldChainEl, &stderr);
+        emit_command_logs(label, ProcessLogTarget::MyChainEl, &stderr);
     }
     if !output.status.success() {
         bail!(
@@ -3638,7 +3638,7 @@ fn spawn_native_process(id: &str, binary: &Path, args: &[String]) -> Result<Nati
     if let Some(stdout) = child.stdout.take() {
         log_tasks.push(tokio::spawn(log_process_stream(
             id.to_string(),
-            ProcessLogTarget::WorldChainEl,
+            ProcessLogTarget::MyChainEl,
             "stdout",
             stdout,
         )));
@@ -3646,7 +3646,7 @@ fn spawn_native_process(id: &str, binary: &Path, args: &[String]) -> Result<Nati
     if let Some(stderr) = child.stderr.take() {
         log_tasks.push(tokio::spawn(log_process_stream(
             id.to_string(),
-            ProcessLogTarget::WorldChainEl,
+            ProcessLogTarget::MyChainEl,
             "stderr",
             stderr,
         )));
@@ -3730,7 +3730,7 @@ fn build_components(
         components.push(
             DevnetComponent::new(
                 service.id.clone(),
-                DevnetComponentKind::WorldChainExecutionNode,
+                DevnetComponentKind::MyChainExecutionNode,
                 DevnetComponentStatus::Running,
             )
             .with_endpoint("rpc", service.rpc_url.clone())
@@ -3738,7 +3738,7 @@ fn build_components(
             .with_endpoint("engine", service.auth_url.clone())
             .with_endpoint("p2p", format!("127.0.0.1:{}", service.p2p_host_port))
             .with_note(
-                "native direct-sequencing World Chain execution node with flashblocks enabled and trusted EL peers",
+                "native direct-sequencing My Chain execution node with flashblocks enabled and trusted EL peers",
             )
             .with_note(format!(
                 "PBH disabled with zero reserved blockspace and sentinel entrypoint {PBH_DISABLED_ENTRYPOINT}"
@@ -3749,7 +3749,7 @@ fn build_components(
             DevnetComponent::new(
                 format!(
                     "flashblocks-{}",
-                    service.id.trim_start_matches("world-chain-el-")
+                    service.id.trim_start_matches("my-chain-el-")
                 ),
                 DevnetComponentKind::Flashblocks,
                 DevnetComponentStatus::Running,
@@ -3849,8 +3849,8 @@ fn build_components(
         );
         components.push(
             DevnetComponent::new(
-                "world-chain-proposer",
-                DevnetComponentKind::WorldChainProposer,
+                "my-chain-proposer",
+                DevnetComponentKind::MyChainProposer,
                 DevnetComponentStatus::Running,
             )
             .with_endpoint("dispute-game-factory", deployment.proof_system_factory.clone())
@@ -3862,8 +3862,8 @@ fn build_components(
         );
         components.push(
             DevnetComponent::new(
-                "world-chain-challenger",
-                DevnetComponentKind::WorldChainChallenger,
+                "my-chain-challenger",
+                DevnetComponentKind::MyChainChallenger,
                 DevnetComponentStatus::Running,
             )
             .with_endpoint(
@@ -3878,8 +3878,8 @@ fn build_components(
     if let (Some(url), Some(deployment)) = (prover_service_url, proof_system) {
         components.push(
             DevnetComponent::new(
-                "world-chain-defender",
-                DevnetComponentKind::WorldChainDefender,
+                "my-chain-defender",
+                DevnetComponentKind::MyChainDefender,
                 DevnetComponentStatus::Running,
             )
             .with_endpoint("factory", deployment.proof_system_factory.clone())
@@ -4176,22 +4176,22 @@ fn reserve_host_port(reservations: &mut Vec<TcpListener>) -> Result<u16> {
     Ok(port)
 }
 
-fn world_chain_binary() -> Result<PathBuf> {
-    if let Ok(path) = std::env::var("WORLD_CHAIN_BIN") {
+fn my_chain_binary() -> Result<PathBuf> {
+    if let Ok(path) = std::env::var("MY_CHAIN_BIN") {
         let path = PathBuf::from(path);
         if path.is_file() {
             return Ok(path);
         }
         bail!(
-            "WORLD_CHAIN_BIN points to {}, but that file does not exist",
+            "MY_CHAIN_BIN points to {}, but that file does not exist",
             path.display()
         );
     }
 
     let bin_name = if cfg!(windows) {
-        "world-chain.exe"
+        "my-chain.exe"
     } else {
-        "world-chain"
+        "my-chain"
     };
     let current_exe =
         std::env::current_exe().wrap_err("failed to locate current executable path")?;
@@ -4220,7 +4220,7 @@ fn world_chain_binary() -> Result<PathBuf> {
     }
 
     bail!(
-        "failed to find native world-chain binary; run `cargo build -p world-chain` or set WORLD_CHAIN_BIN"
+        "failed to find native my-chain binary; run `cargo build -p my-chain` or set MY_CHAIN_BIN"
     );
 }
 
@@ -4289,7 +4289,7 @@ mod tests {
                 "eip1559Elasticity": 10
             }
         });
-        let hardforks = WorldChainHardforkConfig::through(WorldChainHardfork::Karst);
+        let hardforks = MyChainHardforkConfig::through(MyChainHardfork::Karst);
 
         patch_l2_genesis_base_fee_extra_data(&mut genesis, rollup.as_object().unwrap(), &hardforks)
             .unwrap();

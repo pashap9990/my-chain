@@ -23,15 +23,15 @@ const DEFAULT_DEPOSIT_TIMEOUT_SECS: u64 = 300;
 const DEFAULT_DEPOSIT_POLL_INTERVAL_MS: u64 = 2_000;
 const DEFAULT_DEPOSIT_VALUE_WEI: &str = "0";
 const DEFAULT_DEPOSIT_MAX_L1_GAS: u64 = 20_000_000;
-const WORLD_CHAIN_ACCEPTANCE_DEVNET_CHAIN_ID: u64 = 69420;
+const MY_CHAIN_ACCEPTANCE_DEVNET_CHAIN_ID: u64 = 69420;
 // Public Anvil test key used as the default acceptance-test sender.
 const FALLBACK_L2_PRIVATE_KEY: &str =
     "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-const WORLD_CHAIN_DEVNET_SAFE_4337_MODULE: Address =
+const MY_CHAIN_DEVNET_SAFE_4337_MODULE: Address =
     address!("70673A08a5B1086585d39979Fb2d84FDC0bB6Aaf");
-const WORLD_CHAIN_DEVNET_SAFE_4337_WALLET_DEPLOYER: Address =
+const MY_CHAIN_DEVNET_SAFE_4337_WALLET_DEPLOYER: Address =
     address!("d1f0B51940DbD6e73891D2a41Ef14483fDC5Cb6e");
-const WORLD_CHAIN_DEVNET_ENTRY_POINT_V0_7: Address =
+const MY_CHAIN_DEVNET_ENTRY_POINT_V0_7: Address =
     address!("0000000071727De22E5E9d8BAf0edAc6f37da032");
 
 struct UserOperationProfileDefaults {
@@ -252,17 +252,17 @@ fn bundler_config_from_env(
         entry_point: parse_optional_address(
             "ACCEPTANCE_4337_ENTRY_POINT",
             expected_chain_id,
-            WORLD_CHAIN_DEVNET_ENTRY_POINT_V0_7,
+            MY_CHAIN_DEVNET_ENTRY_POINT_V0_7,
         )?,
         module: parse_optional_address(
             "ACCEPTANCE_4337_MODULE",
             expected_chain_id,
-            WORLD_CHAIN_DEVNET_SAFE_4337_MODULE,
+            MY_CHAIN_DEVNET_SAFE_4337_MODULE,
         )?,
         wallet_deployer: parse_optional_address(
             "ACCEPTANCE_4337_WALLET_DEPLOYER",
             expected_chain_id,
-            WORLD_CHAIN_DEVNET_SAFE_4337_WALLET_DEPLOYER,
+            MY_CHAIN_DEVNET_SAFE_4337_WALLET_DEPLOYER,
         )?,
         wallet_count: parse_optional_profiled_value(
             "ACCEPTANCE_4337_WALLET_COUNT",
@@ -375,14 +375,14 @@ fn user_operation_profile_from_env() -> eyre::Result<Option<UserOperationProfile
 fn parse_optional_address(
     name: &str,
     expected_chain_id: u64,
-    world_chain_devnet_default: Address,
+    my_chain_devnet_default: Address,
 ) -> eyre::Result<Address> {
     if let Some(value) = optional_env(name) {
         return parse_value(name, &value);
     }
 
-    if expected_chain_id == WORLD_CHAIN_ACCEPTANCE_DEVNET_CHAIN_ID {
-        return Ok(world_chain_devnet_default);
+    if expected_chain_id == MY_CHAIN_ACCEPTANCE_DEVNET_CHAIN_ID {
+        return Ok(my_chain_devnet_default);
     }
 
     bail!("{name} is required when ACCEPTANCE_BUNDLER_RPC_URL is set outside chain 69420")

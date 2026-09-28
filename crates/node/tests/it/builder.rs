@@ -2,19 +2,19 @@ use reth_db::test_utils::create_test_rw_db;
 use reth_node_api::{FullNodeComponents, NodeTypesWithDBAdapter};
 use reth_node_builder::{NodeBuilder, NodeConfig};
 use reth_provider::providers::BlockchainProvider;
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_node::{context::WorldChainDefaultContext, node::WorldChainNode};
-use world_chain_test_utils::node::test_config;
+use my_chain_chainspec::MyChainSpec;
+use my_chain_node::{context::MyChainDefaultContext, node::MyChainNode};
+use my_chain_test_utils::node::test_config;
 
 #[tokio::test]
 async fn test_basic_flashblocks_setup() {
     // parse CLI -> config
-    let config = NodeConfig::new(WorldChainSpec::mainnet());
+    let config = NodeConfig::new(MyChainSpec::mainnet());
     let db = create_test_rw_db();
-    let node = WorldChainNode::<WorldChainDefaultContext>::new(test_config());
+    let node = MyChainNode::<MyChainDefaultContext>::new(test_config());
     let _builder = NodeBuilder::new(config)
         .with_database(db)
-        .with_types_and_provider::<WorldChainNode<WorldChainDefaultContext>, BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<WorldChainDefaultContext>, _>>>()
+        .with_types_and_provider::<MyChainNode<MyChainDefaultContext>, BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<MyChainDefaultContext>, _>>>()
         .with_components(node.components())
         .with_add_ons(node.add_ons())
         .on_component_initialized(move |ctx| {

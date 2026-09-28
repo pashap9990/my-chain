@@ -22,13 +22,13 @@ use revm_primitives::{Address, B256, Bytes, U256};
 use std::{pin::Pin, sync::Arc, time::Duration};
 use tokio::sync::mpsc;
 use tracing::{error, info};
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_primitives::{
+use my_chain_chainspec::MyChainSpec;
+use my_chain_primitives::{
     flashblocks::{Flashblock, Flashblocks},
     p2p::Authorization,
     primitives::FlashblocksPayloadV1,
 };
-use world_chain_rpc::{engine::FlashblocksEngineApiExtClient, op::OpApiExtClient};
+use my_chain_rpc::{engine::FlashblocksEngineApiExtClient, op::OpApiExtClient};
 
 use super::setup::execution_data_from_from_reduced_flashblock;
 
@@ -352,7 +352,7 @@ pub struct FlashblocksValidatonStream {
     pub flashblocks_stream:
         Pin<Box<dyn Stream<Item = FlashblocksPayloadV1> + Unpin + Send + Sync + 'static>>,
     pub validation_hook: Option<Hook<PayloadStatusEnum>>,
-    pub chain_spec: Arc<WorldChainSpec>,
+    pub chain_spec: Arc<MyChainSpec>,
 }
 
 impl Action<OpEngineTypes> for FlashblocksValidatonStream {
@@ -1522,9 +1522,9 @@ where
 // StreamAssertion — assertion-driven event stream validation
 // ---------------------------------------------------------------------------
 
-use world_chain_p2p::protocol::event::{ChainEvent, WorldChainEvent};
+use my_chain_p2p::protocol::event::{ChainEvent, MyChainEvent};
 
-/// Pre-computed assertion on a [`WorldChainEvent`] from the event stream.
+/// Pre-computed assertion on a [`MyChainEvent`] from the event stream.
 #[derive(Debug, Clone)]
 pub enum StreamAssertion {
     /// Expect a Canon event. Optionally assert the block number.
@@ -1568,7 +1568,7 @@ pub async fn assert_stream<S>(
     timeout: Duration,
 ) -> StreamAssertionResult
 where
-    S: futures::Stream<Item = WorldChainEvent<()>> + Unpin + Send,
+    S: futures::Stream<Item = MyChainEvent<()>> + Unpin + Send,
 {
     let mut passed = 0usize;
     let mut failures = Vec::new();
@@ -1599,7 +1599,7 @@ where
 
         match (&event, assertion) {
             // Canon matches Canon assertion
-            (WorldChainEvent::Chain(ChainEvent::Canon(tip)), StreamAssertion::Canon { number }) => {
+            (MyChainEvent::Chain(ChainEvent::Canon(tip)), StreamAssertion::Canon { number }) => {
                 if let Some(expected) = number
                     && tip.number != *expected
                 {
@@ -1613,7 +1613,7 @@ where
             }
             // Pending matches Pending assertion with correct index
             (
-                WorldChainEvent::Chain(ChainEvent::Pending(fb)),
+                MyChainEvent::Chain(ChainEvent::Pending(fb)),
                 StreamAssertion::Pending { index, is_base },
             ) if fb.index == *index => {
                 if fb.base.is_some() != *is_base {

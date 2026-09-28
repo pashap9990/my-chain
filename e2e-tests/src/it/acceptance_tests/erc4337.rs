@@ -20,7 +20,7 @@ use eyre::eyre::{Context, OptionExt, bail, ensure};
 use futures::{StreamExt, TryStreamExt, stream};
 use tokio::time::{Instant, sleep, timeout};
 use tracing::{info, warn};
-use world_chain_test_utils::utils::signer;
+use my_chain_test_utils::utils::signer;
 
 use super::{
     config::BundlerConfig,

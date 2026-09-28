@@ -6,7 +6,7 @@ use std::{
 
 use alloy_primitives::{Address, B256, BlockNumber, address, b256};
 use async_trait::async_trait;
-use world_chain_proof_protocol::{
+use my_chain_proof_protocol::{
     ConsensusError, ConsensusProvider, GameStatus, InvalidationReason, LineageAnchor, LineageError,
     LineageGame, LineageProvider, LineageTransition, ProposalCommitment, ResolutionStatus,
     SelectedLineageGame,
@@ -14,7 +14,7 @@ use world_chain_proof_protocol::{
 
 use crate::{
     BondManager, BondManagerClient, BondManagerConfig, Proposal, ProposalSubmission,
-    ProposerClient, ProposerConfig, ProposerError, ProposerScan, WorldChainProposer,
+    ProposerClient, ProposerConfig, ProposerError, ProposerScan, MyChainProposer,
     types::{CloseGameSubmission, NextProposalAction, ResolveSubmission},
 };
 
@@ -414,7 +414,7 @@ fn config() -> ProposerConfig {
 }
 
 async fn advance_proposal(
-    proposer: &WorldChainProposer<MockContracts, MockOutputRoots>,
+    proposer: &MyChainProposer<MockContracts, MockOutputRoots>,
     scan: &ProposerScan,
 ) -> Result<(), ProposerError> {
     proposer.submit_next_proposal(scan).await
@@ -520,7 +520,7 @@ async fn scan_selected_lineage_walks_existing_games_until_gap() {
         roots: HashMap::from([(10, root_10), (20, root_20)]),
         finalized_l2_block: 20,
     };
-    let proposer = WorldChainProposer::new(config(), contracts, output_roots);
+    let proposer = MyChainProposer::new(config(), contracts, output_roots);
 
     let scan = proposer.scan_selected_lineage().await.unwrap();
 
@@ -546,7 +546,7 @@ async fn propose_submits_proposal_after_last_canonical_game() {
         roots: HashMap::from([(10, B256::repeat_byte(0x10))]),
         finalized_l2_block: 10,
     };
-    let proposer = WorldChainProposer::new(config(), contracts, output_roots);
+    let proposer = MyChainProposer::new(config(), contracts, output_roots);
     let scan = proposer.scan_selected_lineage().await.unwrap();
 
     advance_proposal(&proposer, &scan).await.unwrap();
@@ -579,7 +579,7 @@ async fn proposer_catches_up_one_missing_interval_per_tick() {
         ]),
         finalized_l2_block: 30,
     };
-    let proposer = WorldChainProposer::new(config(), contracts, output_roots);
+    let proposer = MyChainProposer::new(config(), contracts, output_roots);
 
     for expected_block in [10, 20, 30] {
         let scan = proposer.scan_selected_lineage().await.unwrap();
@@ -628,7 +628,7 @@ async fn propose_can_retry_a_failed_submission() {
         roots: HashMap::from([(10, B256::repeat_byte(0x10))]),
         finalized_l2_block: 10,
     };
-    let proposer = WorldChainProposer::new(config(), contracts, output_roots);
+    let proposer = MyChainProposer::new(config(), contracts, output_roots);
     let scan = proposer.scan_selected_lineage().await.unwrap();
 
     assert!(matches!(
@@ -662,7 +662,7 @@ async fn proposer_resolves_the_selected_negative_game() {
         submission_failures: Arc::default(),
         unfinalized_games: Arc::default(),
     };
-    let proposer = WorldChainProposer::new(
+    let proposer = MyChainProposer::new(
         config(),
         contracts,
         MockOutputRoots {
@@ -700,7 +700,7 @@ async fn scan_selected_lineage_stops_at_finalized_l2_block() {
         roots: HashMap::from([(10, B256::repeat_byte(0x10))]),
         finalized_l2_block: 9,
     };
-    let proposer = WorldChainProposer::new(config(), contracts, output_roots);
+    let proposer = MyChainProposer::new(config(), contracts, output_roots);
 
     let scan = proposer.scan_selected_lineage().await.unwrap();
 
@@ -736,7 +736,7 @@ async fn resolve_games_caps_submissions_and_keeps_scanning_resolved_games() {
         submission_failures: Arc::default(),
         unfinalized_games: Arc::default(),
     };
-    let proposer = WorldChainProposer::new(
+    let proposer = MyChainProposer::new(
         ProposerConfig {
             max_resolutions_per_tick: 2,
             ..config()
@@ -807,7 +807,7 @@ async fn advance_anchor_skips_newer_game_that_is_not_yet_valid() {
         submission_failures: Arc::default(),
         unfinalized_games: Arc::new(Mutex::new(HashSet::from([game_3]))),
     };
-    let proposer = WorldChainProposer::new(
+    let proposer = MyChainProposer::new(
         config(),
         contracts,
         MockOutputRoots {
@@ -854,7 +854,7 @@ async fn resolved_games_do_not_consume_resolution_budget() {
         submission_failures: Arc::default(),
         unfinalized_games: Arc::default(),
     };
-    let proposer = WorldChainProposer::new(
+    let proposer = MyChainProposer::new(
         config(),
         contracts,
         MockOutputRoots {
@@ -889,7 +889,7 @@ async fn zero_resolution_budget_is_rejected() {
         submission_failures: Arc::default(),
         unfinalized_games: Arc::default(),
     };
-    let proposer = WorldChainProposer::new(
+    let proposer = MyChainProposer::new(
         ProposerConfig {
             max_resolutions_per_tick: 0,
             ..config()
@@ -1385,7 +1385,7 @@ async fn proposer_retries_parent_gated_timeout_and_skips_old_descendants() {
         submission_failures: Arc::default(),
         unfinalized_games: Arc::default(),
     };
-    let proposer = WorldChainProposer::new(
+    let proposer = MyChainProposer::new(
         config(),
         contracts.clone(),
         MockOutputRoots {
@@ -1440,7 +1440,7 @@ async fn timed_out_game_retries_after_its_parent_becomes_the_anchor() {
         submission_failures: Arc::default(),
         unfinalized_games: Arc::default(),
     };
-    let proposer = WorldChainProposer::new(
+    let proposer = MyChainProposer::new(
         config(),
         contracts,
         MockOutputRoots {
@@ -1483,7 +1483,7 @@ async fn timed_out_game_bumps_attempt_while_its_parent_is_still_acceptable() {
         submission_failures: Arc::default(),
         unfinalized_games: Arc::default(),
     };
-    let proposer = WorldChainProposer::new(
+    let proposer = MyChainProposer::new(
         config(),
         contracts,
         MockOutputRoots {

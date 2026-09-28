@@ -11,11 +11,11 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 use tracing::{info, warn};
-use world_chain_proof_protocol::ConsensusProvider;
+use my_chain_proof_protocol::ConsensusProvider;
 
-/// World Chain output-root challenger.
+/// My Chain output-root challenger.
 #[derive(Debug)]
-pub struct WorldChainChallenger<E, C> {
+pub struct MyChainChallenger<E, C> {
     config: ChallengerConfig,
     execution_provider: E,
     consensus_provider: C,
@@ -24,7 +24,7 @@ pub struct WorldChainChallenger<E, C> {
     owned_games: OwnedGames,
 }
 
-impl<E, C> WorldChainChallenger<E, C> {
+impl<E, C> MyChainChallenger<E, C> {
     /// Creates a challenger with a private owned-game registry.
     pub fn new(config: ChallengerConfig, execution_provider: E, consensus_provider: C) -> Self {
         Self::with_owned_games(
@@ -83,7 +83,7 @@ impl<E, C> WorldChainChallenger<E, C> {
     }
 }
 
-impl<E, C> WorldChainChallenger<E, C>
+impl<E, C> MyChainChallenger<E, C>
 where
     E: ChallengerClient,
     C: ConsensusProvider,
@@ -223,13 +223,13 @@ where
                 Ok(submission) => {
                     self.retry_games.remove(&game.address);
                     self.owned_games.insert(game.address);
-                    world_chain_proof_metrics::increment_challenges_submitted();
+                    my_chain_proof_metrics::increment_challenges_submitted();
                     info!(
                         lifecycle_event = "challenge_submitted",
                         game_address = %game.address,
                         tx_hash = ?submission.tx_hash,
                         bond = ?submission.bond,
-                        "challenged invalid World Chain proof-system game"
+                        "challenged invalid My Chain proof-system game"
                     );
                 }
                 Err(error) => {

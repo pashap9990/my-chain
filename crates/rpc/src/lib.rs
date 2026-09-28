@@ -2,7 +2,7 @@
 #![allow(clippy::type_complexity)]
 
 pub mod admin;
-pub use admin::{AdminApiExtServer, WorldChainAdminApiExt};
+pub use admin::{AdminApiExtServer, MyChainAdminApiExt};
 
 pub mod engine;
 pub mod eth;
@@ -18,7 +18,7 @@ pub mod transactions;
 pub use transactions::EthTransactionsExt;
 
 pub mod core;
-pub use core::{EthApiExtServer, WorldChainEthApiExt};
+pub use core::{EthApiExtServer, MyChainEthApiExt};
 
 pub mod simulate;
 pub use simulate::{Simulate, SimulateApiServer};

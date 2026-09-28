@@ -5,8 +5,8 @@ use reth_optimism_node::utils::optimism_payload_attributes;
 use reth_optimism_primitives::OpPrimitives;
 use reth_provider::{StateProvider, StateProviderFactory};
 use std::sync::Arc;
-use world_chain_node::context::WorldChainDefaultContext;
-use world_chain_test_utils::{
+use my_chain_node::context::MyChainDefaultContext;
+use my_chain_test_utils::{
     builder::{
         CHAIN_SPEC, EVM_CONFIG, build_flashblock_fixture_eth_transfers_with_provider,
         build_flashblock_fixture_fib_with_provider,
@@ -15,16 +15,16 @@ use world_chain_test_utils::{
         build_flashblock_sequence_fixture_fib_with_provider,
         build_flashblock_sequence_fixture_world_id_like_bn254_with_provider,
     },
-    e2e_harness::setup::WorldChainTestBuilder,
+    e2e_harness::setup::MyChainTestBuilder,
 };
 
-use world_chain_validator::{
+use my_chain_validator::{
     coordinator::{FlashblocksExecutionCoordinator, process_flashblock, run_flashblock_processor},
     flashblock_validation_metrics::FlashblockValidationMetrics,
 };
 
-use world_chain_p2p::protocol::handler::FlashblocksHandle;
-use world_chain_primitives::{ed25519_dalek::SigningKey, primitives::FlashblocksPayloadV1};
+use my_chain_p2p::protocol::handler::FlashblocksHandle;
+use my_chain_primitives::{ed25519_dalek::SigningKey, primitives::FlashblocksPayloadV1};
 
 const TX_COUNTS: [usize; 3] = [50, 500, 1000];
 const WORLD_ID_TX_COUNTS: [usize; 3] = [10, 25, 50];
@@ -71,17 +71,17 @@ fn bench_process_flashblock_case<F>(
     group.sample_size(20);
 
     for &tx_count in tx_counts {
-        // Spin up a real world-chain testing node first so that the fixture is
+        // Spin up a real my-chain testing node first so that the fixture is
         // built against the same state database that `process_flashblock` will
         // later execute against. Using the mock `TestStateProvider` here would
         // produce state roots that disagree with what the live node computes.
         let (_, nodes, _, _, _) = rt
             .block_on(
-                WorldChainTestBuilder::builder()
+                MyChainTestBuilder::builder()
                     .nodes(1)
                     .flashblocks(true)
                     .build()
-                    .setup_with::<WorldChainDefaultContext, _>(optimism_payload_attributes),
+                    .setup_with::<MyChainDefaultContext, _>(optimism_payload_attributes),
             )
             .unwrap();
         let node = &nodes[0];
@@ -126,7 +126,7 @@ fn bench_launch_flashblock_sequence_case<F>(
     group.sample_size(20);
 
     for &(num_fb, txs_per_fb) in sequence_params {
-        // Spin up a real world-chain testing node first so that the sequence
+        // Spin up a real my-chain testing node first so that the sequence
         // fixture is built against the same state database that
         // `run_flashblock_processor` will later execute against. Using the mock
         // `BenchProvider` here would produce state roots that disagree with
@@ -134,11 +134,11 @@ fn bench_launch_flashblock_sequence_case<F>(
         // synthetic one in `coordinator.rs`.
         let (_, nodes, _, _, _) = rt
             .block_on(
-                WorldChainTestBuilder::builder()
+                MyChainTestBuilder::builder()
                     .nodes(1)
                     .flashblocks(true)
                     .build()
-                    .setup_with::<WorldChainDefaultContext, _>(optimism_payload_attributes),
+                    .setup_with::<MyChainDefaultContext, _>(optimism_payload_attributes),
             )
             .unwrap();
         let node = &nodes[0];

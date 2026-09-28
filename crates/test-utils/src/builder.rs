@@ -1,9 +1,9 @@
-//! Test utilities for world-chain-builder benchmarks and integration tests.
+//! Test utilities for my-chain-builder benchmarks and integration tests.
 //!
 //! This module provides shared fixture data, mock providers, and helper
 //! functions for constructing realistic flashblock payloads.  It was extracted
-//! from `world-chain-builder`'s internal `test_utils` module so that
-//! downstream test and fuzz crates can depend on `world-chain-test-utils` alone.
+//! from `my-chain-builder`'s internal `test_utils` module so that
+//! downstream test and fuzz crates can depend on `my-chain-test-utils` alone.
 
 use alloy_consensus::{BlockHeader, TxEip1559, constants::KECCAK_EMPTY};
 use alloy_eips::{BlockNumHash, eip2718::Encodable2718};
@@ -46,14 +46,14 @@ use std::{
     sync::Arc,
 };
 use tracing::error;
-use world_chain_builder::payload_builder_metrics::PayloadBuildAttemptMetrics;
-use world_chain_chainspec::{WorldChainSpec, WorldChainSpecBuilder};
-use world_chain_evm::{
-    BlockBuilderExt, OpRethReceiptBuilder, WorldChainEvmConfig,
+use my_chain_builder::payload_builder_metrics::PayloadBuildAttemptMetrics;
+use my_chain_chainspec::{MyChainSpec, MyChainSpecBuilder};
+use my_chain_evm::{
+    BlockBuilderExt, OpRethReceiptBuilder, MyChainEvmConfig,
     execution::bal::{BalBlockBuilder, CommittedState, pre_refund_gas_used},
     utils::cache_prestate_from_bundle,
 };
-use world_chain_primitives::{
+use my_chain_primitives::{
     access_list::{FlashblockAccessListData, access_list_hash},
     primitives::{ExecutionPayloadBaseV1, ExecutionPayloadFlashblockDeltaV1, FlashblocksPayloadV1},
 };
@@ -231,8 +231,8 @@ lazy_static::lazy_static! {
         .with_gas_limit(200_000_000); // 200MGas
 
     /// Chain spec for tests
-    pub static ref CHAIN_SPEC: Arc<WorldChainSpec> = Arc::new(
-        WorldChainSpecBuilder::default()
+    pub static ref CHAIN_SPEC: Arc<MyChainSpec> = Arc::new(
+        MyChainSpecBuilder::default()
             .chain(GENESIS.config.chain_id.into())
             .genesis(GENESIS.clone())
             .karst_activated()
@@ -240,8 +240,8 @@ lazy_static::lazy_static! {
     );
 
     /// EVM configuration for tests
-    pub static ref EVM_CONFIG: WorldChainEvmConfig =
-        WorldChainEvmConfig::new(CHAIN_SPEC.clone(), OpRethReceiptBuilder::default());
+    pub static ref EVM_CONFIG: MyChainEvmConfig =
+        MyChainEvmConfig::new(CHAIN_SPEC.clone(), OpRethReceiptBuilder::default());
 
     pub static ref BLOCK_EXECUTION_CTX: OpBlockExecutionCtx = OpBlockExecutionCtx {
         parent_beacon_block_root: Some(FixedBytes::ZERO),
@@ -1314,7 +1314,7 @@ impl StateProviderFactory for TestStateProvider {
 pub struct BenchProvider {
     pub inner: TestStateProvider,
     pub sealed_header: SealedHeader,
-    pub chain_spec: Arc<WorldChainSpec>,
+    pub chain_spec: Arc<MyChainSpec>,
 }
 
 impl Default for BenchProvider {
@@ -1596,9 +1596,9 @@ impl HeaderProvider for BenchProvider {
 
 // ChainSpecProvider — returns the test chain spec
 impl ChainSpecProvider for BenchProvider {
-    type ChainSpec = WorldChainSpec;
+    type ChainSpec = MyChainSpec;
 
-    fn chain_spec(&self) -> Arc<WorldChainSpec> {
+    fn chain_spec(&self) -> Arc<MyChainSpec> {
         self.chain_spec.clone()
     }
 }

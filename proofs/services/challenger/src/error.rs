@@ -3,7 +3,7 @@ use alloy_provider::{PendingTransactionError, transport::RpcError};
 use alloy_transport::TransportErrorKind;
 use thiserror::Error;
 use tokio::sync::AcquireError;
-use world_chain_proof_protocol::{
+use my_chain_proof_protocol::{
     ConsensusError, GameStatusError, InvalidationReasonError, ProposalStatusError,
 };
 
@@ -64,7 +64,7 @@ pub enum ChallengerError {
     #[error(transparent)]
     Permit(#[from] AcquireError),
     #[error(transparent)]
-    Lineage(#[from] world_chain_proof_protocol::LineageError),
+    Lineage(#[from] my_chain_proof_protocol::LineageError),
 }
 
 impl From<alloy_contract::Error> for ChallengerError {

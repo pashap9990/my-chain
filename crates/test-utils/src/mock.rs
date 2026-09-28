@@ -41,7 +41,7 @@ use reth_trie::{
     StorageProof, TrieInput, updates::TrieUpdates,
 };
 use reth_trie_common::ExecutionWitnessMode;
-use world_chain_chainspec::WorldChainSpec;
+use my_chain_chainspec::MyChainSpec;
 
 /// A mock implementation for Provider interfaces.
 #[derive(Debug, Clone)]
@@ -53,13 +53,13 @@ pub struct MockEthProvider {
     /// Local account store
     pub accounts: Arc<Mutex<HashMap<Address, ExtendedAccount>>>,
     /// Local chain spec
-    pub chain_spec: Arc<WorldChainSpec>,
+    pub chain_spec: Arc<MyChainSpec>,
     /// Local state roots
     pub state_roots: Arc<Mutex<Vec<B256>>>,
 }
 
 impl ChainSpecProvider for MockEthProvider {
-    type ChainSpec = WorldChainSpec;
+    type ChainSpec = MyChainSpec;
 
     fn chain_spec(&self) -> Arc<Self::ChainSpec> {
         self.chain_spec.clone()
@@ -72,7 +72,7 @@ impl Default for MockEthProvider {
             blocks: Default::default(),
             headers: Default::default(),
             accounts: Default::default(),
-            chain_spec: Arc::new(WorldChainSpec::from_genesis(Genesis::default())),
+            chain_spec: Arc::new(MyChainSpec::from_genesis(Genesis::default())),
             state_roots: Default::default(),
         }
     }

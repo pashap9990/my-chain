@@ -1,4 +1,4 @@
-use crate::WorldChainSpecParser;
+use crate::MyChainSpecParser;
 use clap::Subcommand;
 use core::fmt;
 use reth_chainspec::{EthChainSpec, EthereumHardforks, Hardforks};
@@ -9,11 +9,11 @@ use reth_cli_commands::{
     p2p, prune, re_execute, stage,
 };
 use std::sync::Arc;
-use world_chain_commands::proofs;
+use my_chain_commands::proofs;
 
 #[derive(Debug, Subcommand)]
 pub enum Commands<
-    Spec: ChainSpecParser = WorldChainSpecParser,
+    Spec: ChainSpecParser = MyChainSpecParser,
     Ext: clap::Args + fmt::Debug = NoArgs,
 > {
     /// Start the node

@@ -28,16 +28,16 @@ use alloy_primitives::{B256, Bytes, keccak256};
 use alloy_sol_types::SolValue;
 use anyhow::{Context, bail};
 use tracing::{debug, info};
-use world_chain_proof_kona_host::online::{
+use my_chain_proof_kona_host::online::{
     OnlineHostConfig, RangeWitnessRequest, build_range_input, is_witness_generation_timeout,
 };
 use world_chain_proof_nitro_enclave::{
     ExpectedPcrs, NitroRangeProofRequest,
     host::{EnclaveEndpoint, NitroProver},
 };
-use world_chain_proof_protocol::ProofGameProvider;
-use world_chain_proof_worker::{ClaimedProofJobHandler, ProofJob};
-use world_chain_prover_service::{ProofBackend, ProofData};
+use my_chain_proof_protocol::ProofGameProvider;
+use my_chain_proof_worker::{ClaimedProofJobHandler, ProofJob};
+use my_chain_prover_service::{ProofBackend, ProofData};
 
 // ──────────────────────────────────────────────────────────────────────────────────────
 // NitroBackend — ClaimedProofJobHandler implementation for the Nitro TEE lane
@@ -129,7 +129,7 @@ where
         .await
         {
             Ok(input) => {
-                world_chain_proof_metrics::record_witness_collection(
+                my_chain_proof_metrics::record_witness_collection(
                     "nitro",
                     "success",
                     witness_collection_started_at.elapsed(),
@@ -142,7 +142,7 @@ where
                 } else {
                     "error"
                 };
-                world_chain_proof_metrics::record_witness_collection(
+                my_chain_proof_metrics::record_witness_collection(
                     "nitro",
                     outcome,
                     witness_collection_started_at.elapsed(),
@@ -173,7 +173,7 @@ where
         let artifact = match prover.prove_range(nitro_request).await {
             Ok(artifact) => {
                 let duration = enclave_proving_started_at.elapsed();
-                world_chain_proof_metrics::record_proof_phase_duration(
+                my_chain_proof_metrics::record_proof_phase_duration(
                     "nitro",
                     "enclave_proving",
                     "success",
@@ -190,7 +190,7 @@ where
             }
             Err(error) => {
                 let duration = enclave_proving_started_at.elapsed();
-                world_chain_proof_metrics::record_proof_phase_duration(
+                my_chain_proof_metrics::record_proof_phase_duration(
                     "nitro",
                     "enclave_proving",
                     "error",

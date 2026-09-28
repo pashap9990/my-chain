@@ -1,7 +1,7 @@
 use std::time::Duration;
 use tokio::time::sleep;
 use tracing::warn;
-use world_chain_prover_service::{
+use my_chain_prover_service::{
     HeartbeatRequest, LockId, ProofJobQueue, ProofJobQueueError, ProofRequestId,
 };
 

@@ -1,4 +1,4 @@
-//! World Chain node add-ons.
+//! My Chain node add-ons.
 
 use core::marker::PhantomData;
 use crossbeam_channel::Receiver;
@@ -40,18 +40,18 @@ use reth_rpc_api::{
 use reth_rpc_server_types::RethRpcModule;
 use reth_transaction_pool::TransactionPool;
 use tracing::{debug, info};
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_evm::{
+use my_chain_chainspec::MyChainSpec;
+use my_chain_evm::{
     BlockExecutionWitness, ExecutionWitnessHandle, OpTx, spawn_witness_collector,
 };
-use world_chain_rpc::{
+use my_chain_rpc::{
     AdminApiExtServer, DebugWitnessOracle, DebugWitnessOracleApiServer, EthApiExtServer,
-    SequencerClient as WorldChainSequencerClient, Simulate, SimulateApiServer,
-    WorldChainAdminApiExt, WorldChainEthApiExt,
+    SequencerClient as MyChainSequencerClient, Simulate, SimulateApiServer,
+    MyChainAdminApiExt, MyChainEthApiExt,
     op::{FlashblocksOpApi, OpApiExtServer},
 };
-/// Primitive bounds required by the OP RPC extensions used by World Chain.
-pub trait WorldChainRpcPrimitives<Tx>:
+/// Primitive bounds required by the OP RPC extensions used by My Chain.
+pub trait MyChainRpcPrimitives<Tx>:
     OpPayloadPrimitives<_Header = Header, _TX = Tx>
     + NodePrimitives<
         Receipt = OpReceipt,
@@ -65,7 +65,7 @@ where
 {
 }
 
-impl<T, Tx> WorldChainRpcPrimitives<Tx> for T
+impl<T, Tx> MyChainRpcPrimitives<Tx> for T
 where
     Tx: FullSignedTx + OpTransaction,
     T: OpPayloadPrimitives<_Header = Header, _TX = Tx>
@@ -79,12 +79,12 @@ where
 {
 }
 
-/// Add-ons w.r.t. World Chain.
+/// Add-ons w.r.t. My Chain.
 ///
-/// This mirrors OP-Reth's add-ons while installing World Chain RPC extensions during add-on
+/// This mirrors OP-Reth's add-ons while installing My Chain RPC extensions during add-on
 /// launch.
 #[derive(Debug)]
-pub struct WorldChainAddOns<
+pub struct MyChainAddOns<
     N: FullNodeComponents,
     EthB: EthApiBuilder<N>,
     PVB,
@@ -113,7 +113,7 @@ pub struct WorldChainAddOns<
     enable_tx_conditional: bool,
     /// Minimum suggested priority fee (tip).
     min_suggested_priority_fee: u64,
-    /// Enables the World Chain simulate namespace.
+    /// Enables the My Chain simulate namespace.
     simulate_enabled: bool,
     /// Witness oracle plumbing: the shared cache and the receiver drained by the collector thread.
     /// `Some` only when `--witness.collect` is set.
@@ -123,7 +123,7 @@ pub struct WorldChainAddOns<
 }
 
 impl<N, EthB, PVB, EB, EVB, RpcMiddleware, Tx>
-    WorldChainAddOns<N, EthB, PVB, EB, EVB, RpcMiddleware, Tx>
+    MyChainAddOns<N, EthB, PVB, EB, EVB, RpcMiddleware, Tx>
 where
     N: FullNodeComponents,
     EthB: EthApiBuilder<N>,
@@ -159,7 +159,7 @@ where
 }
 
 impl<N, EthB, PVB, EB, EVB, RpcMiddleware, Tx>
-    WorldChainAddOns<N, EthB, PVB, EB, EVB, RpcMiddleware, Tx>
+    MyChainAddOns<N, EthB, PVB, EB, EVB, RpcMiddleware, Tx>
 where
     N: FullNodeComponents,
     EthB: EthApiBuilder<N>,
@@ -168,7 +168,7 @@ where
     pub fn with_engine_api<T>(
         self,
         engine_api_builder: T,
-    ) -> WorldChainAddOns<N, EthB, PVB, T, EVB, RpcMiddleware, Tx> {
+    ) -> MyChainAddOns<N, EthB, PVB, T, EVB, RpcMiddleware, Tx> {
         let Self {
             rpc_add_ons,
             da_config,
@@ -182,7 +182,7 @@ where
             witness,
             ..
         } = self;
-        WorldChainAddOns::new(
+        MyChainAddOns::new(
             rpc_add_ons.with_engine_api(engine_api_builder),
             da_config,
             gas_limit_config,
@@ -200,7 +200,7 @@ where
     pub fn with_payload_validator<T>(
         self,
         payload_validator_builder: T,
-    ) -> WorldChainAddOns<N, EthB, T, EB, EVB, RpcMiddleware, Tx> {
+    ) -> MyChainAddOns<N, EthB, T, EB, EVB, RpcMiddleware, Tx> {
         let Self {
             rpc_add_ons,
             da_config,
@@ -214,7 +214,7 @@ where
             witness,
             ..
         } = self;
-        WorldChainAddOns::new(
+        MyChainAddOns::new(
             rpc_add_ons.with_payload_validator(payload_validator_builder),
             da_config,
             gas_limit_config,
@@ -232,7 +232,7 @@ where
     pub fn with_engine_validator<T>(
         self,
         engine_validator_builder: T,
-    ) -> WorldChainAddOns<N, EthB, PVB, EB, T, RpcMiddleware, Tx> {
+    ) -> MyChainAddOns<N, EthB, PVB, EB, T, RpcMiddleware, Tx> {
         let Self {
             rpc_add_ons,
             da_config,
@@ -246,7 +246,7 @@ where
             witness,
             ..
         } = self;
-        WorldChainAddOns::new(
+        MyChainAddOns::new(
             rpc_add_ons.with_engine_validator(engine_validator_builder),
             da_config,
             gas_limit_config,
@@ -264,7 +264,7 @@ where
     pub fn with_rpc_middleware<T>(
         self,
         rpc_middleware: T,
-    ) -> WorldChainAddOns<N, EthB, PVB, EB, EVB, T, Tx> {
+    ) -> MyChainAddOns<N, EthB, PVB, EB, EVB, T, Tx> {
         let Self {
             rpc_add_ons,
             da_config,
@@ -278,7 +278,7 @@ where
             witness,
             ..
         } = self;
-        WorldChainAddOns::new(
+        MyChainAddOns::new(
             rpc_add_ons.with_rpc_middleware(rpc_middleware),
             da_config,
             gas_limit_config,
@@ -314,22 +314,22 @@ where
 }
 
 impl<N, EthB, PVB, EB, EVB, RpcMiddleware, Tx> NodeAddOns<N>
-    for WorldChainAddOns<N, EthB, PVB, EB, EVB, RpcMiddleware, Tx>
+    for MyChainAddOns<N, EthB, PVB, EB, EVB, RpcMiddleware, Tx>
 where
     N: FullNodeComponents<
-            Types: NodeTypes<ChainSpec = WorldChainSpec>,
+            Types: NodeTypes<ChainSpec = MyChainSpec>,
             Evm: ConfigurePostExecEvm<
                 NextBlockEnvCtx: BuildNextEnv<
                     OpPayloadBuilderAttributes<Tx>,
                     Header,
-                    WorldChainSpec,
+                    MyChainSpec,
                 >,
             >,
             Pool: TransactionPool<Transaction: OpPooledTx<Consensus = Tx>>,
         >,
-    PrimitivesTy<N::Types>: WorldChainRpcPrimitives<Tx>,
+    PrimitivesTy<N::Types>: MyChainRpcPrimitives<Tx>,
     N::Provider: BlockReaderIdExt
-        + ChainSpecProvider<ChainSpec = WorldChainSpec>
+        + ChainSpecProvider<ChainSpec = MyChainSpec>
         + HeaderProvider<Header = Header>
         + StateProviderFactory
         + CanonStateSubscriptions
@@ -413,7 +413,7 @@ where
         );
         let miner_ext = OpMinerExtApi::new(da_config, gas_limit_config);
 
-        let world_chain_sequencer_url = sequencer_url.clone();
+        let my_chain_sequencer_url = sequencer_url.clone();
         let sequencer_client = if let Some(url) = sequencer_url {
             Some(OpSequencerClient::new_with_headers(url, sequencer_headers).await?)
         } else {
@@ -426,10 +426,10 @@ where
             ctx.node.provider().clone(),
         );
 
-        let world_chain_eth_ext = WorldChainEthApiExt::new(
+        let my_chain_eth_ext = MyChainEthApiExt::new(
             ctx.node.pool().clone(),
             ctx.node.provider().clone(),
-            world_chain_sequencer_url.map(WorldChainSequencerClient::new),
+            my_chain_sequencer_url.map(MyChainSequencerClient::new),
         );
         let flashblocks_op_api = FlashblocksOpApi;
         let provider = ctx.node.provider().clone();
@@ -477,14 +477,14 @@ where
                     )?;
                 }
 
-                modules.replace_configured(world_chain_eth_ext.into_rpc())?;
+                modules.replace_configured(my_chain_eth_ext.into_rpc())?;
                 modules.replace_configured(flashblocks_op_api.into_rpc())?;
 
                 let admin = RethRpcModule::Admin;
                 let admin_on_http = modules.module_config().contains_http(&admin);
                 let admin_on_ws = modules.module_config().contains_ws(&admin);
                 if admin_on_http || admin_on_ws {
-                    let admin_ext = WorldChainAdminApiExt::new().into_rpc();
+                    let admin_ext = MyChainAdminApiExt::new().into_rpc();
                     if admin_on_http {
                         modules.merge_http(admin_ext.clone())?;
                     }
@@ -506,22 +506,22 @@ where
 }
 
 impl<N, EthB, PVB, EB, EVB, RpcMiddleware, Tx> RethRpcAddOns<N>
-    for WorldChainAddOns<N, EthB, PVB, EB, EVB, RpcMiddleware, Tx>
+    for MyChainAddOns<N, EthB, PVB, EB, EVB, RpcMiddleware, Tx>
 where
     N: FullNodeComponents<
-            Types: NodeTypes<ChainSpec = WorldChainSpec>,
+            Types: NodeTypes<ChainSpec = MyChainSpec>,
             Evm: ConfigurePostExecEvm<
                 NextBlockEnvCtx: BuildNextEnv<
                     OpPayloadBuilderAttributes<Tx>,
                     Header,
-                    WorldChainSpec,
+                    MyChainSpec,
                 >,
             >,
             Pool: TransactionPool<Transaction: OpPooledTx<Consensus = Tx>>,
         >,
-    PrimitivesTy<N::Types>: WorldChainRpcPrimitives<Tx>,
+    PrimitivesTy<N::Types>: MyChainRpcPrimitives<Tx>,
     N::Provider: BlockReaderIdExt
-        + ChainSpecProvider<ChainSpec = WorldChainSpec>
+        + ChainSpecProvider<ChainSpec = MyChainSpec>
         + HeaderProvider<Header = Header>
         + StateProviderFactory
         + Clone
@@ -545,7 +545,7 @@ where
 }
 
 impl<N, EthB, PVB, EB, EVB, RpcMiddleware, Tx> EngineValidatorAddOn<N>
-    for WorldChainAddOns<N, EthB, PVB, EB, EVB, RpcMiddleware, Tx>
+    for MyChainAddOns<N, EthB, PVB, EB, EVB, RpcMiddleware, Tx>
 where
     N: FullNodeComponents,
     EthB: EthApiBuilder<N>,

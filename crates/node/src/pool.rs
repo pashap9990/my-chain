@@ -14,19 +14,19 @@ use reth_transaction_pool::{
     TransactionValidationTaskExecutor, TransactionValidator, blobstore::DiskFileBlobStore,
 };
 use tracing::{debug, info};
-use world_chain_pool::{
-    WorldChainTransactionPool,
-    ordering::WorldChainOrdering,
-    root::WorldChainRootValidator,
-    tx::{WorldChainPoolTransaction, WorldChainPooledTransaction},
-    validator::WorldChainTransactionValidator,
+use my_chain_pool::{
+    MyChainTransactionPool,
+    ordering::MyChainOrdering,
+    root::MyChainRootValidator,
+    tx::{MyChainPoolTransaction, MyChainPooledTransaction},
+    validator::MyChainTransactionValidator,
 };
-/// A basic World Chain transaction pool.
+/// A basic My Chain transaction pool.
 ///
 /// This contains various settings that can be configured and take precedence over the node's
 /// config.
 #[derive(Debug, Clone)]
-pub struct WorldChainPoolBuilder<T = WorldChainPooledTransaction> {
+pub struct MyChainPoolBuilder<T = MyChainPooledTransaction> {
     pub pbh_entrypoint: Address,
     pub pbh_signature_aggregator: Address,
     pub world_id: Address,
@@ -35,7 +35,7 @@ pub struct WorldChainPoolBuilder<T = WorldChainPooledTransaction> {
     _pd: PhantomData<fn() -> T>,
 }
 
-impl<T> WorldChainPoolBuilder<T> {
+impl<T> MyChainPoolBuilder<T> {
     pub fn new(
         pbh_entrypoint: Address,
         pbh_signature_aggregator: Address,
@@ -51,7 +51,7 @@ impl<T> WorldChainPoolBuilder<T> {
     }
 }
 
-impl<T> WorldChainPoolBuilder<T> {
+impl<T> MyChainPoolBuilder<T> {
     /// Sets the [`PoolBuilderConfigOverrides`] on the pool builder.
     pub fn with_pool_config_overrides(
         mut self,
@@ -62,16 +62,16 @@ impl<T> WorldChainPoolBuilder<T> {
     }
 }
 
-impl<Node, T, Evm> PoolBuilder<Node, Evm> for WorldChainPoolBuilder<T>
+impl<Node, T, Evm> PoolBuilder<Node, Evm> for MyChainPoolBuilder<T>
 where
     Node: FullNodeTypes<Types: NodeTypes<ChainSpec: OpHardforks>>,
     Node::Provider: BlockReaderIdExt<Block = BlockTy<Node::Types>>,
-    T: WorldChainPoolTransaction<Consensus = TxTy<Node::Types>>,
+    T: MyChainPoolTransaction<Consensus = TxTy<Node::Types>>,
     Evm: ConfigureEvm<Primitives = PrimitivesTy<Node::Types>> + Clone + 'static,
-    WorldChainTransactionValidator<Node::Provider, T, Evm>:
+    MyChainTransactionValidator<Node::Provider, T, Evm>:
         TransactionValidator<Transaction = T, Block = BlockTy<Node::Types>>,
 {
-    type Pool = WorldChainTransactionPool<Node::Provider, DiskFileBlobStore, T, Evm>;
+    type Pool = MyChainTransactionPool<Node::Provider, DiskFileBlobStore, T, Evm>;
 
     async fn build_pool(
         self,
@@ -105,10 +105,10 @@ where
                         // In --dev mode we can't require gas fees because we're unable to decode the L1
                         // block info
                         .require_l1_data_gas_fee(!ctx.config().dev.dev);
-                    let root_validator = WorldChainRootValidator::new(client, world_id)
+                    let root_validator = MyChainRootValidator::new(client, world_id)
                         .expect("failed to initialize root validator");
 
-                    WorldChainTransactionValidator::new(
+                    MyChainTransactionValidator::new(
                         op_tx_validator,
                         root_validator,
                         pbh_entrypoint,
@@ -119,7 +119,7 @@ where
 
         let transaction_pool = reth_transaction_pool::Pool::new(
             validator,
-            WorldChainOrdering::default(),
+            MyChainOrdering::default(),
             blob_store,
             pool_config_overrides.apply(ctx.pool_config()),
         );

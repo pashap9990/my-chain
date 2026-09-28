@@ -12,7 +12,7 @@ use std::{
 };
 use tokio::sync::Semaphore;
 use tracing::warn;
-use world_chain_proof_protocol::{
+use my_chain_proof_protocol::{
     ClaimData, IAnchorStateRegistry, IDisputeGameFactory, IMultiProofGame, LineageAnchor,
     LineageError, LineageGame, LineageProvider, LineageTransition, PROOF_LANE_COUNT, ProofLane,
     RegisteredLineageConfig, ResolutionStatus, encode_compact_proof, read_game_for_transition,
@@ -224,7 +224,7 @@ where
         let mut receipt = wait_for_receipt(1)
             .await
             .map_err(|error| warn_failure(DefenderError::from(error)))?;
-        world_chain_proof_metrics::record_proof_submission_inclusion(started.elapsed());
+        my_chain_proof_metrics::record_proof_submission_inclusion(started.elapsed());
         if self.confirmations > 1 {
             receipt = wait_for_receipt(self.confirmations)
                 .await
@@ -233,7 +233,7 @@ where
         if !receipt.status() {
             return Err(warn_failure(DefenderError::Revert(tx_hash)));
         }
-        world_chain_proof_metrics::refresh_wallet_balance(&self.provider, receipt.from).await;
+        my_chain_proof_metrics::refresh_wallet_balance(&self.provider, receipt.from).await;
         Ok(DefenderSubmission { tx_hash })
     }
 }

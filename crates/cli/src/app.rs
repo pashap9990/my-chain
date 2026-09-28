@@ -19,16 +19,16 @@ use reth_node_metrics::recorder::install_prometheus_recorder;
 use reth_rpc_server_types::{DefaultRpcModuleValidator, RethRpcModule, RpcModuleValidator};
 use reth_tracing::{Layers, TracingGuards};
 use tracing::{info, warn};
-use world_chain_chainspec::WorldChainSpec;
+use my_chain_chainspec::MyChainSpec;
 
-use crate::{WorldChainArgs, chainspec::WorldChainSpecParser, commands::Commands};
+use crate::{MyChainArgs, chainspec::MyChainSpecParser, commands::Commands};
 
-/// The main World Chain cli interface.
+/// The main My Chain cli interface.
 #[derive(Debug, Parser)]
 #[command(author, name = version_metadata().name_client.as_ref(), version = version_metadata().short_version.as_ref(), long_version = version_metadata().long_version.as_ref(), about = "Reth", long_about = None)]
 pub struct Cli<
-    Spec: ChainSpecParser = WorldChainSpecParser,
-    Ext: clap::Args + fmt::Debug = WorldChainArgs,
+    Spec: ChainSpecParser = MyChainSpecParser,
+    Ext: clap::Args + fmt::Debug = MyChainArgs,
     Rpc: RpcModuleValidator = DefaultRpcModuleValidator,
 > {
     /// The command to run.
@@ -66,7 +66,7 @@ impl Cli {
 
 impl<C, Ext, Rpc> Cli<C, Ext, Rpc>
 where
-    C: ChainSpecParser<ChainSpec = WorldChainSpec>,
+    C: ChainSpecParser<ChainSpec = MyChainSpec>,
     Ext: clap::Args + fmt::Debug,
     Rpc: RpcModuleValidator,
 {
@@ -125,7 +125,7 @@ pub struct CliApp<Spec: ChainSpecParser, Ext: clap::Args + fmt::Debug, Rpc: RpcM
 
 impl<C, Ext, Rpc> CliApp<C, Ext, Rpc>
 where
-    C: ChainSpecParser<ChainSpec = WorldChainSpec>,
+    C: ChainSpecParser<ChainSpec = MyChainSpec>,
     Ext: clap::Args + fmt::Debug,
     Rpc: RpcModuleValidator,
 {
@@ -255,7 +255,7 @@ where
                 } else {
                     format!("{directive},{}", self.cli.logs.log_stdout_filter)
                 };
-                world_chain_primitives::tracing::set_startup_tracing_directives(baseline);
+                my_chain_primitives::tracing::set_startup_tracing_directives(baseline);
             }
 
             match otlp_status {

@@ -1,4 +1,4 @@
-use world_chain_proof_sp1_host::network_prover::SignerType;
+use my_chain_proof_sp1_host::network_prover::SignerType;
 
 pub mod deposit;
 pub mod run;

@@ -5,8 +5,8 @@ use alloy_provider::ProviderBuilder;
 use alloy_signer_local::PrivateKeySigner;
 use revm_primitives::B256;
 use std::str::FromStr;
-use world_chain_proof_protocol::{IMultiProofGame::IMultiProofGameInstance, LineageProvider};
-use world_chain_proposer::{Proposal, ProposalSubmission, ProposerClient};
+use my_chain_proof_protocol::{IMultiProofGame::IMultiProofGameInstance, LineageProvider};
+use my_chain_proposer::{Proposal, ProposalSubmission, ProposerClient};
 
 #[tokio::test]
 #[ignore]

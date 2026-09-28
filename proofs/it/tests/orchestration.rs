@@ -5,20 +5,20 @@ use testcontainers::{ContainerAsync, runners::AsyncRunner};
 use testcontainers_modules::postgres;
 use tokio::task::JoinHandle;
 use tokio_util::sync::CancellationToken;
-use world_chain_challenger::{ChallengerConfig, WorldChainChallenger};
-use world_chain_defender::{DefenderClient, DefenderConfig, WorldChainDefender};
-use world_chain_proof_it::{
+use my_chain_challenger::{ChallengerConfig, MyChainChallenger};
+use my_chain_defender::{DefenderClient, DefenderConfig, MyChainDefender};
+use my_chain_proof_it::{
     BLOCK_INTERVAL, FakeConsensus, FakeExecution, FakeProofBackend, GameLifecycle,
     SharedProverService,
 };
-use world_chain_proof_protocol::{GameStatus, LineageProvider, ProofLane, has_threshold};
-use world_chain_proof_worker::{
+use my_chain_proof_protocol::{GameStatus, LineageProvider, ProofLane, has_threshold};
+use my_chain_proof_worker::{
     ProofWorker, ProofWorkerConfig, RetryConfig, WorkerHeartbeatConfig,
 };
-use world_chain_proposer::{
-    ProposerClient, ProposerConfig, ProposerError, ProposerScan, WorldChainProposer,
+use my_chain_proposer::{
+    ProposerClient, ProposerConfig, ProposerError, ProposerScan, MyChainProposer,
 };
-use world_chain_prover_service::{ProofBackend, ProverServiceConfig};
+use my_chain_prover_service::{ProofBackend, ProverServiceConfig};
 
 fn proposer_config() -> ProposerConfig {
     ProposerConfig {
@@ -47,7 +47,7 @@ fn assert_defense_lanes(lanes: Vec<ProofLane>) {
     assert!(lanes.contains(&ProofLane::TeeAttestation));
 }
 
-async fn settle_with_proposer(proposer: &WorldChainProposer<FakeExecution, FakeConsensus>) {
+async fn settle_with_proposer(proposer: &MyChainProposer<FakeExecution, FakeConsensus>) {
     let scan = proposer
         .scan_selected_lineage()
         .await
@@ -63,7 +63,7 @@ async fn settle_with_proposer(proposer: &WorldChainProposer<FakeExecution, FakeC
 }
 
 async fn post_proposal(
-    proposer: &WorldChainProposer<FakeExecution, FakeConsensus>,
+    proposer: &MyChainProposer<FakeExecution, FakeConsensus>,
     scan: &ProposerScan,
 ) -> Result<(), ProposerError> {
     proposer.submit_next_proposal(scan).await
@@ -74,7 +74,7 @@ async fn fake_resolution_matches_contract_transition_semantics() {
     let chain = FakeExecution::new();
     let canonical_root = B256::repeat_byte(0x20);
     let consensus = FakeConsensus::new(BLOCK_INTERVAL).with_root(BLOCK_INTERVAL, canonical_root);
-    let proposer = WorldChainProposer::new(proposer_config(), chain.clone(), consensus);
+    let proposer = MyChainProposer::new(proposer_config(), chain.clone(), consensus);
 
     let scan = proposer
         .scan_selected_lineage()
@@ -218,7 +218,7 @@ async fn invalid_root_is_challenged_by_real_challenger() {
         FakeConsensus::new(BLOCK_INTERVAL).with_root(BLOCK_INTERVAL, canonical_root);
 
     let proposer =
-        WorldChainProposer::new(proposer_config(), chain.clone(), bad_proposer_consensus);
+        MyChainProposer::new(proposer_config(), chain.clone(), bad_proposer_consensus);
     let scan = proposer
         .scan_selected_lineage()
         .await
@@ -229,7 +229,7 @@ async fn invalid_root_is_challenged_by_real_challenger() {
     let game = chain.latest_game().expect("game created").game;
 
     let mut challenger =
-        WorldChainChallenger::new(challenger_config(), chain.clone(), honest_consensus);
+        MyChainChallenger::new(challenger_config(), chain.clone(), honest_consensus);
     challenger
         .tick_at(1)
         .await
@@ -244,7 +244,7 @@ async fn valid_proposal_receives_initial_tee_proof_through_worker() {
     let chain = FakeExecution::new();
     let canonical_root = B256::repeat_byte(0x20);
     let consensus = FakeConsensus::new(BLOCK_INTERVAL).with_root(BLOCK_INTERVAL, canonical_root);
-    let proposer = WorldChainProposer::new(proposer_config(), chain.clone(), consensus.clone());
+    let proposer = MyChainProposer::new(proposer_config(), chain.clone(), consensus.clone());
     let scan = proposer
         .scan_selected_lineage()
         .await
@@ -257,7 +257,7 @@ async fn valid_proposal_receives_initial_tee_proof_through_worker() {
     let Some(stack) = start_proof_stack().await else {
         return;
     };
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         defender_config(),
         chain.clone(),
         consensus,
@@ -284,7 +284,7 @@ async fn valid_challenged_root_is_defended_through_workers() {
     let canonical_root = B256::repeat_byte(0x20);
     let consensus = FakeConsensus::new(BLOCK_INTERVAL).with_root(BLOCK_INTERVAL, canonical_root);
 
-    let proposer = WorldChainProposer::new(proposer_config(), chain.clone(), consensus.clone());
+    let proposer = MyChainProposer::new(proposer_config(), chain.clone(), consensus.clone());
     let scan = proposer
         .scan_selected_lineage()
         .await
@@ -298,7 +298,7 @@ async fn valid_challenged_root_is_defended_through_workers() {
     let Some(stack) = start_proof_stack().await else {
         return;
     };
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         defender_config(),
         chain.clone(),
         consensus,
@@ -329,7 +329,7 @@ async fn valid_challenged_root_survives_transient_proof_failure() {
     let canonical_root = B256::repeat_byte(0x20);
     let consensus = FakeConsensus::new(BLOCK_INTERVAL).with_root(BLOCK_INTERVAL, canonical_root);
 
-    let proposer = WorldChainProposer::new(proposer_config(), chain.clone(), consensus.clone());
+    let proposer = MyChainProposer::new(proposer_config(), chain.clone(), consensus.clone());
     let scan = proposer
         .scan_selected_lineage()
         .await
@@ -348,7 +348,7 @@ async fn valid_challenged_root_survives_transient_proof_failure() {
     else {
         return;
     };
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         defender_config(),
         chain.clone(),
         consensus,
@@ -384,7 +384,7 @@ async fn defender_ignores_challenged_invalid_root() {
         FakeConsensus::new(BLOCK_INTERVAL).with_root(BLOCK_INTERVAL, canonical_root);
 
     let proposer =
-        WorldChainProposer::new(proposer_config(), chain.clone(), bad_proposer_consensus);
+        MyChainProposer::new(proposer_config(), chain.clone(), bad_proposer_consensus);
     let scan = proposer
         .scan_selected_lineage()
         .await
@@ -398,7 +398,7 @@ async fn defender_ignores_challenged_invalid_root() {
     let Some(stack) = start_proof_stack().await else {
         return;
     };
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         defender_config(),
         chain.clone(),
         honest_consensus,

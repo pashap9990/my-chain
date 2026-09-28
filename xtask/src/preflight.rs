@@ -112,7 +112,7 @@ pub fn run(_args: Args) -> Result<()> {
     eprintln!("Running preflight checks...\n");
 
     let contracts_changed = staged_paths_match("pkg/contracts/");
-    let cli_changed = staged_paths_match("crates/world-chain-cli/");
+    let cli_changed = staged_paths_match("crates/cli/");
     let errors = AtomicUsize::new(0);
 
     // ── Phase 1: Auto-fix ──────────────────────────────────────────────
@@ -189,7 +189,7 @@ pub fn run(_args: Args) -> Result<()> {
             }
         });
 
-        // CLI docs — only if world-chain-cli changed
+        // CLI docs — only if crates/cli changed
         s.spawn(|| {
             if !cli_changed {
                 report("CLI docs", Status::Skip, &errors);

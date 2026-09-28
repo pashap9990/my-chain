@@ -1,8 +1,8 @@
 use std::{borrow::Cow, env};
 
-pub const WORLD_CHAIN_CLIENT_NAME: &str = "world-chain";
-pub const WORLD_CHAIN_CLIENT_VERSION_SHA: &str = env!("VERGEN_GIT_SHA_SHORT");
-pub const WORLD_CHAIN_CLIENT_VERSION: &str = env!("WORLD_CHAIN_CLIENT_VERSION");
+pub const MY_CHAIN_CLIENT_NAME: &str = "my-chain";
+pub const MY_CHAIN_CLIENT_VERSION_SHA: &str = env!("VERGEN_GIT_SHA_SHORT");
+pub const MY_CHAIN_CLIENT_VERSION: &str = env!("MY_CHAIN_CLIENT_VERSION");
 
 use reth_node_core::version::{RethCliVersionConsts, try_init_version_metadata};
 
@@ -13,7 +13,7 @@ pub fn init_version_metadata() {
 
 pub fn version_metadata() -> RethCliVersionConsts {
     RethCliVersionConsts {
-        name_client: Cow::Borrowed("World Chain"),
+        name_client: Cow::Borrowed("My Chain"),
         cargo_pkg_version: Cow::Borrowed(env!("CARGO_PKG_VERSION")),
         vergen_git_sha_long: Cow::Borrowed(env!("VERGEN_GIT_SHA")),
         vergen_git_sha: Cow::Borrowed(env!("VERGEN_GIT_SHA_SHORT")),
@@ -37,7 +37,7 @@ pub fn version_metadata() -> RethCliVersionConsts {
 
 fn extra_data() -> String {
     format!(
-        "{WORLD_CHAIN_CLIENT_NAME}/{}/{}",
+        "{MY_CHAIN_CLIENT_NAME}/{}/{}",
         env!("CARGO_PKG_VERSION"),
         env::consts::OS
     )

@@ -20,15 +20,15 @@ use reth_transaction_pool::{
 use revm_primitives::{Address, B256, TxKind, U256};
 use std::borrow::Cow;
 use thiserror::Error;
-use world_chain_pbh::payload::{PBHPayload, PBHValidationError};
+use my_chain_pbh::payload::{PBHPayload, PBHValidationError};
 
 #[derive(Debug, Clone)]
-pub struct WorldChainPooledTransaction {
+pub struct MyChainPooledTransaction {
     pub inner: OpPooledTransaction,
     pub payload: Option<Vec<PBHPayload>>,
 }
 
-pub trait WorldChainPoolTransaction:
+pub trait MyChainPoolTransaction:
     EthPoolTransaction + MaybeInteropTransaction + OpPooledTx
 {
     fn set_pbh_payloads(&mut self, payload: Vec<PBHPayload>);
@@ -36,7 +36,7 @@ pub trait WorldChainPoolTransaction:
     fn pbh_payload(&self) -> Option<&Vec<PBHPayload>>;
 }
 
-impl WorldChainPoolTransaction for WorldChainPooledTransaction {
+impl MyChainPoolTransaction for MyChainPooledTransaction {
     fn conditional_options(&self) -> Option<&TransactionConditional> {
         self.inner.conditional()
     }
@@ -50,7 +50,7 @@ impl WorldChainPoolTransaction for WorldChainPooledTransaction {
     }
 }
 
-impl<Cons, Pooled> WorldChainPoolTransaction for OpPooledTransaction<Cons, Pooled>
+impl<Cons, Pooled> MyChainPoolTransaction for OpPooledTransaction<Cons, Pooled>
 where
     Self: EthPoolTransaction + MaybeInteropTransaction + OpPooledTx,
 {
@@ -65,19 +65,19 @@ where
     }
 }
 
-impl OpPooledTx for WorldChainPooledTransaction {
+impl OpPooledTx for MyChainPooledTransaction {
     fn encoded_2718(&self) -> std::borrow::Cow<'_, Bytes> {
         Cow::Borrowed(self.inner.encoded_2718())
     }
 }
 
-impl DataAvailabilitySized for WorldChainPooledTransaction {
+impl DataAvailabilitySized for MyChainPooledTransaction {
     fn estimated_da_size(&self) -> u64 {
         self.inner.estimated_da_size()
     }
 }
 
-impl MaybeInteropTransaction for WorldChainPooledTransaction {
+impl MaybeInteropTransaction for MyChainPooledTransaction {
     fn interop_deadline(&self) -> Option<u64> {
         self.inner.interop_deadline()
     }
@@ -94,13 +94,13 @@ impl MaybeInteropTransaction for WorldChainPooledTransaction {
     }
 }
 
-impl Typed2718 for WorldChainPooledTransaction {
+impl Typed2718 for MyChainPooledTransaction {
     fn ty(&self) -> u8 {
         self.inner.ty()
     }
 }
 
-impl alloy_consensus::Transaction for WorldChainPooledTransaction {
+impl alloy_consensus::Transaction for MyChainPooledTransaction {
     fn chain_id(&self) -> Option<u64> {
         self.inner.chain_id()
     }
@@ -170,7 +170,7 @@ impl alloy_consensus::Transaction for WorldChainPooledTransaction {
     }
 }
 
-impl EthPoolTransaction for WorldChainPooledTransaction {
+impl EthPoolTransaction for MyChainPooledTransaction {
     fn take_blob(&mut self) -> EthBlobTransactionSidecar {
         EthBlobTransactionSidecar::None
     }
@@ -200,14 +200,14 @@ impl EthPoolTransaction for WorldChainPooledTransaction {
     }
 }
 
-impl InMemorySize for WorldChainPooledTransaction {
+impl InMemorySize for MyChainPooledTransaction {
     // TODO: double check this
     fn size(&self) -> usize {
         self.inner.size()
     }
 }
 
-impl MaybeConditionalTransaction for WorldChainPooledTransaction {
+impl MaybeConditionalTransaction for MyChainPooledTransaction {
     fn set_conditional(&mut self, conditional: TransactionConditional) {
         self.inner.set_conditional(conditional)
     }
@@ -225,7 +225,7 @@ impl MaybeConditionalTransaction for WorldChainPooledTransaction {
     }
 }
 
-impl PoolTransaction for WorldChainPooledTransaction {
+impl PoolTransaction for MyChainPooledTransaction {
     type TryFromConsensusError =
         <op_alloy_consensus::OpPooledTransaction as TryFrom<OpTransactionSigned>>::Error;
     type Consensus = OpTransactionSigned;
@@ -273,27 +273,27 @@ impl PoolTransaction for WorldChainPooledTransaction {
 }
 
 #[derive(Debug, Error)]
-pub enum WorldChainPoolTransactionError {
+pub enum MyChainPoolTransactionError {
     #[error("Conditional Validation Failed: {0}")]
     ConditionalValidationFailed(B256),
     #[error("PBH Transaction Validation Failed: {0}")]
     PBH(#[from] PBHValidationError),
 }
 
-impl WorldChainPoolTransactionError {
+impl MyChainPoolTransactionError {
     pub fn to_outcome<T: PoolTransaction>(self, tx: T) -> TransactionValidationOutcome<T> {
         TransactionValidationOutcome::Invalid(tx, self.into())
     }
 }
 
-impl From<WorldChainPoolTransactionError> for InvalidPoolTransactionError {
-    fn from(val: WorldChainPoolTransactionError) -> Self {
+impl From<MyChainPoolTransactionError> for InvalidPoolTransactionError {
+    fn from(val: MyChainPoolTransactionError) -> Self {
         InvalidPoolTransactionError::Other(Box::new(val))
     }
 }
 
 //TODO: double check this?
-impl PoolTransactionError for WorldChainPoolTransactionError {
+impl PoolTransactionError for MyChainPoolTransactionError {
     fn is_bad_transaction(&self) -> bool {
         // TODO: double check if invalid transaction should be penalized, we could also make this a match statement
         // If all errors should not be penalized, we can just return false
@@ -305,7 +305,7 @@ impl PoolTransactionError for WorldChainPoolTransactionError {
     }
 }
 
-impl From<OpPooledTransaction> for WorldChainPooledTransaction {
+impl From<OpPooledTransaction> for MyChainPooledTransaction {
     fn from(tx: OpPooledTransaction) -> Self {
         Self {
             inner: tx,

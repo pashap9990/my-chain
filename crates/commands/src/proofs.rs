@@ -2,7 +2,7 @@ use clap::{Parser, Subcommand};
 use reth_cli::chainspec::ChainSpecParser;
 use reth_cli_commands::common::CliNodeTypes;
 use std::sync::Arc;
-use world_chain_chainspec::WorldChainSpec;
+use my_chain_chainspec::MyChainSpec;
 
 pub mod init;
 
@@ -13,7 +13,7 @@ pub struct Command<C: ChainSpecParser> {
     command: Subcommands<C>,
 }
 
-impl<C: ChainSpecParser<ChainSpec = WorldChainSpec>> Command<C> {
+impl<C: ChainSpecParser<ChainSpec = MyChainSpec>> Command<C> {
     /// Execute `op-proofs` command
     pub async fn execute<N: CliNodeTypes<ChainSpec = C::ChainSpec>>(
         self,

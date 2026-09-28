@@ -42,18 +42,18 @@ use revm_database::State;
 use semaphore_rs::Field;
 use std::{collections::HashSet, fmt::Debug, sync::Arc, time::Instant};
 use tracing::{error, trace};
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_evm::{WorldChainEvmConfig, utils::estimated_da_size_bytes};
-use world_chain_pool::{
+use my_chain_chainspec::MyChainSpec;
+use my_chain_evm::{MyChainEvmConfig, utils::estimated_da_size_bytes};
+use my_chain_pool::{
     bindings::IPBHEntryPoint::spendNullifierHashesCall,
-    tx::{WorldChainPoolTransaction, WorldChainPooledTransaction},
+    tx::{MyChainPoolTransaction, MyChainPooledTransaction},
 };
 
 /// Container type that holds all necessities to build a new payload.
 #[derive(Debug, Clone)]
-pub struct WorldChainPayloadBuilderCtx<Client: ChainSpecProvider> {
+pub struct MyChainPayloadBuilderCtx<Client: ChainSpecProvider> {
     pub inner:
-        Arc<OpPayloadBuilderCtx<WorldChainEvmConfig, <Client as ChainSpecProvider>::ChainSpec>>,
+        Arc<OpPayloadBuilderCtx<MyChainEvmConfig, <Client as ChainSpecProvider>::ChainSpec>>,
     pub verified_blockspace_capacity: u8,
     pub pbh_entry_point: Address,
     pub pbh_signature_aggregator: Address,
@@ -63,7 +63,7 @@ pub struct WorldChainPayloadBuilderCtx<Client: ChainSpecProvider> {
 }
 
 #[derive(Debug, Clone)]
-pub struct WorldChainPayloadBuilderCtxBuilder {
+pub struct MyChainPayloadBuilderCtxBuilder {
     pub verified_blockspace_capacity: u8,
     pub pbh_entry_point: Address,
     pub pbh_signature_aggregator: Address,
@@ -71,7 +71,7 @@ pub struct WorldChainPayloadBuilderCtxBuilder {
     pub block_uncompressed_size_limit: Option<u64>,
 }
 
-impl<Client> WorldChainPayloadBuilderCtx<Client>
+impl<Client> MyChainPayloadBuilderCtx<Client>
 where
     Client: StateProviderFactory
         + BlockReaderIdExt<Block = Block<OpTransactionSigned>>
@@ -103,16 +103,16 @@ where
     }
 }
 
-impl<Client> PayloadBuilderCtx for WorldChainPayloadBuilderCtx<Client>
+impl<Client> PayloadBuilderCtx for MyChainPayloadBuilderCtx<Client>
 where
     Client: StateProviderFactory
         + BlockReaderIdExt<Block = Block<OpTransactionSigned>>
         + ChainSpecProvider<ChainSpec: OpHardforks>
         + Clone,
 {
-    type Evm = WorldChainEvmConfig;
+    type Evm = MyChainEvmConfig;
     type ChainSpec = <Client as ChainSpecProvider>::ChainSpec;
-    type Transaction = WorldChainPooledTransaction;
+    type Transaction = MyChainPooledTransaction;
 
     fn evm_config(&self) -> &Self::Evm {
         &self.inner.evm_config
@@ -237,7 +237,7 @@ where
                 >,
             >,
         Txs: PayloadTransactions<
-            Transaction: WorldChainPoolTransaction<Consensus = OpTransactionSigned>,
+            Transaction: MyChainPoolTransaction<Consensus = OpTransactionSigned>,
         >,
     {
         let block_da_limit = self.inner.builder_config.da_config.max_da_block_size();
@@ -461,29 +461,29 @@ where
     }
 }
 
-impl<Provider> PayloadBuilderCtxBuilder<Provider, WorldChainEvmConfig, WorldChainSpec>
-    for WorldChainPayloadBuilderCtxBuilder
+impl<Provider> PayloadBuilderCtxBuilder<Provider, MyChainEvmConfig, MyChainSpec>
+    for MyChainPayloadBuilderCtxBuilder
 where
     Provider: StateProviderFactory
-        + ChainSpecProvider<ChainSpec = WorldChainSpec>
+        + ChainSpecProvider<ChainSpec = MyChainSpec>
         + Send
         + Sync
         + BlockReaderIdExt<Block = Block<OpTransactionSigned>>
         + Clone,
 {
-    type PayloadBuilderCtx = WorldChainPayloadBuilderCtx<Provider>;
+    type PayloadBuilderCtx = MyChainPayloadBuilderCtx<Provider>;
 
     fn build(
         &self,
         provider: Provider,
-        evm_config: WorldChainEvmConfig,
+        evm_config: MyChainEvmConfig,
         builder_config: OpBuilderConfig,
         config: PayloadConfig<
-            OpPayloadBuilderAttributes<TxTy<<WorldChainEvmConfig as ConfigureEvm>::Primitives>>,
-            HeaderTy<<WorldChainEvmConfig as ConfigureEvm>::Primitives>,
+            OpPayloadBuilderAttributes<TxTy<<MyChainEvmConfig as ConfigureEvm>::Primitives>>,
+            HeaderTy<<MyChainEvmConfig as ConfigureEvm>::Primitives>,
         >,
         cancel: &CancelOnDrop,
-        best_payload: Option<OpBuiltPayload<<WorldChainEvmConfig as ConfigureEvm>::Primitives>>,
+        best_payload: Option<OpBuiltPayload<<MyChainEvmConfig as ConfigureEvm>::Primitives>>,
     ) -> Self::PayloadBuilderCtx
     where
         Self: Sized,
@@ -497,7 +497,7 @@ where
             best_payload,
         };
 
-        WorldChainPayloadBuilderCtx {
+        MyChainPayloadBuilderCtx {
             inner: Arc::new(inner),
             client: provider.clone(),
             verified_blockspace_capacity: self.verified_blockspace_capacity,
@@ -517,7 +517,7 @@ pub const fn dyn_gas_limit(len: u64) -> u64 {
 }
 
 pub fn spend_nullifiers_tx<DB, EVM, Client>(
-    ctx: &WorldChainPayloadBuilderCtx<Client>,
+    ctx: &MyChainPayloadBuilderCtx<Client>,
     evm: &mut EVM,
     nullifier_hashes: HashSet<Field>,
 ) -> eyre::Result<Recovered<OpTransactionSigned>>

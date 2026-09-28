@@ -18,15 +18,15 @@ use alloy_signer_local::PrivateKeySigner;
 use alloy_sol_types::sol;
 use eyre::eyre::{OptionExt, bail, ensure, eyre};
 use url::Url;
-use world_chain_devnet::{
+use my_chain_devnet::{
     HaSequencerConfig, ObservabilityConfig, WorldDevnet, WorldDevnetBuilder, WorldDevnetPreset,
     is_docker_unavailable,
 };
-use world_chain_proof_protocol::{
+use my_chain_proof_protocol::{
     DEFAULT_L1_TX_RECEIPT_TIMEOUT_SECONDS, IAnchorStateRegistry, IDisputeGameFactory,
     IERC20StakingVault, IMultiProofGame, MULTI_PROOF_GAME_TYPE, read_registered_bond_vault,
 };
-use world_chain_proposer::AlloyProofSystemClient;
+use my_chain_proposer::AlloyProofSystemClient;
 
 /// How long any single wait on devnet-driven on-chain state may take before the test fails.
 pub const GAME_WAIT_TIMEOUT: Duration = Duration::from_secs(300);

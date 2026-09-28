@@ -7,9 +7,9 @@ use jsonrpsee::{
 use reth_provider::{BlockReaderIdExt, StateProviderFactory};
 use reth_transaction_pool::TransactionPool;
 
-/// WorldChainEthApi Extension for `sendRawTransactionConditional` and `sendRawTransaction`
+/// MyChainEthApi Extension for `sendRawTransactionConditional` and `sendRawTransaction`
 #[derive(Clone, Debug)]
-pub struct WorldChainEthApiExt<Pool, Client> {
+pub struct MyChainEthApiExt<Pool, Client> {
     pub(crate) pool: Pool,
     pub(crate) client: Client,
     pub(crate) sequencer_client: Option<SequencerClient>,
@@ -25,7 +25,7 @@ pub trait EthApiExt {
 }
 
 #[async_trait]
-impl<Pool, Client> EthApiExtServer for WorldChainEthApiExt<Pool, Client>
+impl<Pool, Client> EthApiExtServer for MyChainEthApiExt<Pool, Client>
 where
     Pool: TransactionPool + Clone + 'static,
     Client: BlockReaderIdExt + StateProviderFactory + 'static,

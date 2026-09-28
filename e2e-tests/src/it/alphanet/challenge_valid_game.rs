@@ -7,7 +7,7 @@ use alloy_provider::ProviderBuilder;
 use alloy_signer_local::PrivateKeySigner;
 use revm_primitives::U256;
 use std::str::FromStr;
-use world_chain_proof_protocol::{
+use my_chain_proof_protocol::{
     ConsensusProvider, IDisputeGameFactory::IDisputeGameFactoryInstance,
     IMultiProofGame::IMultiProofGameInstance, OptimismConsensusClient,
 };

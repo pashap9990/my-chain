@@ -1,5 +1,5 @@
 use tracing::{info, warn};
-use world_chain_proof_protocol::{
+use my_chain_proof_protocol::{
     ConsensusProvider, GameStatus, InvalidationReason, LineageStop, SelectedLineageGame,
     select_lineage,
 };
@@ -9,15 +9,15 @@ use crate::{
     types::{NextProposalAction, ProposerScan},
 };
 
-/// World Chain Proposer.
+/// My Chain Proposer.
 #[derive(Debug)]
-pub struct WorldChainProposer<E, C> {
+pub struct MyChainProposer<E, C> {
     config: ProposerConfig,
     execution_provider: E,
     consensus_provider: C,
 }
 
-impl<E, C> WorldChainProposer<E, C> {
+impl<E, C> MyChainProposer<E, C> {
     /// Creates a proposer from execution and consensus providers.
     pub const fn new(config: ProposerConfig, execution_provider: E, consensus_provider: C) -> Self {
         Self {
@@ -34,7 +34,7 @@ impl<E, C> WorldChainProposer<E, C> {
     }
 }
 
-impl<E, C> WorldChainProposer<E, C>
+impl<E, C> MyChainProposer<E, C>
 where
     E: ProposerClient,
     C: ConsensusProvider,
@@ -134,7 +134,7 @@ where
                     game_address = %game.address,
                     l2_block_number = selected.transition.l2_block_number,
                     tx_hash = ?resolve_submission.tx_hash,
-                    "resolved World Chain proof-system game"
+                    "resolved My Chain proof-system game"
                 );
                 resolved_games.push(*selected);
                 resolutions_submitted += 1;
@@ -168,7 +168,7 @@ where
                 game_address = %selected.game.address,
                 l2_block_number = selected.transition.l2_block_number,
                 tx_hash = ?close_game_submission.tx_hash,
-                "closed World Chain proof-system game"
+                "closed My Chain proof-system game"
             );
             break;
         }
@@ -232,7 +232,7 @@ where
             parent_ref = %proposal.parent_ref,
             attempt = proposal.attempt,
             retry_of = ?retry_of,
-            "submitted World Chain proof-system game"
+            "submitted My Chain proof-system game"
         );
         Ok(())
     }

@@ -20,7 +20,7 @@ use reth_db_api::{
 use std::{fmt, fs, path::PathBuf, thread, time::Duration};
 use tokio::sync::mpsc;
 use tracing::{debug, error, warn};
-use world_chain_primitives::primitives::FlashblocksPayloadV1;
+use my_chain_primitives::primitives::FlashblocksPayloadV1;
 
 // Records own full flashblock payloads, so keep the best-effort queue modest to
 // avoid unbounded memory growth when the DB writer stalls.
@@ -563,7 +563,7 @@ mod tests {
     use alloy_rpc_types_engine::PayloadId;
     use reth_db_api::transaction::DbTx;
     use tempfile::tempdir;
-    use world_chain_primitives::primitives::{
+    use my_chain_primitives::primitives::{
         ExecutionPayloadBaseV1, ExecutionPayloadFlashblockDeltaV1,
     };
 

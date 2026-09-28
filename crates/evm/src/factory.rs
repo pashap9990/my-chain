@@ -5,20 +5,20 @@ use reth_evm::{
 };
 use revm::Inspector;
 
-use crate::{BlockExecutionWitness, execution::WorldChainBlockExecutor};
+use crate::{BlockExecutionWitness, execution::MyChainBlockExecutor};
 
 /// A [`BlockExecutorFactory`] that wraps the executors produced by `E`'s block executor factory in
-/// a [`WorldChainBlockExecutor`], threading through an optional capture channel.
+/// a [`MyChainBlockExecutor`], threading through an optional capture channel.
 #[derive(Debug, Clone)]
-pub struct WorldChainBlockExecutorFactory<E: ConfigureEvm + 'static> {
+pub struct MyChainBlockExecutorFactory<E: ConfigureEvm + 'static> {
     /// The inner factory whose executors are wrapped.
     pub(crate) inner: E::BlockExecutorFactory,
     /// Optional channel that receives a [`BlockExecutionWitness`] for every executed block.
     pub(crate) sender: Option<Sender<BlockExecutionWitness>>,
 }
 
-impl<E: ConfigureEvm + 'static> WorldChainBlockExecutorFactory<E> {
-    /// Creates a new [`WorldChainBlockExecutorFactory`] over the given inner factory.
+impl<E: ConfigureEvm + 'static> MyChainBlockExecutorFactory<E> {
+    /// Creates a new [`MyChainBlockExecutorFactory`] over the given inner factory.
     pub const fn new(
         inner: E::BlockExecutorFactory,
         sender: Option<Sender<BlockExecutionWitness>>,
@@ -27,7 +27,7 @@ impl<E: ConfigureEvm + 'static> WorldChainBlockExecutorFactory<E> {
     }
 }
 
-impl<E: ConfigureEvm + 'static> BlockExecutorFactory for WorldChainBlockExecutorFactory<E> {
+impl<E: ConfigureEvm + 'static> BlockExecutorFactory for MyChainBlockExecutorFactory<E> {
     type EvmFactory = <E::BlockExecutorFactory as BlockExecutorFactory>::EvmFactory;
     type TxExecutionResult = <E::BlockExecutorFactory as BlockExecutorFactory>::TxExecutionResult;
     type ExecutionCtx<'a> = <E::BlockExecutorFactory as BlockExecutorFactory>::ExecutionCtx<'a>;
@@ -35,7 +35,7 @@ impl<E: ConfigureEvm + 'static> BlockExecutorFactory for WorldChainBlockExecutor
     type Receipt = <E::BlockExecutorFactory as BlockExecutorFactory>::Receipt;
 
     type Executor<'a, DB, I>
-        = WorldChainBlockExecutor<BlockExecutorFor<'a, E::BlockExecutorFactory, DB, I>>
+        = MyChainBlockExecutor<BlockExecutorFor<'a, E::BlockExecutorFactory, DB, I>>
     where
         DB: StateDB,
         I: Inspector<<Self::EvmFactory as EvmFactory>::Context<DB>>;
@@ -53,7 +53,7 @@ impl<E: ConfigureEvm + 'static> BlockExecutorFactory for WorldChainBlockExecutor
         DB: StateDB,
         I: Inspector<<Self::EvmFactory as EvmFactory>::Context<DB>>,
     {
-        WorldChainBlockExecutor {
+        MyChainBlockExecutor {
             inner: self.inner.create_executor(evm, ctx),
             sender: self.sender.clone(),
         }

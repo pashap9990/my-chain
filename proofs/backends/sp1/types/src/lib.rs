@@ -19,7 +19,7 @@ pub enum Sp1ProofRequest {
 /// Host request for a single SP1 range proof.
 ///
 /// Carries the full rkyv-serialized [`WorldRangeWitnessData`] that the range guest reads from
-/// stdin, mirroring `NitroRangeProofRequest` in `world-chain-proof-nitro`.
+/// stdin, mirroring `NitroRangeProofRequest` in `my-chain-proof-nitro`.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RangeProofRequest {
     /// rkyv-serialized [`WorldRangeWitnessData`] consumed by the range guest.

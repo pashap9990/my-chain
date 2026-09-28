@@ -10,7 +10,7 @@ use async_trait::async_trait;
 use std::{sync::Arc, time::Duration};
 use tokio::sync::Semaphore;
 use tracing::warn;
-use world_chain_proof_protocol::{
+use my_chain_proof_protocol::{
     IAnchorStateRegistry, IDisputeGameFactory, IERC20StakingVault, IMultiProofGame,
     MULTI_PROOF_GAME_TYPE, ProposalStatus, ResolutionStatus, read_lineage_resolution_status,
     read_registered_bond_vault, read_registered_lineage_config,
@@ -93,7 +93,7 @@ where
 
     async fn refresh_vault_balance_for(&self, account: Address) {
         match self.bond_vault.availableBalance(account).call().await {
-            Ok(balance) => world_chain_proof_metrics::record_vault_balance(
+            Ok(balance) => my_chain_proof_metrics::record_vault_balance(
                 self.bond_vault_address(),
                 account,
                 "challenger",
@@ -189,11 +189,11 @@ where
             .with_timeout(Some(self.receipt_timeout))
             .get_receipt()
             .await?;
-        world_chain_proof_metrics::refresh_wallet_balance(&self.provider, receipt.from).await;
+        my_chain_proof_metrics::refresh_wallet_balance(&self.provider, receipt.from).await;
         if !receipt.status() {
             return Err(ChallengerError::Revert(tx_hash));
         }
-        world_chain_proof_metrics::record_bond_locked("challenger", challenger_bond);
+        my_chain_proof_metrics::record_bond_locked("challenger", challenger_bond);
         self.refresh_vault_balance_for(receipt.from).await;
         Ok(ChallengeSubmission {
             tx_hash,
@@ -220,7 +220,7 @@ where
             .with_timeout(Some(self.receipt_timeout))
             .get_receipt()
             .await?;
-        world_chain_proof_metrics::refresh_wallet_balance(&self.provider, receipt.from).await;
+        my_chain_proof_metrics::refresh_wallet_balance(&self.provider, receipt.from).await;
 
         if !receipt.status() {
             return Err(ChallengerError::Revert(tx_hash));
@@ -272,7 +272,7 @@ where
             .with_timeout(Some(self.receipt_timeout))
             .get_receipt()
             .await?;
-        world_chain_proof_metrics::refresh_wallet_balance(&self.provider, receipt.from).await;
+        my_chain_proof_metrics::refresh_wallet_balance(&self.provider, receipt.from).await;
 
         if !receipt.status() {
             return Err(ChallengerError::Revert(tx_hash));

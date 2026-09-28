@@ -7,8 +7,8 @@ use alloy_primitives::{Address, B256};
 use alloy_provider::{Provider, ProviderBuilder};
 use alloy_signer_local::PrivateKeySigner;
 use std::{str::FromStr, time::Duration};
-use world_chain_proof_protocol::{IMultiProofGame::IMultiProofGameInstance, LineageProvider};
-use world_chain_proposer::{Proposal, ProposalSubmission, ProposerClient};
+use my_chain_proof_protocol::{IMultiProofGame::IMultiProofGameInstance, LineageProvider};
+use my_chain_proposer::{Proposal, ProposalSubmission, ProposerClient};
 
 #[tokio::test]
 #[ignore]

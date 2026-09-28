@@ -1,4 +1,4 @@
-//! Local playground — an in-process World Chain node swarm.
+//! Local playground — an in-process My Chain node swarm.
 //!
 //! Spawns N nodes connected via P2P, drives block production with [`EngineDriver`],
 //! and optionally runs a [`TxSpammer`] for load generation. RPC endpoints are
@@ -18,16 +18,16 @@ use reth_optimism_node::utils::optimism_payload_attributes;
 use reth_optimism_payload_builder::OpPayloadAttrs;
 use tracing::info;
 
-use world_chain_node::context::WorldChainDefaultContext;
-use world_chain_primitives::{p2p::Authorization, payload_id::force_op_payload_id_v3};
-use world_chain_test_utils::e2e_harness::{
+use my_chain_node::context::MyChainDefaultContext;
+use my_chain_primitives::{p2p::Authorization, payload_id::force_op_payload_id_v3};
+use my_chain_test_utils::e2e_harness::{
     actions::EngineDriver,
     setup::{
-        TX_SET_L1_BLOCK, WorldChainTestBuilder, build_payload_attributes, encode_eip1559_params,
+        TX_SET_L1_BLOCK, MyChainTestBuilder, build_payload_attributes, encode_eip1559_params,
     },
 };
 
-/// Launch a local World Chain playground.
+/// Launch a local My Chain playground.
 ///
 /// Spawns an in-process node swarm with P2P connectivity, automatic block
 /// production, and optional transaction load. Useful for local development,
@@ -61,15 +61,15 @@ pub async fn run(args: Args) -> Result<()> {
         spam = args.spam,
         block_time_ms = args.block_time_ms,
         flashblocks = args.flashblocks,
-        "Starting World Chain playground"
+        "Starting My Chain playground"
     );
 
     // Spawn node swarm
-    let (_, nodes, _tasks, mut env, tx_spammer) = WorldChainTestBuilder::builder()
+    let (_, nodes, _tasks, mut env, tx_spammer) = MyChainTestBuilder::builder()
         .nodes(args.nodes)
         .flashblocks(args.flashblocks)
         .build()
-        .setup_with::<WorldChainDefaultContext, _>(optimism_payload_attributes)
+        .setup_with::<MyChainDefaultContext, _>(optimism_payload_attributes)
         .await?;
 
     // Print RPC endpoints

@@ -1,17 +1,17 @@
-// Module defining World Chain Node Preset contexts for components & add-ons.
+// Module defining My Chain Node Preset contexts for components & add-ons.
 
 use std::{collections::HashSet, sync::Arc, time::Duration};
 
 use crate::{
-    add_ons::WorldChainAddOns,
+    add_ons::MyChainAddOns,
     engine::FlashblocksEngineApiBuilder,
     node::{
-        WorldChainNode, WorldChainNodeComponentBuilder, WorldChainNodeContext,
-        WorldChainNodePrimitiveTypes,
+        MyChainNode, MyChainNodeComponentBuilder, MyChainNodeContext,
+        MyChainNodePrimitiveTypes,
     },
     payload::FlashblocksPayloadBuilderBuilder,
     payload_service::FlashblocksPayloadServiceBuilder,
-    pool::WorldChainPoolBuilder,
+    pool::MyChainPoolBuilder,
 };
 use alloy_primitives::keccak256;
 use ed25519_dalek::VerifyingKey;
@@ -29,42 +29,42 @@ use reth_optimism_node::{
 };
 use reth_optimism_primitives::OpPrimitives;
 use reth_optimism_rpc::OpEthApiBuilder;
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_cli::{WorldChainArgs, WorldChainNodeConfig};
-use world_chain_p2p::{
+use my_chain_chainspec::MyChainSpec;
+use my_chain_cli::{MyChainArgs, MyChainNodeConfig};
+use my_chain_p2p::{
     monitor::PeerMonitor,
     protocol::{
         handler::{FlashblocksHandle, FlashblocksP2PProtocol},
         recorder::FlashblocksRecorderConfig,
     },
 };
-use world_chain_primitives::p2p::Authorization;
-use world_chain_rpc::eth::FlashblocksEthApiBuilder;
+use my_chain_primitives::p2p::Authorization;
+use my_chain_rpc::eth::FlashblocksEthApiBuilder;
 
 use crossbeam_channel::{Receiver, Sender};
 use tracing::{debug, info};
-use world_chain_builder::WorldChainPayloadBuilderCtxBuilder;
-use world_chain_evm::{
-    BlockExecutionWitness, ExecutionWitnessHandle, WitnessCache, WorldChainEvmConfig,
-    WorldChainExecutorBuilder,
+use my_chain_builder::MyChainPayloadBuilderCtxBuilder;
+use my_chain_evm::{
+    BlockExecutionWitness, ExecutionWitnessHandle, WitnessCache, MyChainEvmConfig,
+    MyChainExecutorBuilder,
 };
-use world_chain_pool::BasicWorldChainPool;
-use world_chain_validator::coordinator::FlashblocksExecutionCoordinator;
+use my_chain_pool::BasicMyChainPool;
+use my_chain_validator::coordinator::FlashblocksExecutionCoordinator;
 
-use crate::tx_propagation::WorldChainTransactionPropagationPolicy;
+use crate::tx_propagation::MyChainTransactionPropagationPolicy;
 use reth_network::PeersInfo;
 use reth_network_peers::{PeerId, TrustedPeer};
 use reth_node_builder::{BuilderContext, components::NetworkBuilder};
 use reth_transaction_pool::{PoolTransaction, TransactionPool};
 
-/// Network builder for World Chain that optionally applies custom transaction propagation policy
+/// Network builder for My Chain that optionally applies custom transaction propagation policy
 /// and registers the flashblocks P2P sub-protocol.
 ///
 /// Extends OpNetworkBuilder to support restricting transaction gossip to specific peers
 /// and ensures the flashblocks "flblk" capability is registered on the NetworkManager
 /// before the network starts connecting to peers.
 #[derive(Debug, Clone)]
-pub struct WorldChainNetworkBuilder {
+pub struct MyChainNetworkBuilder {
     op_network_builder: OpNetworkBuilder,
     tx_peers: Option<Vec<PeerId>>,
     p2p_handle: Option<FlashblocksHandle>,
@@ -72,7 +72,7 @@ pub struct WorldChainNetworkBuilder {
     max_sentry_connections: usize,
 }
 
-impl WorldChainNetworkBuilder {
+impl MyChainNetworkBuilder {
     pub fn new(
         disable_txpool_gossip: bool,
         disable_discovery_v4: bool,
@@ -106,7 +106,7 @@ impl WorldChainNetworkBuilder {
     }
 }
 
-const FLASHBLOCKS_SENTRY_SELECTION_DOMAIN: &[u8] = b"worldchain-flashblocks-sentry-v1";
+const FLASHBLOCKS_SENTRY_SELECTION_DOMAIN: &[u8] = b"mychain-flashblocks-sentry-v1";
 
 /// Ranks sentries using highest-random-weight (rendezvous) hashing.
 ///
@@ -203,7 +203,7 @@ fn apply_flashblock_sentry_policy(
     selected
 }
 
-impl<Node, Pool> NetworkBuilder<Node, Pool> for WorldChainNetworkBuilder
+impl<Node, Pool> NetworkBuilder<Node, Pool> for MyChainNetworkBuilder
 where
     Node: FullNodeTypes<Types: NodeTypes<ChainSpec: Hardforks>>,
     Pool: TransactionPool<Transaction: PoolTransaction<Consensus = TxTy<Node::Types>>>
@@ -241,7 +241,7 @@ where
         );
         if !flashblock_sentries.is_empty() {
             debug!(
-                target: "world_chain::network",
+                target: "my_chain::network",
                 sentries = ?selected_sentries,
                 "connecting to flashblocks sentries"
             );
@@ -275,25 +275,25 @@ where
         // Start network with custom policy if specified, otherwise use default
         let handle = if let Some(peers) = tx_peers {
             tracing::info!(
-                target: "world_chain::network",
+                target: "my_chain::network",
                 "Applying peer white listing transaction policy. Number of peers: {}",
                 peers.len()
             );
-            let policy = WorldChainTransactionPropagationPolicy::new(peers);
+            let policy = MyChainTransactionPropagationPolicy::new(peers);
             let tx_config = ctx.config().network.transactions_manager_config();
             ctx.start_network_with(network, pool, tx_config, policy)
         } else {
             tracing::info!(
-                target: "world_chain::network",
+                target: "my_chain::network",
                 "Starting network with default propagation policy"
             );
             ctx.start_network(network, pool)
         };
 
         tracing::info!(
-            target: "world_chain::network",
+            target: "my_chain::network",
             enode = %handle.local_node_record(),
-            "World Chain P2P networking initialized"
+            "My Chain P2P networking initialized"
         );
 
         // Set up peer monitor for flashblocks trusted peers
@@ -309,7 +309,7 @@ where
 
 /// Shared witness-oracle plumbing, created once when `--witness.collect` is set.
 ///
-/// The `sender` is handed to the capturing EVM config built in [`components`](WorldChainNodeContext::components),
+/// The `sender` is handed to the capturing EVM config built in [`components`](MyChainNodeContext::components),
 /// while the `cache` and `receiver` are carried into the add-ons, where the collector thread is
 /// spawned and the RPC oracle is installed.
 #[derive(Clone, Debug)]
@@ -320,35 +320,35 @@ struct WitnessChannels {
 }
 
 #[derive(Clone, Debug)]
-pub struct WorldChainDefaultContext {
-    config: WorldChainNodeConfig,
+pub struct MyChainDefaultContext {
+    config: MyChainNodeConfig,
     components_context: Option<FlashblocksComponentsContext>,
     witness: Option<WitnessChannels>,
 }
 
-impl WorldChainNodePrimitiveTypes for WorldChainDefaultContext {
+impl MyChainNodePrimitiveTypes for MyChainDefaultContext {
     type Primitives = OpPrimitives;
     type Payload = OpEngineTypes;
-    type ChainSpec = WorldChainSpec;
+    type ChainSpec = MyChainSpec;
 }
 
-impl<N: FullNodeTypes<Types = WorldChainNode<WorldChainDefaultContext>>> WorldChainNodeContext<N>
-    for WorldChainDefaultContext
+impl<N: FullNodeTypes<Types = MyChainNode<MyChainDefaultContext>>> MyChainNodeContext<N>
+    for MyChainDefaultContext
 where
     FlashblocksPayloadServiceBuilder<
-        FlashblocksPayloadBuilderBuilder<WorldChainPayloadBuilderCtxBuilder>,
-    >: PayloadServiceBuilder<N, BasicWorldChainPool<N>, WorldChainEvmConfig>,
+        FlashblocksPayloadBuilderBuilder<MyChainPayloadBuilderCtxBuilder>,
+    >: PayloadServiceBuilder<N, BasicMyChainPool<N>, MyChainEvmConfig>,
 {
-    type Pool = BasicWorldChainPool<N>;
-    type Net = WorldChainNetworkBuilder;
-    type Evm = WorldChainEvmConfig;
+    type Pool = BasicMyChainPool<N>;
+    type Net = MyChainNetworkBuilder;
+    type Evm = MyChainEvmConfig;
     type PayloadServiceBuilder = FlashblocksPayloadServiceBuilder<
-        FlashblocksPayloadBuilderBuilder<WorldChainPayloadBuilderCtxBuilder>,
+        FlashblocksPayloadBuilderBuilder<MyChainPayloadBuilderCtxBuilder>,
     >;
 
-    type ComponentsBuilder = WorldChainNodeComponentBuilder<N, Self>;
+    type ComponentsBuilder = MyChainNodeComponentBuilder<N, Self>;
 
-    type AddOns = WorldChainAddOns<
+    type AddOns = MyChainAddOns<
         NodeAdapter<N, <Self::ComponentsBuilder as NodeComponentsBuilder<N>>::Components>,
         FlashblocksEthApiBuilder,
         OpEngineValidatorBuilder,
@@ -361,9 +361,9 @@ where
     fn components(&self) -> Self::ComponentsBuilder {
         let Self {
             config:
-                WorldChainNodeConfig {
+                MyChainNodeConfig {
                     args:
-                        WorldChainArgs {
+                        MyChainArgs {
                             rollup,
                             builder,
                             pbh,
@@ -385,7 +385,7 @@ where
             ..
         } = rollup;
 
-        let mut wc_network_builder = WorldChainNetworkBuilder::new(
+        let mut wc_network_builder = MyChainNetworkBuilder::new(
             disable_txpool_gossip,
             !discovery_v4,
             tx_peers,
@@ -420,7 +420,7 @@ where
             (200, 200, None, false)
         };
 
-        let ctx_builder = WorldChainPayloadBuilderCtxBuilder {
+        let ctx_builder = MyChainPayloadBuilderCtxBuilder {
             verified_blockspace_capacity: pbh.verified_blockspace_capacity,
             pbh_entry_point: pbh.entrypoint,
             pbh_signature_aggregator: pbh.signature_aggregator,
@@ -430,12 +430,12 @@ where
 
         ComponentsBuilder::default()
             .node_types::<N>()
-            .pool(WorldChainPoolBuilder::new(
+            .pool(MyChainPoolBuilder::new(
                 pbh.entrypoint,
                 pbh.signature_aggregator,
                 pbh.world_id,
             ))
-            .executor(WorldChainExecutorBuilder::new(
+            .executor(MyChainExecutorBuilder::new(
                 witness.as_ref().map(|w| w.sender.clone()),
             ))
             .payload(FlashblocksPayloadServiceBuilder::new(
@@ -522,7 +522,7 @@ where
             Default::default(),
         );
 
-        WorldChainAddOns::new(
+        MyChainAddOns::new(
             rpc_add_ons,
             self.config.builder_config.inner.da_config.clone(),
             self.config.builder_config.inner.gas_limit_config.clone(),
@@ -551,8 +551,8 @@ pub struct FlashblocksComponentsContext {
     pub authorizer_vk: VerifyingKey,
 }
 
-impl From<WorldChainNodeConfig> for WorldChainDefaultContext {
-    fn from(value: WorldChainNodeConfig) -> Self {
+impl From<MyChainNodeConfig> for MyChainDefaultContext {
+    fn from(value: MyChainNodeConfig) -> Self {
         let components_context = value
             .args
             .flashblocks
@@ -579,8 +579,8 @@ impl From<WorldChainNodeConfig> for WorldChainDefaultContext {
     }
 }
 
-impl From<WorldChainNodeConfig> for FlashblocksComponentsContext {
-    fn from(value: WorldChainNodeConfig) -> Self {
+impl From<MyChainNodeConfig> for FlashblocksComponentsContext {
+    fn from(value: MyChainNodeConfig) -> Self {
         let flashblocks = value
             .args
             .flashblocks
@@ -628,7 +628,7 @@ impl From<WorldChainNodeConfig> for FlashblocksComponentsContext {
 #[cfg(test)]
 mod sentry_policy_tests {
     use super::*;
-    use world_chain_cli::cli::FLASHBLOCKS_MAINNET_SENTRIES;
+    use my_chain_cli::cli::FLASHBLOCKS_MAINNET_SENTRIES;
 
     fn sentries() -> Vec<TrustedPeer> {
         FLASHBLOCKS_MAINNET_SENTRIES

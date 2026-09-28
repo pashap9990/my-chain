@@ -27,16 +27,16 @@ use reth_optimism_payload_builder::{OpExecData, OpPayloadAttrs};
 use reth_optimism_primitives::{OpBlock, OpBlockBody, OpReceipt, OpTransactionSigned};
 use reth_primitives_traits::{Block as _, BlockTy, SealedBlock};
 use reth_rpc_api::eth::RpcTypes;
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_cli::{WorldChainArgs, WorldChainNodeConfig};
-use world_chain_evm::{OpEvmConfig, OpRethReceiptBuilder};
-use world_chain_node::{
-    context::{FlashblocksComponentsContext, WorldChainNetworkBuilder},
+use my_chain_chainspec::MyChainSpec;
+use my_chain_cli::{MyChainArgs, MyChainNodeConfig};
+use my_chain_evm::{OpEvmConfig, OpRethReceiptBuilder};
+use my_chain_node::{
+    context::{FlashblocksComponentsContext, MyChainNetworkBuilder},
     engine::FlashblocksEngineApiBuilder,
-    node::{WorldChainNode, WorldChainNodeContext, WorldChainNodePrimitiveTypes},
-    pool::WorldChainPoolBuilder,
+    node::{MyChainNode, MyChainNodeContext, MyChainNodePrimitiveTypes},
+    pool::MyChainPoolBuilder,
 };
-use world_chain_pool::BasicWorldChainPool;
+use my_chain_pool::BasicMyChainPool;
 
 /// Node primitives for world chain.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
@@ -130,9 +130,9 @@ pub struct WorldExecutorBuilder;
 
 impl<Node> ExecutorBuilder<Node> for WorldExecutorBuilder
 where
-    Node: FullNodeTypes<Types: NodeTypes<ChainSpec = WorldChainSpec, Primitives = WorldPrimitives>>,
+    Node: FullNodeTypes<Types: NodeTypes<ChainSpec = MyChainSpec, Primitives = WorldPrimitives>>,
 {
-    type EVM = OpEvmConfig<WorldChainSpec, WorldPrimitives, WorldReceiptBuilder>;
+    type EVM = OpEvmConfig<MyChainSpec, WorldPrimitives, WorldReceiptBuilder>;
 
     async fn build_evm(self, ctx: &BuilderContext<Node>) -> eyre::Result<Self::EVM> {
         Ok(OpEvmConfig::new(ctx.chain_spec(), WorldReceiptBuilder))
@@ -150,22 +150,22 @@ impl RpcTypes for WorldRpcTypes {
     type TransactionResponse = op_alloy_rpc_types::Transaction<OpTxEnvelope>;
 }
 
-/// World Chain e2e context that launches a world chain node.
+/// My Chain e2e context that launches a world chain node.
 #[derive(Clone, Debug)]
 pub struct WorldNodeContext {
-    config: WorldChainNodeConfig,
+    config: MyChainNodeConfig,
     components_context: Option<FlashblocksComponentsContext>,
 }
 
 impl WorldNodeContext {
     /// Returns the node configuration captured when the context was created.
-    pub fn config(&self) -> &WorldChainNodeConfig {
+    pub fn config(&self) -> &MyChainNodeConfig {
         &self.config
     }
 }
 
-impl From<WorldChainNodeConfig> for WorldNodeContext {
-    fn from(config: WorldChainNodeConfig) -> Self {
+impl From<MyChainNodeConfig> for WorldNodeContext {
+    fn from(config: MyChainNodeConfig) -> Self {
         let components_context = config
             .args
             .flashblocks
@@ -179,32 +179,32 @@ impl From<WorldChainNodeConfig> for WorldNodeContext {
     }
 }
 
-impl WorldChainNodePrimitiveTypes for WorldNodeContext {
+impl MyChainNodePrimitiveTypes for WorldNodeContext {
     type Primitives = WorldPrimitives;
     type Payload = WorldEngineTypes;
-    type ChainSpec = WorldChainSpec;
+    type ChainSpec = MyChainSpec;
 }
 
-impl<N> WorldChainNodeContext<N> for WorldNodeContext
+impl<N> MyChainNodeContext<N> for WorldNodeContext
 where
-    N: FullNodeTypes<Types = WorldChainNode<Self>>,
+    N: FullNodeTypes<Types = MyChainNode<Self>>,
     BasicPayloadServiceBuilder<OpPayloadBuilder>: PayloadServiceBuilder<
             N,
-            BasicWorldChainPool<
+            BasicMyChainPool<
                 N,
                 OpPooledTransaction,
-                OpEvmConfig<WorldChainSpec, WorldPrimitives, WorldReceiptBuilder>,
+                OpEvmConfig<MyChainSpec, WorldPrimitives, WorldReceiptBuilder>,
             >,
-            OpEvmConfig<WorldChainSpec, WorldPrimitives, WorldReceiptBuilder>,
+            OpEvmConfig<MyChainSpec, WorldPrimitives, WorldReceiptBuilder>,
         >,
 {
-    type Evm = OpEvmConfig<WorldChainSpec, WorldPrimitives, WorldReceiptBuilder>;
-    type Pool = BasicWorldChainPool<N, OpPooledTransaction, Self::Evm>;
-    type Net = WorldChainNetworkBuilder;
+    type Evm = OpEvmConfig<MyChainSpec, WorldPrimitives, WorldReceiptBuilder>;
+    type Pool = BasicMyChainPool<N, OpPooledTransaction, Self::Evm>;
+    type Net = MyChainNetworkBuilder;
     type PayloadServiceBuilder = BasicPayloadServiceBuilder<OpPayloadBuilder>;
     type ComponentsBuilder = ComponentsBuilder<
         N,
-        WorldChainPoolBuilder<OpPooledTransaction>,
+        MyChainPoolBuilder<OpPooledTransaction>,
         Self::PayloadServiceBuilder,
         Self::Net,
         WorldExecutorBuilder,
@@ -222,9 +222,9 @@ where
     fn components(&self) -> Self::ComponentsBuilder {
         let Self {
             config:
-                WorldChainNodeConfig {
+                MyChainNodeConfig {
                     args:
-                        WorldChainArgs {
+                        MyChainArgs {
                             rollup,
                             pbh,
                             tx_peers,
@@ -242,7 +242,7 @@ where
             ..
         } = rollup;
 
-        let wc_network_builder = WorldChainNetworkBuilder::new(
+        let wc_network_builder = MyChainNetworkBuilder::new(
             disable_txpool_gossip,
             !discovery_v4,
             tx_peers,
@@ -255,7 +255,7 @@ where
 
         ComponentsBuilder::default()
             .node_types::<N>()
-            .pool(WorldChainPoolBuilder::new(
+            .pool(MyChainPoolBuilder::new(
                 pbh.entrypoint,
                 pbh.signature_aggregator,
                 pbh.world_id,

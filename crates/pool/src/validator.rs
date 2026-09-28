@@ -1,9 +1,9 @@
-//! World Chain transaction pool types
-use super::{root::WorldChainRootValidator, tx::WorldChainPoolTransaction};
+//! My Chain transaction pool types
+use super::{root::MyChainRootValidator, tx::MyChainPoolTransaction};
 use crate::{
     bindings::{IPBHEntryPoint, IPBHEntryPoint::PBHPayload},
-    error::WorldChainTransactionPoolError,
-    tx::WorldChainPoolTransactionError,
+    error::MyChainTransactionPoolError,
+    tx::MyChainPoolTransactionError,
 };
 use alloy_eips::BlockId;
 use alloy_primitives::Address;
@@ -27,7 +27,7 @@ use std::{
     },
 };
 use tracing::info;
-use world_chain_pbh::payload::{PBHPayload as PbhPayload, PBHValidationError};
+use my_chain_pbh::payload::{PBHPayload as PbhPayload, PBHValidationError};
 
 /// The slot of the `pbh_gas_limit` in the PBHEntryPoint contract.
 pub const PBH_GAS_LIMIT_SLOT: U256 = U256::from_limbs([53, 0, 0, 0]);
@@ -41,16 +41,16 @@ pub const PBH_NONCE_LIMIT_OFFSET: u32 = 160;
 /// Max u16
 pub const MAX_U16: U256 = U256::from_limbs([0xFFFF, 0, 0, 0]);
 
-/// Validator for World Chain transactions.
+/// Validator for My Chain transactions.
 #[derive(Debug, Clone)]
-pub struct WorldChainTransactionValidator<Client, Tx, Evm>
+pub struct MyChainTransactionValidator<Client, Tx, Evm>
 where
     Client: StateProviderFactory + BlockReaderIdExt,
 {
     /// The inner transaction validator.
     inner: OpTransactionValidator<Client, Tx, Evm>,
     /// Validates World ID proofs contain a valid root in the WorldID account.
-    root_validator: WorldChainRootValidator<Client>,
+    root_validator: MyChainRootValidator<Client>,
     /// The maximum number of PBH transactions a single World ID can execute in a given month.
     max_pbh_nonce: Arc<AtomicU16>,
     /// The maximum amount of gas a single PBH transaction can consume.
@@ -61,21 +61,21 @@ where
     pbh_signature_aggregator: Address,
 }
 
-impl<Client, Tx, Evm> WorldChainTransactionValidator<Client, Tx, Evm>
+impl<Client, Tx, Evm> MyChainTransactionValidator<Client, Tx, Evm>
 where
     Client: ChainSpecProvider<ChainSpec: OpHardforks>
         + StateProviderFactory
         + BlockReaderIdExt<Block = BlockTy<Evm::Primitives>>,
-    Tx: WorldChainPoolTransaction<Consensus = TxTy<Evm::Primitives>>,
+    Tx: MyChainPoolTransaction<Consensus = TxTy<Evm::Primitives>>,
     Evm: ConfigureEvm,
 {
-    /// Create a new [`WorldChainTransactionValidator`].
+    /// Create a new [`MyChainTransactionValidator`].
     pub fn new(
         inner: OpTransactionValidator<Client, Tx, Evm>,
-        root_validator: WorldChainRootValidator<Client>,
+        root_validator: MyChainRootValidator<Client>,
         pbh_entrypoint: Address,
         pbh_signature_aggregator: Address,
-    ) -> Result<Self, WorldChainTransactionPoolError> {
+    ) -> Result<Self, MyChainTransactionPoolError> {
         let state = inner.client().state_by_block_id(BlockId::latest())?;
         // The `num_pbh_txs` storage is in a packed slot at a 160 bit offset consuming 16 bits.
         let max_pbh_nonce: u16 = ((state
@@ -93,7 +93,7 @@ where
             info!(
                 %pbh_entrypoint,
                 %pbh_signature_aggregator,
-                "WorldChainTransactionValidator Initialized with PBH Disabled - Failed to fetch PBH nonce and gas limit from PBHEntryPoint. Defaulting to 0."
+                "MyChainTransactionValidator Initialized with PBH Disabled - Failed to fetch PBH nonce and gas limit from PBHEntryPoint. Defaulting to 0."
             )
         } else {
             info!(
@@ -101,7 +101,7 @@ where
                 %max_pbh_nonce,
                 %pbh_entrypoint,
                 %pbh_signature_aggregator,
-                "WorldChainTransactionValidator Initialized with PBH Enabled"
+                "MyChainTransactionValidator Initialized with PBH Enabled"
             )
         }
         Ok(Self {
@@ -135,7 +135,7 @@ where
 
         // Decode the calldata and check that all UserOp specify the PBH signature aggregator
         let Ok(calldata) = IPBHEntryPoint::handleAggregatedOpsCall::abi_decode(tx.input()) else {
-            return WorldChainPoolTransactionError::from(PBHValidationError::InvalidCalldata)
+            return MyChainPoolTransactionError::from(PBHValidationError::InvalidCalldata)
                 .to_outcome(tx);
         };
 
@@ -146,7 +146,7 @@ where
                 .iter()
                 .any(|aggregated_ops| aggregated_ops.userOps.is_empty())
         {
-            return WorldChainPoolTransactionError::from(PBHValidationError::MissingPbhPayload)
+            return MyChainPoolTransactionError::from(PBHValidationError::MissingPbhPayload)
                 .to_outcome(tx);
         }
 
@@ -155,7 +155,7 @@ where
             .iter()
             .all(|aggregator| aggregator.aggregator == self.pbh_signature_aggregator)
         {
-            return WorldChainPoolTransactionError::from(
+            return MyChainPoolTransactionError::from(
                 PBHValidationError::InvalidSignatureAggregator,
             )
             .to_outcome(tx);
@@ -173,7 +173,7 @@ where
             let pbh_payloads = match <Vec<PBHPayload>>::abi_decode(buff) {
                 Ok(pbh_payloads) => pbh_payloads,
                 Err(_) => {
-                    return WorldChainPoolTransactionError::from(
+                    return MyChainPoolTransactionError::from(
                         PBHValidationError::InvalidCalldata,
                     )
                     .to_outcome(tx);
@@ -181,7 +181,7 @@ where
             };
 
             if pbh_payloads.len() != aggregated_ops.userOps.len() {
-                return WorldChainPoolTransactionError::from(PBHValidationError::MissingPbhPayload)
+                return MyChainPoolTransactionError::from(PBHValidationError::MissingPbhPayload)
                     .to_outcome(tx);
             }
 
@@ -193,11 +193,11 @@ where
                 .zip(aggregated_ops.userOps)
                 .map(|(payload, op)| {
                     let pbh_payload = PbhPayload::try_from(payload).map_err(|_| {
-                        WorldChainPoolTransactionError::from(PBHValidationError::InvalidCalldata)
+                        MyChainPoolTransactionError::from(PBHValidationError::InvalidCalldata)
                     })?;
                     Ok((pbh_payload, op))
                 })
-                .collect::<Result<Vec<_>, WorldChainPoolTransactionError>>()
+                .collect::<Result<Vec<_>, MyChainPoolTransactionError>>()
             {
                 Ok(payload_ops) => payload_ops,
                 Err(err) => return err.to_outcome(tx),
@@ -205,7 +205,7 @@ where
 
             for (payload, _) in &payload_ops {
                 if !seen_nullifier_hashes.insert(payload.nullifier_hash) {
-                    return WorldChainPoolTransactionError::from(
+                    return MyChainPoolTransactionError::from(
                         PBHValidationError::DuplicateNullifierHash,
                     )
                     .to_outcome(tx);
@@ -221,9 +221,9 @@ where
                         &valid_roots,
                         self.max_pbh_nonce.load(Ordering::Relaxed),
                     )?;
-                    Ok::<PbhPayload, WorldChainPoolTransactionError>(payload)
+                    Ok::<PbhPayload, MyChainPoolTransactionError>(payload)
                 })
-                .collect::<Result<Vec<PbhPayload>, WorldChainPoolTransactionError>>()
+                .collect::<Result<Vec<PbhPayload>, MyChainPoolTransactionError>>()
             {
                 Ok(payloads) => payloads,
                 Err(err) => return err.to_outcome(tx),
@@ -240,7 +240,7 @@ where
             if !aggregated_payloads.is_empty() {
                 tx.set_pbh_payloads(aggregated_payloads);
             } else {
-                return WorldChainPoolTransactionError::from(PBHValidationError::MissingPbhPayload)
+                return MyChainPoolTransactionError::from(PBHValidationError::MissingPbhPayload)
                     .to_outcome(tx.clone());
             }
         }
@@ -254,7 +254,7 @@ where
         tx: Tx,
     ) -> TransactionValidationOutcome<Tx> {
         if tx.gas_limit() > self.max_pbh_gas_limit.load(Ordering::Relaxed) {
-            return WorldChainPoolTransactionError::from(PBHValidationError::PbhGasLimitExceeded)
+            return MyChainPoolTransactionError::from(PBHValidationError::PbhGasLimitExceeded)
                 .to_outcome(tx);
         }
 
@@ -273,12 +273,12 @@ where
     }
 }
 
-impl<Client, Tx, Evm> TransactionValidator for WorldChainTransactionValidator<Client, Tx, Evm>
+impl<Client, Tx, Evm> TransactionValidator for MyChainTransactionValidator<Client, Tx, Evm>
 where
     Client: ChainSpecProvider<ChainSpec: OpHardforks>
         + StateProviderFactory
         + BlockReaderIdExt<Block = BlockTy<Evm::Primitives>>,
-    Tx: WorldChainPoolTransaction<Consensus = TxTy<Evm::Primitives>>,
+    Tx: MyChainPoolTransaction<Consensus = TxTy<Evm::Primitives>>,
     Evm: ConfigureEvm,
 {
     type Transaction = Tx;
@@ -334,9 +334,9 @@ pub mod tests {
     use reth_transaction_pool::{
         Pool, TransactionPool, TransactionValidator, blobstore::InMemoryBlobStore,
     };
-    use world_chain_evm::WorldChainEvmConfig;
-    use world_chain_pbh::{date_marker::DateMarker, external_nullifier::ExternalNullifier};
-    use world_chain_test_utils::{
+    use my_chain_evm::MyChainEvmConfig;
+    use my_chain_pbh::{date_marker::DateMarker, external_nullifier::ExternalNullifier};
+    use my_chain_test_utils::{
         PBH_DEV_ENTRYPOINT,
         utils::{TREE, account, eip1559, eth_tx, pbh_bundle, pbh_multicall, user_op},
     };
@@ -345,26 +345,26 @@ pub mod tests {
     const DEV_WORLD_ID: Address = address!("5FbDB2315678afecb367f032d93F642f64180aa3");
 
     use crate::{
-        ordering::WorldChainOrdering, root::LATEST_ROOT_SLOT, tx::WorldChainPooledTransaction,
+        ordering::MyChainOrdering, root::LATEST_ROOT_SLOT, tx::MyChainPooledTransaction,
     };
-    use world_chain_test_utils::mock::{ExtendedAccount, MockEthProvider};
+    use my_chain_test_utils::mock::{ExtendedAccount, MockEthProvider};
 
-    use super::WorldChainTransactionValidator;
+    use super::MyChainTransactionValidator;
 
     /// Test constants
     const PBH_DEV_SIGNATURE_AGGREGATOR: Address =
         address!("Cf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9");
 
-    type TestValidator = WorldChainTransactionValidator<
+    type TestValidator = MyChainTransactionValidator<
         MockEthProvider,
-        WorldChainPooledTransaction,
-        WorldChainEvmConfig,
+        MyChainPooledTransaction,
+        MyChainEvmConfig,
     >;
 
-    /// Create a World Chain validator for testing
-    fn world_chain_validator() -> TestValidator {
+    /// Create a My Chain validator for testing
+    fn my_chain_validator() -> TestValidator {
         use super::{MAX_U16, PBH_GAS_LIMIT_SLOT, PBH_NONCE_LIMIT_SLOT};
-        use crate::root::WorldChainRootValidator;
+        use crate::root::MyChainRootValidator;
         use reth_optimism_node::txpool::OpTransactionValidator;
         use reth_transaction_pool::{
             blobstore::InMemoryBlobStore, validate::EthTransactionValidatorBuilder,
@@ -381,14 +381,14 @@ pub mod tests {
                 body: Default::default(),
             },
         );
-        let evm = WorldChainEvmConfig::optimism(client.chain_spec.clone());
+        let evm = MyChainEvmConfig::optimism(client.chain_spec.clone());
 
         let validator = EthTransactionValidatorBuilder::new(client.clone(), evm)
             .no_shanghai()
             .no_cancun()
             .build(InMemoryBlobStore::default());
         let validator = OpTransactionValidator::new(validator).require_l1_data_gas_fee(false);
-        let root_validator = WorldChainRootValidator::new(client, DEV_WORLD_ID).unwrap();
+        let root_validator = MyChainRootValidator::new(client, DEV_WORLD_ID).unwrap();
         validator.client().add_account(
             PBH_DEV_ENTRYPOINT,
             ExtendedAccount::new(0, alloy_primitives::U256::ZERO).extend_storage(vec![
@@ -399,7 +399,7 @@ pub mod tests {
                 ),
             ]),
         );
-        WorldChainTransactionValidator::new(
+        MyChainTransactionValidator::new(
             validator,
             root_validator,
             PBH_DEV_ENTRYPOINT,
@@ -409,8 +409,8 @@ pub mod tests {
     }
 
     async fn setup()
-    -> Pool<TestValidator, WorldChainOrdering<WorldChainPooledTransaction>, InMemoryBlobStore> {
-        let validator = world_chain_validator();
+    -> Pool<TestValidator, MyChainOrdering<MyChainPooledTransaction>, InMemoryBlobStore> {
+        let validator = my_chain_validator();
 
         // Fund 10 test accounts
         for acc in 0..10 {
@@ -442,7 +442,7 @@ pub mod tests {
         // Propogate the block to the root validator
         validator.on_new_head_block(&block);
 
-        let ordering = WorldChainOrdering::default();
+        let ordering = MyChainOrdering::default();
 
         Pool::new(
             validator,

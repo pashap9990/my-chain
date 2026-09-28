@@ -2,7 +2,7 @@
 
 use anyhow::Result;
 use world_chain_proof_nitro_enclave::ExpectedPcrs;
-use world_chain_proof_nitro_register::{RegisterParams, RegistrationOutcome, register_enclave_key};
+use my_chain_proof_nitro_register::{RegisterParams, RegistrationOutcome, register_enclave_key};
 
 use crate::cmd::{common::CommonArgs, select_registration_signer};
 

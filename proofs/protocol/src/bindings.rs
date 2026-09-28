@@ -29,7 +29,7 @@ sol! {
             returns (bytes32 uuid);
     }
 
-    /// WIP-1006 `MultiProofGame`: the stock `IDisputeGame` surface plus the World Chain
+    /// WIP-1006 `MultiProofGame`: the stock `IDisputeGame` surface plus the My Chain
     /// proof-lane extensions.
     #[sol(rpc)]
     interface IMultiProofGame {

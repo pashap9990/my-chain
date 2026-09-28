@@ -1,6 +1,6 @@
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
-//! Crate containing World Chain payload building primitives.
+//! Crate containing My Chain payload building primitives.
 //!
 //! A payload builder for Optimism-based chains with [Flashblocks](https://www.flashbots.net/flashblocks)
 //! support and Block Access List (BAL) construction.
@@ -25,7 +25,7 @@
 //! ### Core Components
 //!
 //! - [`payload_builder`] - Main payload builder implementing [`FlashblocksPayloadBuilder`]
-//! - `world_chain_evm::execution` - Block execution builders
+//! - `my_chain_evm::execution` - Block execution builders
 //!
 //! ### BAL Execution
 //!
@@ -34,7 +34,7 @@
 //!
 //! ### Supporting Modules
 //!
-//! - `world_chain_primitives::access_list` - Flashblock BAL sidecar serialization utilities
+//! - `my_chain_primitives::access_list` - Flashblock BAL sidecar serialization utilities
 //! - [`assembler`] - Block assembly from execution results
 //! - [`traits`] - Abstractions for payload building contexts and builders
 //! - [`payload_txns`] - Transaction iteration with deduplication for incremental builds
@@ -99,7 +99,7 @@
 //! [`PayloadBuilder`]: reth_basic_payload_builder::PayloadBuilder
 //! [`FlashblocksPayloadBuilder`]: payload_builder::FlashblocksPayloadBuilder
 //! [`FlashblockPayloadBuilder::try_build_with_precommit`]: traits::payload_builder::FlashblockPayloadBuilder::try_build_with_precommit
-//! [`BalBlockBuilder`]: world_chain_evm::execution::bal::BalBlockBuilder
+//! [`BalBlockBuilder`]: my_chain_evm::execution::bal::BalBlockBuilder
 
 mod execution_context;
 
@@ -117,4 +117,4 @@ pub mod traits;
 /// Payload builder metrics.
 pub mod payload_builder_metrics;
 
-pub use execution_context::{WorldChainPayloadBuilderCtx, WorldChainPayloadBuilderCtxBuilder};
+pub use execution_context::{MyChainPayloadBuilderCtx, MyChainPayloadBuilderCtxBuilder};

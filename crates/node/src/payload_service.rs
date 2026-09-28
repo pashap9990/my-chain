@@ -14,14 +14,14 @@ use reth_provider::{
     StateProviderFactory,
 };
 use reth_transaction_pool::TransactionPool;
-use world_chain_builder::traits::payload_builder::FlashblockPayloadBuilder;
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_p2p::protocol::handler::FlashblocksHandle;
-use world_chain_payload::generator::{
+use my_chain_builder::traits::payload_builder::FlashblockPayloadBuilder;
+use my_chain_chainspec::MyChainSpec;
+use my_chain_p2p::protocol::handler::FlashblocksHandle;
+use my_chain_payload::generator::{
     FlashblocksJobGeneratorConfig, FlashblocksPayloadJobGenerator,
 };
-use world_chain_primitives::p2p::Authorization;
-use world_chain_validator::coordinator::FlashblocksExecutionCoordinator;
+use my_chain_primitives::p2p::Authorization;
+use my_chain_validator::coordinator::FlashblocksExecutionCoordinator;
 
 /// Basic payload service builder that spawns a [`BasicPayloadJobGenerator`]
 #[derive(Debug)]
@@ -66,12 +66,12 @@ impl<Node, Pool, PB, EvmConfig> PayloadServiceBuilder<Node, Pool, EvmConfig>
 where
     Node: FullNodeTypes<Types: OpNodeTypes<Payload = OpEngineTypes>>,
     Node::Provider: StateProviderFactory
-        + ChainSpecProvider<ChainSpec = WorldChainSpec>
+        + ChainSpecProvider<ChainSpec = MyChainSpec>
         + HeaderProvider<Header = alloy_consensus::Header>
         + Clone
         + DatabaseProviderFactory<Provider: HeaderProvider<Header = alloy_consensus::Header>>,
     Node::Types: NodeTypes<
-            ChainSpec = WorldChainSpec,
+            ChainSpec = MyChainSpec,
             Payload: PayloadTypes<
                 BuiltPayload = OpBuiltPayload,
                 PayloadAttributes = OpPayloadAttrs,

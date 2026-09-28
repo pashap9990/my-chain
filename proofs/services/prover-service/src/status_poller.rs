@@ -4,7 +4,7 @@ use alloy_primitives::Address;
 use alloy_provider::Provider;
 use tokio::time::MissedTickBehavior;
 use tracing::{info, warn};
-use world_chain_proof_protocol::{GameStatus, IMultiProofGame, ProposalStatus};
+use my_chain_proof_protocol::{GameStatus, IMultiProofGame, ProposalStatus};
 
 use crate::ProverService;
 

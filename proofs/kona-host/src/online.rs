@@ -1,4 +1,4 @@
-//! Online (RPC-backed) construction of World Chain range-proof witnesses.
+//! Online (RPC-backed) construction of My Chain range-proof witnesses.
 //!
 //! Builds the rkyv-serializable [`WorldRangeWitnessData`] for a block range by driving the
 //! Kona single-chain host against live L1/L2 RPC endpoints. Extracted from the `proof` CLI so
@@ -29,7 +29,7 @@ use kona_protocol::OutputRoot;
 use reqwest::Client;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use serde_json::{Value, json};
-use world_chain_chainspec::{WorldChainHardfork, WorldChainHardforks};
+use my_chain_chainspec::{MyChainHardfork, MyChainHardforks};
 use world_chain_proof_core::{
     hash_world_rollup_config,
     range::{WorldRangeHardfork, WorldRangeHardforkConfig},
@@ -93,7 +93,7 @@ impl OnlineHostConfig {
     /// rollup.json that omits `granite_channel_timeout`, or isn't ordered/produced by Kona's own
     /// serializer (such as one emitted by op-node instead of kona-node). This previously caused
     /// spurious "enclave rollup config hash != expected" failures on chains whose rollup.json
-    /// wasn't authored by Kona (see World Chain alphanet's kona-node -> op-node migration).
+    /// wasn't authored by Kona (see My Chain alphanet's kona-node -> op-node migration).
     pub fn from_rollup_config_value(
         rollup_config: &serde_json::Value,
         l1_rpc: String,
@@ -127,24 +127,24 @@ impl OnlineHostConfig {
 /// Builds the range guest's hardfork schedule from a World chain spec.
 pub fn hardfork_config_from_chain_spec<S>(chain_spec: &S) -> WorldRangeHardforkConfig
 where
-    S: WorldChainHardforks + ?Sized,
+    S: MyChainHardforks + ?Sized,
 {
-    let block_number = |fork| chain_spec.world_chain_fork_activation(fork).block_number();
-    let timestamp = |fork| chain_spec.world_chain_fork_activation(fork).as_timestamp();
+    let block_number = |fork| chain_spec.my_chain_fork_activation(fork).block_number();
+    let timestamp = |fork| chain_spec.my_chain_fork_activation(fork).as_timestamp();
 
     WorldRangeHardforkConfig {
-        bedrock_block: block_number(WorldChainHardfork::Bedrock),
-        regolith_time: timestamp(WorldChainHardfork::Regolith),
-        canyon_time: timestamp(WorldChainHardfork::Canyon),
-        ecotone_time: timestamp(WorldChainHardfork::Ecotone),
-        fjord_time: timestamp(WorldChainHardfork::Fjord),
-        granite_time: timestamp(WorldChainHardfork::Granite),
-        holocene_time: timestamp(WorldChainHardfork::Holocene),
-        isthmus_time: timestamp(WorldChainHardfork::Isthmus),
-        jovian_time: timestamp(WorldChainHardfork::Jovian),
-        karst_time: timestamp(WorldChainHardfork::Karst),
-        tropo_time: timestamp(WorldChainHardfork::Tropo),
-        strato_time: timestamp(WorldChainHardfork::Strato),
+        bedrock_block: block_number(MyChainHardfork::Bedrock),
+        regolith_time: timestamp(MyChainHardfork::Regolith),
+        canyon_time: timestamp(MyChainHardfork::Canyon),
+        ecotone_time: timestamp(MyChainHardfork::Ecotone),
+        fjord_time: timestamp(MyChainHardfork::Fjord),
+        granite_time: timestamp(MyChainHardfork::Granite),
+        holocene_time: timestamp(MyChainHardfork::Holocene),
+        isthmus_time: timestamp(MyChainHardfork::Isthmus),
+        jovian_time: timestamp(MyChainHardfork::Jovian),
+        karst_time: timestamp(MyChainHardfork::Karst),
+        tropo_time: timestamp(MyChainHardfork::Tropo),
+        strato_time: timestamp(MyChainHardfork::Strato),
     }
 }
 

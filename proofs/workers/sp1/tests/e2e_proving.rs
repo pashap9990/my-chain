@@ -19,7 +19,7 @@
 //! export ROLLUP_CONFIG=/path/to/rollup.json
 //! export SP1_PROVER=cpu                          # cpu | mock | network
 //! export SP1_PRIVATE_KEY=<your key>              # required for SP1_PROVER=network
-//! cargo test -p world-chain-proof-sp1-worker --test e2e_proving -- --ignored --nocapture
+//! cargo test -p my-chain-proof-sp1-worker --test e2e_proving -- --ignored --nocapture
 //! ```
 //!
 //! The SP1 guest ELFs are baked into the worker at compile time via
@@ -31,22 +31,22 @@ use std::{path::PathBuf, sync::Arc, time::Duration};
 use alloy_primitives::{Address, B256};
 use testcontainers::runners::AsyncRunner;
 use testcontainers_modules::postgres;
-use world_chain_proof_kona_host::online::{OnlineHostConfig, resolve_l1_head};
-use world_chain_proof_protocol::{
+use my_chain_proof_kona_host::online::{OnlineHostConfig, resolve_l1_head};
+use my_chain_proof_protocol::{
     ConsensusProvider, OptimismConsensusClient, ProofGameContext, ProofGameContextError,
     ProofGameProvider,
 };
-use world_chain_proof_sp1_host::{
+use my_chain_proof_sp1_host::{
     Sp1ProverKind, WorldSuccinctProver,
     cpu_prover::{CpuSuccinctProver, SP1ProofMode},
     mock_prover::MockSuccinctProver,
     network_prover::{NetworkSuccinctProver, SignerType},
 };
-use world_chain_proof_sp1_worker::{
+use my_chain_proof_sp1_worker::{
     ProofWorker, ProofWorkerConfig, RetryConfig, Sp1Backend, Sp1BackendConfig,
 };
-use world_chain_proof_worker::WorkerHeartbeatConfig;
-use world_chain_prover_service::{
+use my_chain_proof_worker::WorkerHeartbeatConfig;
+use my_chain_prover_service::{
     ProofBackend, ProofData, ProofRequest, ProofRequester, ProofResponse, ProofStatus,
     ProverService, ProverServiceConfig, RpcProverServiceClient, start_rpc_server,
 };

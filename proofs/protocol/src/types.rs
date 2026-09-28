@@ -9,7 +9,7 @@ pub const PROOF_THRESHOLD: u8 = 2;
 /// Number of configured proof lanes.
 pub const PROOF_LANE_COUNT: u8 = 3;
 
-/// Version of the World Chain proof-domain encoding implemented here.
+/// Version of the My Chain proof-domain encoding implemented here.
 pub const PROOF_SYSTEM_VERSION: u64 = 1;
 
 /// OP Stack dispute-game type allocated to WIP-1006 (`GameTypes.MULTI_PROOF_GAME_TYPE`).
@@ -132,11 +132,11 @@ impl TryFrom<u8> for ProposalStatus {
 /// Domain constants committed into every root id.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProofDomain {
-    /// World Chain L2 chain id.
+    /// My Chain L2 chain id.
     pub chain_id: u64,
     /// Proof-system encoding version.
     pub proof_system_version: u64,
-    /// Hash of the rollup config and World Chain hardfork schedule.
+    /// Hash of the rollup config and My Chain hardfork schedule.
     pub rollup_config_hash: B256,
     /// Distance in L2 blocks between parent and proposed roots.
     pub block_interval: u64,

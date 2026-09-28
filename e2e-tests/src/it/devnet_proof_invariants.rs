@@ -7,10 +7,10 @@
 
 use alloy_primitives::{Address, B256};
 use eyre::eyre::ensure;
-use world_chain_proof_protocol::{
+use my_chain_proof_protocol::{
     ConsensusProvider, LineageProvider, OptimismConsensusClient, ProofLane, encode_compact_proof,
 };
-use world_chain_proposer::{Proposal, ProposerClient};
+use my_chain_proposer::{Proposal, ProposerClient};
 
 use crate::it::utils::devnet::{
     GAME_CHALLENGER_WINS, GAME_DEFENDER_WINS, INVALIDATION_REASON_INVALID_PARENT,
@@ -300,7 +300,7 @@ async fn invalid_game_with_invalid_parent_cascades_to_challenger_wins() -> eyre:
     let child_submission = contracts.submit_proposal(&child_proposal).await?;
     let child_game = game_at(child_submission.game_address, provider.clone());
 
-    // Wait for the real World Chain challenger to contest the bad parent.
+    // Wait for the real My Chain challenger to contest the bad parent.
     wait_for_challenge(&parent_game).await?;
 
     // Skip past the parent's proof deadline so its challenge can resolve.
@@ -379,7 +379,7 @@ async fn valid_game_with_invalid_parent_cascades_to_challenger_wins() -> eyre::R
     let child_submission = contracts.submit_proposal(&child_proposal).await?;
     let child_game = game_at(child_submission.game_address, provider.clone());
 
-    // Wait for the real World Chain challenger to contest the bad parent.
+    // Wait for the real My Chain challenger to contest the bad parent.
     wait_for_challenge(&parent_game).await?;
 
     // Skip past the parent's proof deadline so its challenge can resolve.

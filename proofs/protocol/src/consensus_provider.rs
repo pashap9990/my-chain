@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use serde::{Deserialize, de::DeserializeOwned};
 use serde_json::Value;
 use thiserror::Error;
-use world_chain_proof_metrics::{
+use my_chain_proof_metrics::{
     RPC_ENDPOINT_PRIMARY, RPC_TARGET_L2_CONSENSUS, record_l2_finalized_block, record_rpc_request,
 };
 

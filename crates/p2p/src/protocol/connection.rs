@@ -9,7 +9,7 @@ use chrono::Utc;
 use futures::{Stream, StreamExt};
 use reth_ethereum::network::{api::PeerId, eth_wire::multiplex::ProtocolConnection};
 use reth_network::types::ReputationChangeKind;
-use world_chain_primitives::{
+use my_chain_primitives::{
     p2p::{
         Authorized, AuthorizedMsg, AuthorizedPayload, FlashblocksP2PMsg, FlashblocksP2PMsgParts,
         StartPublish, StopPublish,

@@ -1,8 +1,8 @@
-//! `world-chain-proposer` binary: watches L2 output roots and opens WIP-1006
+//! `my-chain-proposer` binary: watches L2 output roots and opens WIP-1006
 //! `MultiProofGame` proposals on L1 through the stock OP `DisputeGameFactory`.
 //!
 //! Mirrors the in-process proposer wired by the devnet harness
-//! (`crates/devnet/src/full_stack.rs::start_world_chain_proposer`), reading its
+//! (`crates/devnet/src/full_stack.rs::start_my_chain_proposer`), reading its
 //! configuration from flags/environment so it can run as a standalone service.
 
 use std::time::Duration;
@@ -14,17 +14,17 @@ use anyhow::{Context, Result};
 use clap::{ArgGroup, Parser};
 use tracing::info;
 use url::Url;
-use world_chain_proof_metrics::RPC_ENDPOINT_VERIFYING;
-use world_chain_proof_protocol::{OptimismConsensusClient, VerifyingConsensusProvider};
-use world_chain_proof_tx_signer::build_transaction_signer;
-use world_chain_proposer::{
-    AlloyProofSystemClient, BondManager, BondManagerConfig, ProposerConfig, WorldChainProposer,
+use my_chain_proof_metrics::RPC_ENDPOINT_VERIFYING;
+use my_chain_proof_protocol::{OptimismConsensusClient, VerifyingConsensusProvider};
+use my_chain_proof_tx_signer::build_transaction_signer;
+use my_chain_proposer::{
+    AlloyProofSystemClient, BondManager, BondManagerConfig, ProposerConfig, MyChainProposer,
 };
 
 #[derive(Debug, Parser)]
 #[command(
-    name = "world-chain-proposer",
-    about = "World Chain proof-system proposer: opens output-root proposals on L1",
+    name = "my-chain-proposer",
+    about = "My Chain proof-system proposer: opens output-root proposals on L1",
     group = ArgGroup::new("transaction_signer")
         .required(true)
         .multiple(false)
@@ -95,7 +95,7 @@ struct Cli {
     #[arg(
         long,
         env = "L1_TX_RECEIPT_TIMEOUT_SECONDS",
-        default_value_t = world_chain_proof_protocol::DEFAULT_L1_TX_RECEIPT_TIMEOUT_SECONDS,
+        default_value_t = my_chain_proof_protocol::DEFAULT_L1_TX_RECEIPT_TIMEOUT_SECONDS,
         value_parser = clap::value_parser!(u64).range(1..)
     )]
     l1_tx_receipt_timeout_seconds: u64,
@@ -104,7 +104,7 @@ struct Cli {
     #[arg(
         long,
         env = "L1_RPC_TIMEOUT_SECONDS",
-        default_value_t = world_chain_proof_metrics::DEFAULT_RPC_REQUEST_TIMEOUT_SECONDS,
+        default_value_t = my_chain_proof_metrics::DEFAULT_RPC_REQUEST_TIMEOUT_SECONDS,
         value_parser = clap::value_parser!(u64).range(1..)
     )]
     l1_rpc_timeout_seconds: u64,
@@ -115,7 +115,7 @@ async fn main() -> Result<()> {
     dotenvy::dotenv().ok();
     let _telemetry_guard = telemetry_batteries::init()
         .map_err(|error| anyhow::anyhow!("failed to initialize telemetry: {error:#}"))?;
-    world_chain_proposer::metrics::describe_metrics();
+    my_chain_proposer::metrics::describe_metrics();
 
     let cli = Cli::parse();
 
@@ -131,10 +131,10 @@ async fn main() -> Result<()> {
         .map(Url::parse)
         .transpose()
         .context("invalid L1 fallback RPC URL")?;
-    let l1_rpc_client = world_chain_proof_metrics::metered_http_client(
+    let l1_rpc_client = my_chain_proof_metrics::metered_http_client(
         l1_rpc_url.clone(),
         l1_fallback_rpc_url,
-        world_chain_proof_metrics::RPC_TARGET_L1_EXECUTION,
+        my_chain_proof_metrics::RPC_TARGET_L1_EXECUTION,
         Duration::from_secs(cli.l1_rpc_timeout_seconds),
     )
     .context("failed to build the L1 RPC client")?;
@@ -147,7 +147,7 @@ async fn main() -> Result<()> {
         .fetch_chain_id()
         .wallet(wallet)
         .connect_client(l1_rpc_client);
-    world_chain_proof_metrics::refresh_wallet_balance(&provider, proposer_address).await;
+    my_chain_proof_metrics::refresh_wallet_balance(&provider, proposer_address).await;
 
     let contracts = AlloyProofSystemClient::new(
         provider,
@@ -156,7 +156,7 @@ async fn main() -> Result<()> {
         Duration::from_secs(cli.l1_tx_receipt_timeout_seconds),
     )
     .await
-    .context("failed to bind the World Chain proof system")?;
+    .context("failed to bind the My Chain proof system")?;
     contracts.refresh_vault_balance().await;
     let bond_manager_config = BondManagerConfig {
         poll_interval: Duration::from_secs(cli.bond_manager_poll_interval_seconds),
@@ -176,12 +176,12 @@ async fn main() -> Result<()> {
         poll_interval: Duration::from_secs(cli.poll_interval_seconds),
         max_resolutions_per_tick: cli.max_resolutions_per_tick,
     };
-    let proposer = WorldChainProposer::new(config, contracts, output_roots);
+    let proposer = MyChainProposer::new(config, contracts, output_roots);
 
     info!(
-        l1_rpc_url = world_chain_proof_metrics::redact_endpoint(&cli.l1_rpc),
+        l1_rpc_url = my_chain_proof_metrics::redact_endpoint(&cli.l1_rpc),
         l1_fallback_rpc_configured = cli.l1_fallback_rpc.is_some(),
-        output_root_rpc_url = world_chain_proof_metrics::redact_endpoint(&cli.output_root_rpc),
+        output_root_rpc_url = my_chain_proof_metrics::redact_endpoint(&cli.output_root_rpc),
         verifying_output_root_rpc_configured = cli.verifying_output_root_rpc.is_some(),
         dispute_game_factory = %cli.factory_address,
         anchor = %registered.anchor_registry,
@@ -194,7 +194,7 @@ async fn main() -> Result<()> {
         bond_manager_initial_scan_limit = cli.bond_manager_initial_scan_limit,
         l1_tx_receipt_timeout_seconds = cli.l1_tx_receipt_timeout_seconds,
         l1_rpc_timeout_seconds = cli.l1_rpc_timeout_seconds,
-        "starting World Chain proof-system proposer"
+        "starting My Chain proof-system proposer"
     );
 
     tokio::select! {

@@ -2,7 +2,7 @@ use reth_db::DatabaseError;
 use reth_provider::ProviderError;
 
 #[derive(Debug, thiserror::Error, PartialEq, Eq)]
-pub enum WorldChainTransactionPoolInvalid {
+pub enum MyChainTransactionPoolInvalid {
     #[error("invalid external nullifier period")]
     InvalidExternalNullifierPeriod,
     #[error("invalid external nullifier nonce")]
@@ -18,7 +18,7 @@ pub enum WorldChainTransactionPoolInvalid {
 }
 
 #[derive(Debug, thiserror::Error)]
-pub enum WorldChainTransactionPoolError {
+pub enum MyChainTransactionPoolError {
     #[error(transparent)]
     Database(#[from] DatabaseError),
     #[error(transparent)]

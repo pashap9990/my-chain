@@ -1,6 +1,6 @@
 use std::{collections::HashSet, sync::Arc};
 
-use super::tx::WorldChainPooledTransaction;
+use super::tx::MyChainPooledTransaction;
 use alloy_eips::eip4844::{BlobAndProofV1, BlobAndProofV2, BlobCellsAndProofsV1};
 use alloy_primitives::{Address, B128, B256, TxHash};
 use reth_eth_wire_types::HandleMempoolData;
@@ -18,12 +18,12 @@ use tokio::sync::mpsc::{self, Receiver};
 
 #[derive(Debug, Clone, Default)]
 #[non_exhaustive]
-pub struct NoopWorldChainTransactionPool {
+pub struct NoopMyChainTransactionPool {
     inner: NoopTransactionPool,
 }
 
-impl TransactionPool for NoopWorldChainTransactionPool {
-    type Transaction = WorldChainPooledTransaction;
+impl TransactionPool for NoopMyChainTransactionPool {
+    type Transaction = MyChainPooledTransaction;
 
     fn all_transaction_hashes(&self) -> Vec<TxHash> {
         vec![]

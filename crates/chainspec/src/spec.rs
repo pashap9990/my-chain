@@ -20,7 +20,7 @@ use reth_optimism_chainspec::{
 use reth_optimism_forks::{OpHardfork, OpHardforks};
 use reth_primitives_traits::SealedHeader;
 
-use crate::{WorldChainHardfork, WorldChainHardforks};
+use crate::{MyChainHardfork, MyChainHardforks};
 
 /// World Chain Jovian activation timestamp on Sepolia.
 pub const JOVIAN_UPGRADE_TIMESTAMP_SEPOLIA: u64 = 1_777_161_600;
@@ -34,23 +34,23 @@ pub const KARST_UPGRADE_TIMESTAMP_SEPOLIA: u64 = 1_788_868_800;
 /// World Chain Karst activation timestamp on mainnet.
 pub const KARST_UPGRADE_TIMESTAMP_MAINNET: u64 = 1_789_992_000;
 
-/// World Chain spec type.
+/// My Chain spec type.
 ///
 /// This wraps reth's generic [`ChainSpec`] the same way the OP stack spec does, while using World
 /// Chain hardfork names as the canonical post-Karst schedule.
 #[derive(Debug, Clone, Deref, Into, Constructor, PartialEq, Eq)]
-pub struct WorldChainSpec {
+pub struct MyChainSpec {
     /// Inner reth chain spec.
     pub inner: ChainSpec,
 }
 
-impl WorldChainSpec {
-    /// Converts the given [`Genesis`] into a [`WorldChainSpec`].
+impl MyChainSpec {
+    /// Converts the given [`Genesis`] into a [`MyChainSpec`].
     pub fn from_genesis(genesis: Genesis) -> Self {
         genesis.into()
     }
 
-    /// Parses a built-in OP stack chain spec and wraps it as a World Chain spec.
+    /// Parses a built-in OP stack chain spec and wraps it as a My Chain spec.
     pub fn parse_chain(s: &str) -> Option<Arc<Self>> {
         generated_chain_value_parser(s).map(|spec| Arc::new(Self::from((*spec).clone())))
     }
@@ -66,7 +66,7 @@ impl WorldChainSpec {
             .expect("worldchain-sepolia is a supported OP stack chain")
     }
 
-    /// Returns the built-in OP dev spec wrapped as a World Chain spec.
+    /// Returns the built-in OP dev spec wrapped as a My Chain spec.
     pub fn dev() -> Arc<Self> {
         Self::parse_chain("dev").expect("dev is a supported OP stack chain")
     }
@@ -94,21 +94,21 @@ impl WorldChainSpec {
         ));
     }
 
-    /// Applies World Chain defaults that are not yet represented in the upstream OP stack chain
+    /// Applies My Chain defaults that are not yet represented in the upstream OP stack chain
     /// specs. Only fills in forks that have no explicit activation; operator-supplied timestamps
     /// (e.g. `jovianTime` and `karstTime` in genesis) are preserved.
-    pub fn apply_world_chain_defaults(&mut self) {
+    pub fn apply_my_chain_defaults(&mut self) {
         match self.chain().named() {
             Some(NamedChain::World) => {
                 self.set_missing_world_fork(
-                    WorldChainHardfork::Jovian,
+                    MyChainHardfork::Jovian,
                     JOVIAN_UPGRADE_TIMESTAMP_MAINNET,
                 );
                 self.set_missing_karst_forks(KARST_UPGRADE_TIMESTAMP_MAINNET);
             }
             Some(NamedChain::WorldSepolia) => {
                 self.set_missing_world_fork(
-                    WorldChainHardfork::Jovian,
+                    MyChainHardfork::Jovian,
                     JOVIAN_UPGRADE_TIMESTAMP_SEPOLIA,
                 );
                 self.set_missing_karst_forks(KARST_UPGRADE_TIMESTAMP_SEPOLIA);
@@ -117,26 +117,26 @@ impl WorldChainSpec {
         }
     }
 
-    fn set_missing_world_fork(&mut self, fork: WorldChainHardfork, timestamp: u64) {
+    fn set_missing_world_fork(&mut self, fork: MyChainHardfork, timestamp: u64) {
         if matches!(self.inner.fork(fork), ForkCondition::Never) {
             self.set_fork(fork, ForkCondition::Timestamp(timestamp));
         }
     }
 
     fn set_missing_karst_forks(&mut self, default_timestamp: u64) {
-        self.set_missing_world_fork(WorldChainHardfork::Karst, default_timestamp);
+        self.set_missing_world_fork(MyChainHardfork::Karst, default_timestamp);
 
         if matches!(
             self.inner.fork(EthereumHardfork::Osaka),
             ForkCondition::Never
-        ) && let Some(timestamp) = self.inner.fork(WorldChainHardfork::Karst).as_timestamp()
+        ) && let Some(timestamp) = self.inner.fork(MyChainHardfork::Karst).as_timestamp()
         {
             self.set_fork(EthereumHardfork::Osaka, ForkCondition::Timestamp(timestamp));
         }
     }
 }
 
-impl EthChainSpec for WorldChainSpec {
+impl EthChainSpec for MyChainSpec {
     type Header = Header;
 
     fn chain(&self) -> Chain {
@@ -194,9 +194,9 @@ impl EthChainSpec for WorldChainSpec {
     }
 
     fn next_block_base_fee(&self, parent: &Header, target_timestamp: u64) -> Option<u64> {
-        if WorldChainHardforks::is_jovian_active_at_timestamp(self, parent.timestamp()) {
+        if MyChainHardforks::is_jovian_active_at_timestamp(self, parent.timestamp()) {
             compute_jovian_base_fee(parent).ok()
-        } else if WorldChainHardforks::is_holocene_active_at_timestamp(self, parent.timestamp()) {
+        } else if MyChainHardforks::is_holocene_active_at_timestamp(self, parent.timestamp()) {
             decode_holocene_base_fee(parent).ok()
         } else {
             self.inner.next_block_base_fee(parent, target_timestamp)
@@ -204,7 +204,7 @@ impl EthChainSpec for WorldChainSpec {
     }
 }
 
-impl Hardforks for WorldChainSpec {
+impl Hardforks for MyChainSpec {
     fn fork<H: Hardfork>(&self, fork: H) -> ForkCondition {
         self.inner.fork(fork)
     }
@@ -226,37 +226,37 @@ impl Hardforks for WorldChainSpec {
     }
 }
 
-impl EthereumHardforks for WorldChainSpec {
+impl EthereumHardforks for MyChainSpec {
     fn ethereum_fork_activation(&self, fork: EthereumHardfork) -> ForkCondition {
         self.fork(fork)
     }
 }
 
-impl WorldChainHardforks for WorldChainSpec {
-    fn world_chain_fork_activation(&self, fork: WorldChainHardfork) -> ForkCondition {
+impl MyChainHardforks for MyChainSpec {
+    fn my_chain_fork_activation(&self, fork: MyChainHardfork) -> ForkCondition {
         self.fork(fork)
     }
 }
 
-impl OpHardforks for WorldChainSpec {
+impl OpHardforks for MyChainSpec {
     fn op_fork_activation(&self, fork: OpHardfork) -> ForkCondition {
         match fork {
-            OpHardfork::Bedrock => self.fork(WorldChainHardfork::Bedrock),
-            OpHardfork::Regolith => self.fork(WorldChainHardfork::Regolith),
-            OpHardfork::Canyon => self.fork(WorldChainHardfork::Canyon),
-            OpHardfork::Ecotone => self.fork(WorldChainHardfork::Ecotone),
-            OpHardfork::Fjord => self.fork(WorldChainHardfork::Fjord),
-            OpHardfork::Granite => self.fork(WorldChainHardfork::Granite),
-            OpHardfork::Holocene => self.fork(WorldChainHardfork::Holocene),
-            OpHardfork::Isthmus => self.fork(WorldChainHardfork::Isthmus),
-            OpHardfork::Jovian => self.fork(WorldChainHardfork::Jovian),
-            OpHardfork::Karst => self.fork(WorldChainHardfork::Karst),
+            OpHardfork::Bedrock => self.fork(MyChainHardfork::Bedrock),
+            OpHardfork::Regolith => self.fork(MyChainHardfork::Regolith),
+            OpHardfork::Canyon => self.fork(MyChainHardfork::Canyon),
+            OpHardfork::Ecotone => self.fork(MyChainHardfork::Ecotone),
+            OpHardfork::Fjord => self.fork(MyChainHardfork::Fjord),
+            OpHardfork::Granite => self.fork(MyChainHardfork::Granite),
+            OpHardfork::Holocene => self.fork(MyChainHardfork::Holocene),
+            OpHardfork::Isthmus => self.fork(MyChainHardfork::Isthmus),
+            OpHardfork::Jovian => self.fork(MyChainHardfork::Jovian),
+            OpHardfork::Karst => self.fork(MyChainHardfork::Karst),
             _ => ForkCondition::Never,
         }
     }
 }
 
-impl From<OpChainSpec> for WorldChainSpec {
+impl From<OpChainSpec> for MyChainSpec {
     fn from(value: OpChainSpec) -> Self {
         let mut inner = value.inner;
         inner.hardforks = convert_op_hardforks(&inner.hardforks);
@@ -264,24 +264,24 @@ impl From<OpChainSpec> for WorldChainSpec {
             SealedHeader::seal_slow(make_op_genesis_header(&inner.genesis, &inner.hardforks));
 
         let mut spec = Self { inner };
-        spec.apply_world_chain_defaults();
+        spec.apply_my_chain_defaults();
         spec
     }
 }
 
-impl From<ChainSpec> for WorldChainSpec {
+impl From<ChainSpec> for MyChainSpec {
     fn from(mut inner: ChainSpec) -> Self {
         inner.hardforks = convert_op_hardforks(&inner.hardforks);
         inner.genesis_header =
             SealedHeader::seal_slow(make_op_genesis_header(&inner.genesis, &inner.hardforks));
 
         let mut spec = Self { inner };
-        spec.apply_world_chain_defaults();
+        spec.apply_my_chain_defaults();
         spec
     }
 }
 
-impl From<Genesis> for WorldChainSpec {
+impl From<Genesis> for MyChainSpec {
     fn from(genesis: Genesis) -> Self {
         let genesis_info = WorldGenesisInfo::extract_from(&genesis);
         let op_genesis_info = genesis_info
@@ -340,7 +340,7 @@ impl From<Genesis> for WorldChainSpec {
                 genesis.config.gray_glacier_block,
             ),
             (
-                WorldChainHardfork::Bedrock.boxed(),
+                MyChainHardfork::Bedrock.boxed(),
                 op_genesis_info.bedrock_block,
             ),
         ];
@@ -374,43 +374,43 @@ impl From<Genesis> for WorldChainSpec {
             ),
             (EthereumHardfork::Osaka.boxed(), op_genesis_info.karst_time),
             (
-                WorldChainHardfork::Regolith.boxed(),
+                MyChainHardfork::Regolith.boxed(),
                 op_genesis_info.regolith_time,
             ),
             (
-                WorldChainHardfork::Canyon.boxed(),
+                MyChainHardfork::Canyon.boxed(),
                 op_genesis_info.canyon_time,
             ),
             (
-                WorldChainHardfork::Ecotone.boxed(),
+                MyChainHardfork::Ecotone.boxed(),
                 op_genesis_info.ecotone_time,
             ),
             (
-                WorldChainHardfork::Fjord.boxed(),
+                MyChainHardfork::Fjord.boxed(),
                 op_genesis_info.fjord_time,
             ),
             (
-                WorldChainHardfork::Granite.boxed(),
+                MyChainHardfork::Granite.boxed(),
                 op_genesis_info.granite_time,
             ),
             (
-                WorldChainHardfork::Holocene.boxed(),
+                MyChainHardfork::Holocene.boxed(),
                 op_genesis_info.holocene_time,
             ),
             (
-                WorldChainHardfork::Isthmus.boxed(),
+                MyChainHardfork::Isthmus.boxed(),
                 op_genesis_info.isthmus_time,
             ),
             (
-                WorldChainHardfork::Jovian.boxed(),
+                MyChainHardfork::Jovian.boxed(),
                 op_genesis_info.jovian_time,
             ),
             (
-                WorldChainHardfork::Karst.boxed(),
+                MyChainHardfork::Karst.boxed(),
                 op_genesis_info.karst_time,
             ),
-            (WorldChainHardfork::Tropo.boxed(), genesis_info.tropo_time),
-            (WorldChainHardfork::Strato.boxed(), genesis_info.strato_time),
+            (MyChainHardfork::Tropo.boxed(), genesis_info.tropo_time),
+            (MyChainHardfork::Strato.boxed(), genesis_info.strato_time),
         ];
 
         configured_hardforks.extend(time_hardfork_opts.into_iter().filter_map(
@@ -431,7 +431,7 @@ impl From<Genesis> for WorldChainSpec {
                 ..Default::default()
             },
         };
-        spec.apply_world_chain_defaults();
+        spec.apply_my_chain_defaults();
         spec
     }
 }
@@ -474,7 +474,7 @@ impl WorldGenesisInfo {
                                     BaseFeeParams::new(denominator as u128, elasticity as u128),
                                 ),
                                 (
-                                    WorldChainHardfork::Canyon.boxed(),
+                                    MyChainHardfork::Canyon.boxed(),
                                     BaseFeeParams::new(
                                         canyon_denominator as u128,
                                         elasticity as u128,
@@ -498,7 +498,7 @@ fn extra_timestamp(genesis: &Genesis, key: &str) -> Option<u64> {
         Some(Ok(ts)) => Some(ts),
         Some(Err(err)) => {
             tracing::warn!(
-                target: "world_chain::chainspec",
+                target: "my_chain::chainspec",
                 %err,
                 key,
                 "ignoring genesis extra field: failed to deserialize as u64 timestamp"
@@ -522,19 +522,19 @@ pub(crate) fn convert_op_hardforks(hardforks: &ChainHardforks) -> ChainHardforks
 
 pub(crate) fn convert_op_hardfork(fork: &dyn Hardfork) -> Option<Box<dyn Hardfork>> {
     match fork.name() {
-        "Bedrock" => Some(WorldChainHardfork::Bedrock.boxed()),
-        "Regolith" => Some(WorldChainHardfork::Regolith.boxed()),
-        "Canyon" => Some(WorldChainHardfork::Canyon.boxed()),
-        "Ecotone" => Some(WorldChainHardfork::Ecotone.boxed()),
-        "Fjord" => Some(WorldChainHardfork::Fjord.boxed()),
-        "Granite" => Some(WorldChainHardfork::Granite.boxed()),
-        "Holocene" => Some(WorldChainHardfork::Holocene.boxed()),
-        "Isthmus" => Some(WorldChainHardfork::Isthmus.boxed()),
-        "Jovian" => Some(WorldChainHardfork::Jovian.boxed()),
-        "Karst" => Some(WorldChainHardfork::Karst.boxed()),
+        "Bedrock" => Some(MyChainHardfork::Bedrock.boxed()),
+        "Regolith" => Some(MyChainHardfork::Regolith.boxed()),
+        "Canyon" => Some(MyChainHardfork::Canyon.boxed()),
+        "Ecotone" => Some(MyChainHardfork::Ecotone.boxed()),
+        "Fjord" => Some(MyChainHardfork::Fjord.boxed()),
+        "Granite" => Some(MyChainHardfork::Granite.boxed()),
+        "Holocene" => Some(MyChainHardfork::Holocene.boxed()),
+        "Isthmus" => Some(MyChainHardfork::Isthmus.boxed()),
+        "Jovian" => Some(MyChainHardfork::Jovian.boxed()),
+        "Karst" => Some(MyChainHardfork::Karst.boxed()),
         "Interop" => None,
-        other if other.eq_ignore_ascii_case("tropo") => Some(WorldChainHardfork::Tropo.boxed()),
-        other if other.eq_ignore_ascii_case("strato") => Some(WorldChainHardfork::Strato.boxed()),
+        other if other.eq_ignore_ascii_case("tropo") => Some(MyChainHardfork::Tropo.boxed()),
+        other if other.eq_ignore_ascii_case("strato") => Some(MyChainHardfork::Strato.boxed()),
         _ => EthereumHardfork::VARIANTS
             .iter()
             .find(|hardfork| hardfork.name() == fork.name())
@@ -558,18 +558,18 @@ fn order_world_hardforks(
     mut configured: Vec<(Box<dyn Hardfork>, ForkCondition)>,
 ) -> ChainHardforks {
     let order = [
-        WorldChainHardfork::Bedrock.boxed(),
-        WorldChainHardfork::Regolith.boxed(),
-        WorldChainHardfork::Canyon.boxed(),
-        WorldChainHardfork::Ecotone.boxed(),
-        WorldChainHardfork::Fjord.boxed(),
-        WorldChainHardfork::Granite.boxed(),
-        WorldChainHardfork::Holocene.boxed(),
-        WorldChainHardfork::Isthmus.boxed(),
-        WorldChainHardfork::Jovian.boxed(),
-        WorldChainHardfork::Karst.boxed(),
-        WorldChainHardfork::Tropo.boxed(),
-        WorldChainHardfork::Strato.boxed(),
+        MyChainHardfork::Bedrock.boxed(),
+        MyChainHardfork::Regolith.boxed(),
+        MyChainHardfork::Canyon.boxed(),
+        MyChainHardfork::Ecotone.boxed(),
+        MyChainHardfork::Fjord.boxed(),
+        MyChainHardfork::Granite.boxed(),
+        MyChainHardfork::Holocene.boxed(),
+        MyChainHardfork::Isthmus.boxed(),
+        MyChainHardfork::Jovian.boxed(),
+        MyChainHardfork::Karst.boxed(),
+        MyChainHardfork::Tropo.boxed(),
+        MyChainHardfork::Strato.boxed(),
     ];
 
     let mut ordered_hardforks = Vec::with_capacity(configured.len());
@@ -612,19 +612,19 @@ mod tests {
     use reth_chainspec::Hardforks;
     use reth_optimism_forks::OpHardforks;
 
-    use crate::WorldChainSpecBuilder;
+    use crate::MyChainSpecBuilder;
 
     use super::*;
 
     #[test]
     fn world_mainnet_defaults_to_jovian_and_karst() {
-        let spec = WorldChainSpec::mainnet();
+        let spec = MyChainSpec::mainnet();
         assert_eq!(
-            spec.fork(WorldChainHardfork::Jovian),
+            spec.fork(MyChainHardfork::Jovian),
             ForkCondition::Timestamp(JOVIAN_UPGRADE_TIMESTAMP_MAINNET)
         );
         assert_eq!(
-            spec.fork(WorldChainHardfork::Karst),
+            spec.fork(MyChainHardfork::Karst),
             ForkCondition::Timestamp(KARST_UPGRADE_TIMESTAMP_MAINNET)
         );
         assert_eq!(
@@ -635,13 +635,13 @@ mod tests {
 
     #[test]
     fn world_sepolia_defaults_to_jovian_and_karst() {
-        let spec = WorldChainSpec::sepolia();
+        let spec = MyChainSpec::sepolia();
         assert_eq!(
-            spec.fork(WorldChainHardfork::Jovian),
+            spec.fork(MyChainHardfork::Jovian),
             ForkCondition::Timestamp(JOVIAN_UPGRADE_TIMESTAMP_SEPOLIA)
         );
         assert_eq!(
-            spec.fork(WorldChainHardfork::Karst),
+            spec.fork(MyChainHardfork::Karst),
             ForkCondition::Timestamp(KARST_UPGRADE_TIMESTAMP_SEPOLIA)
         );
         assert_eq!(
@@ -652,15 +652,15 @@ mod tests {
 
     #[test]
     fn post_jovian_hardforks_default_inactive_for_custom_genesis() {
-        let spec = WorldChainSpec::from_genesis(Genesis::default());
-        assert_eq!(spec.fork(WorldChainHardfork::Karst), ForkCondition::Never);
-        assert_eq!(spec.fork(WorldChainHardfork::Tropo), ForkCondition::Never);
-        assert_eq!(spec.fork(WorldChainHardfork::Strato), ForkCondition::Never);
+        let spec = MyChainSpec::from_genesis(Genesis::default());
+        assert_eq!(spec.fork(MyChainHardfork::Karst), ForkCondition::Never);
+        assert_eq!(spec.fork(MyChainHardfork::Tropo), ForkCondition::Never);
+        assert_eq!(spec.fork(MyChainHardfork::Strato), ForkCondition::Never);
     }
 
     #[test]
     fn world_specific_hardforks_keep_karst_activation() {
-        let spec = WorldChainSpecBuilder::mainnet()
+        let spec = MyChainSpecBuilder::mainnet()
             .jovian_activated()
             .karst_activated()
             .tropo_activated()
@@ -679,13 +679,13 @@ mod tests {
 
     #[test]
     fn converting_op_specs_preserves_karst() {
-        let mut spec = WorldChainSpec::from_genesis(Genesis::default());
+        let mut spec = MyChainSpec::from_genesis(Genesis::default());
         spec.set_fork(OpHardfork::Karst, ForkCondition::Timestamp(10));
 
-        let converted = WorldChainSpec::from(spec.inner);
+        let converted = MyChainSpec::from(spec.inner);
 
         assert_eq!(
-            converted.fork(WorldChainHardfork::Karst),
+            converted.fork(MyChainHardfork::Karst),
             ForkCondition::Timestamp(10)
         );
         assert_eq!(
@@ -698,19 +698,19 @@ mod tests {
     fn world_hardfork_order_places_karst_before_world_specific_forks() {
         let hardforks = order_world_hardforks(vec![
             (
-                WorldChainHardfork::Strato.boxed(),
+                MyChainHardfork::Strato.boxed(),
                 ForkCondition::Timestamp(30),
             ),
             (
-                WorldChainHardfork::Tropo.boxed(),
+                MyChainHardfork::Tropo.boxed(),
                 ForkCondition::Timestamp(20),
             ),
             (
-                WorldChainHardfork::Jovian.boxed(),
+                MyChainHardfork::Jovian.boxed(),
                 ForkCondition::Timestamp(10),
             ),
             (
-                WorldChainHardfork::Karst.boxed(),
+                MyChainHardfork::Karst.boxed(),
                 ForkCondition::Timestamp(15),
             ),
         ]);
@@ -755,17 +755,17 @@ mod tests {
     /// so eth/69 handshakes failed both ways and the node had zero peers.
     #[test]
     fn fork_id_identical_for_genesis_karst_and_cli_override() {
-        let mut with_karst = WorldChainSpec::from_genesis(sepolia_like_genesis(true));
-        let mut without_karst = WorldChainSpec::from_genesis(sepolia_like_genesis(false));
+        let mut with_karst = MyChainSpec::from_genesis(sepolia_like_genesis(true));
+        let mut without_karst = MyChainSpec::from_genesis(sepolia_like_genesis(false));
 
         // Mirror the unconditional CLI overrides applied on boot.
         for spec in [&mut with_karst, &mut without_karst] {
             spec.set_fork(
-                WorldChainHardfork::Jovian,
+                MyChainHardfork::Jovian,
                 ForkCondition::Timestamp(JOVIAN_UPGRADE_TIMESTAMP_SEPOLIA),
             );
             spec.set_fork(
-                WorldChainHardfork::Karst,
+                MyChainHardfork::Karst,
                 ForkCondition::Timestamp(KARST_UPGRADE_TIMESTAMP_SEPOLIA),
             );
             spec.set_fork(
@@ -800,10 +800,10 @@ mod tests {
     #[test]
     fn hardforks_ordered_by_activation() {
         let specs = vec![
-            (*WorldChainSpec::mainnet()).clone(),
-            (*WorldChainSpec::sepolia()).clone(),
-            WorldChainSpec::from_genesis(sepolia_like_genesis(true)),
-            WorldChainSpec::from_genesis(sepolia_like_genesis(false)),
+            (*MyChainSpec::mainnet()).clone(),
+            (*MyChainSpec::sepolia()).clone(),
+            MyChainSpec::from_genesis(sepolia_like_genesis(true)),
+            MyChainSpec::from_genesis(sepolia_like_genesis(false)),
         ];
         for spec in specs {
             let keys = spec
@@ -822,17 +822,17 @@ mod tests {
 
     #[test]
     fn builder_preserves_karst_from_generic_inputs() {
-        let spec = WorldChainSpecBuilder::mainnet()
+        let spec = MyChainSpecBuilder::mainnet()
             .with_fork(OpHardfork::Karst, ForkCondition::Timestamp(10))
             .with_fork(OpHardfork::Jovian, ForkCondition::Timestamp(5))
             .build();
 
         assert_eq!(
-            spec.fork(WorldChainHardfork::Karst),
+            spec.fork(MyChainHardfork::Karst),
             ForkCondition::Timestamp(10)
         );
         assert_eq!(
-            spec.fork(WorldChainHardfork::Jovian),
+            spec.fork(MyChainHardfork::Jovian),
             ForkCondition::Timestamp(5)
         );
     }

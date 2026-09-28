@@ -8,8 +8,8 @@ use alloy_sol_types::eip712_domain;
 use anyhow::{Context, Result, bail};
 use clap::{ArgGroup, Args};
 use url::Url;
-use world_chain_proof_sp1_host::network_prover::{NetworkCreditClient, SignerType};
-use world_chain_proof_tx_signer::{TransactionSigner, build_transaction_signer};
+use my_chain_proof_sp1_host::network_prover::{NetworkCreditClient, SignerType};
+use my_chain_proof_tx_signer::{TransactionSigner, build_transaction_signer};
 
 use super::{
     select_network_signer,

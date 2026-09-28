@@ -4,15 +4,15 @@ use std::{fs, path::PathBuf};
 use alloy_primitives::B256;
 use anyhow::{Context, Result};
 use clap::{Args, Parser, Subcommand};
-use world_chain_proof_sp1_host::Sp1ProverKind;
-use world_chain_proof_sp1_types::RangeProofRequest;
-use world_chain_prover::{
+use my_chain_proof_sp1_host::Sp1ProverKind;
+use my_chain_proof_sp1_types::RangeProofRequest;
+use my_chain_prover::{
     HashRollupConfigArgs, RpcArgs, WitnessArgs, build_range_input_from_args, ensure_parent_dir,
     online_host_config, print_rollup_config_hash, write_json, write_witness,
 };
 
 #[derive(Debug, Parser)]
-#[command(name = "world-chain-prover-sp1", about = "World Chain SP1 zkVM prover")]
+#[command(name = "my-chain-prover-sp1", about = "My Chain SP1 zkVM prover")]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -120,7 +120,7 @@ async fn sp1_execute(args: Sp1ExecuteArgs) -> Result<()> {
 
     let client = ProverClient::builder().cpu().build().await;
     let (public_values, report) = client
-        .execute(world_chain_proof_sp1_elfs::range_elf(), stdin)
+        .execute(my_chain_proof_sp1_elfs::range_elf(), stdin)
         .calculate_gas(true)
         .await
         .context("SP1 execution failed")?;
@@ -146,7 +146,7 @@ async fn sp1_execute(args: Sp1ExecuteArgs) -> Result<()> {
 
 async fn sp1_prove(args: Sp1ProveArgs) -> Result<()> {
     use sp1_sdk::SP1ProofMode;
-    use world_chain_proof_sp1_host::{
+    use my_chain_proof_sp1_host::{
         cpu_prover::CpuSuccinctProver,
         mock_prover::MockSuccinctProver,
         network_prover::{NetworkSuccinctProver, SignerType},
@@ -217,7 +217,7 @@ async fn sp1_prove(args: Sp1ProveArgs) -> Result<()> {
 }
 
 async fn sp1_vkeys(args: Sp1VkeysArgs) -> Result<()> {
-    let manifest = world_chain_proof_sp1_host::vkeys::embedded_vkey_manifest().await?;
+    let manifest = my_chain_proof_sp1_host::vkeys::embedded_vkey_manifest().await?;
     let out = serde_json::to_string_pretty(&manifest)?;
 
     match &args.output {
@@ -239,7 +239,7 @@ mod tests {
 
     fn execute_args() -> Vec<&'static str> {
         vec![
-            "world-chain-prover-sp1",
+            "my-chain-prover-sp1",
             "execute",
             "--start-block",
             "100",
@@ -269,7 +269,7 @@ mod tests {
             l1_head: None,
             allow_unfinalized: false,
             witness_timeout_seconds: 900,
-            network: world_chain_prover::Network::WorldChain,
+            network: my_chain_prover::Network::MyChain,
         }
     }
 
@@ -289,7 +289,7 @@ mod tests {
     #[test]
     fn execute_requires_an_explicit_block_range() {
         let error = Cli::try_parse_from([
-            "world-chain-prover-sp1",
+            "my-chain-prover-sp1",
             "execute",
             "--l2-rpc",
             "http://localhost:9545",

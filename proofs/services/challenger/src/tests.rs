@@ -2,7 +2,7 @@ use crate::{
     BondManager, BondManagerClient, BondManagerConfig, ChallengeSubmission, ChallengerClient,
     ChallengerConfig, ChallengerError, CloseGameSubmission, GameMetadata, OwnedGames,
     ResolutionManager, ResolutionManagerClient, ResolutionManagerConfig, ResolveSubmission,
-    challenger::WorldChainChallenger,
+    challenger::MyChainChallenger,
 };
 use alloy_primitives::{Address, B256, BlockNumber, U256, address};
 use async_trait::async_trait;
@@ -14,7 +14,7 @@ use std::{
     },
     time::Duration,
 };
-use world_chain_proof_protocol::{
+use my_chain_proof_protocol::{
     ConsensusError, ConsensusProvider, GameStatus, InvalidationReason, ProposalStatus,
     ResolutionStatus,
 };
@@ -329,7 +329,7 @@ async fn tick_challenges_invalid_root_and_tracks_game() {
     let (output_roots, _) =
         mock_output_roots(HashMap::from([(L2_BLOCK, canonical_root)]), L2_BLOCK);
     let owned_games = OwnedGames::default();
-    let mut challenger = WorldChainChallenger::with_owned_games(
+    let mut challenger = MyChainChallenger::with_owned_games(
         config(),
         client.clone(),
         output_roots,
@@ -353,7 +353,7 @@ async fn startup_binary_search_finds_first_live_game_by_deadline() {
     let client = MockClient::new(vec![expired, active]);
     let (output_roots, _) =
         mock_output_roots(HashMap::from([(L2_BLOCK, canonical_root)]), L2_BLOCK);
-    let mut challenger = WorldChainChallenger::new(config(), client.clone(), output_roots);
+    let mut challenger = MyChainChallenger::new(config(), client.clone(), output_roots);
 
     challenger.tick_at(1).await.unwrap();
 
@@ -371,7 +371,7 @@ async fn startup_binary_search_skips_games_older_than_max_age() {
     let client = MockClient::new(vec![old, recent]);
     let (output_roots, _) =
         mock_output_roots(HashMap::from([(L2_BLOCK, canonical_root)]), L2_BLOCK);
-    let mut challenger = WorldChainChallenger::new(config(), client.clone(), output_roots);
+    let mut challenger = MyChainChallenger::new(config(), client.clone(), output_roots);
 
     challenger.tick_at(1).await.unwrap();
 
@@ -392,7 +392,7 @@ async fn tick_respects_new_game_budget() {
         mock_output_roots(HashMap::from([(L2_BLOCK, canonical_root)]), L2_BLOCK);
     let mut limited_config = config();
     limited_config.max_games_per_tick = 2;
-    let mut challenger = WorldChainChallenger::new(limited_config, client.clone(), output_roots);
+    let mut challenger = MyChainChallenger::new(limited_config, client.clone(), output_roots);
 
     challenger.tick_at(1).await.unwrap();
     assert_eq!(client.challenges(), vec![GAME_1, GAME_2]);
@@ -418,7 +418,7 @@ async fn tick_rechecks_lookback_without_reducing_forward_progress() {
     challenger_config.max_game_concurrency = 1;
     challenger_config.max_games_per_tick = 2;
     challenger_config.game_scan_lookback = 1;
-    let mut challenger = WorldChainChallenger::new(challenger_config, client.clone(), output_roots);
+    let mut challenger = MyChainChallenger::new(challenger_config, client.clone(), output_roots);
 
     challenger.tick_at(1).await.unwrap();
     client
@@ -445,7 +445,7 @@ async fn tick_leaves_valid_and_non_proposed_games() {
     let client = MockClient::new(vec![valid, challenged]);
     let (output_roots, _) =
         mock_output_roots(HashMap::from([(L2_BLOCK, canonical_root)]), L2_BLOCK);
-    let mut challenger = WorldChainChallenger::new(config(), client.clone(), output_roots);
+    let mut challenger = MyChainChallenger::new(config(), client.clone(), output_roots);
 
     challenger.tick_at(1).await.unwrap();
 
@@ -460,7 +460,7 @@ async fn retry_game_is_challenged_after_l2_finalizes() {
     let client = MockClient::new(vec![MockGame::proposed(GAME_1, proposed_root, L2_BLOCK)]);
     let (output_roots, finalized_l2_block) =
         mock_output_roots(HashMap::from([(L2_BLOCK, canonical_root)]), L2_BLOCK - 1);
-    let mut challenger = WorldChainChallenger::new(config(), client.clone(), output_roots);
+    let mut challenger = MyChainChallenger::new(config(), client.clone(), output_roots);
 
     challenger.tick_at(1).await.unwrap();
     assert_eq!(challenger.retry_games(), vec![GAME_1]);
@@ -649,7 +649,7 @@ async fn tick_skips_foreign_game_types() {
     }
     let (output_roots, _) =
         mock_output_roots(HashMap::from([(L2_BLOCK, canonical_root)]), L2_BLOCK);
-    let mut challenger = WorldChainChallenger::new(config(), client.clone(), output_roots);
+    let mut challenger = MyChainChallenger::new(config(), client.clone(), output_roots);
 
     challenger.tick_at(1).await.unwrap();
 

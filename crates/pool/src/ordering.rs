@@ -1,4 +1,4 @@
-use super::tx::WorldChainPoolTransaction;
+use super::tx::MyChainPoolTransaction;
 use reth_transaction_pool::{CoinbaseTipOrdering, Priority, TransactionOrdering};
 use revm_primitives::U256;
 
@@ -7,7 +7,7 @@ use revm_primitives::U256;
 /// The transactions are ordered by their coinbase tip.
 /// The higher the coinbase tip is, the higher the priority of the transaction.
 #[derive(Debug)]
-pub struct WorldChainOrdering<T> {
+pub struct MyChainOrdering<T> {
     inner: CoinbaseTipOrdering<T>,
 }
 
@@ -15,16 +15,16 @@ pub struct WorldChainOrdering<T> {
 ///
 /// The ordering of fields here is important.
 #[derive(Debug, Default, Clone, Ord, PartialOrd, Eq, PartialEq)]
-pub struct WorldChainPriority {
+pub struct MyChainPriority {
     is_pbh: bool,
     effective_tip_per_gas: Option<U256>,
 }
 
-impl<T> TransactionOrdering for WorldChainOrdering<T>
+impl<T> TransactionOrdering for MyChainOrdering<T>
 where
-    T: WorldChainPoolTransaction + 'static,
+    T: MyChainPoolTransaction + 'static,
 {
-    type PriorityValue = WorldChainPriority;
+    type PriorityValue = MyChainPriority;
     type Transaction = T;
 
     fn priority(
@@ -34,7 +34,7 @@ where
     ) -> Priority<Self::PriorityValue> {
         let effective_tip_per_gas = transaction.effective_tip_per_gas(base_fee).map(U256::from);
 
-        Some(WorldChainPriority {
+        Some(MyChainPriority {
             is_pbh: transaction.pbh_payload().is_some(),
             effective_tip_per_gas,
         })
@@ -42,7 +42,7 @@ where
     }
 }
 
-impl<T> Clone for WorldChainOrdering<T> {
+impl<T> Clone for MyChainOrdering<T> {
     fn clone(&self) -> Self {
         Self {
             inner: self.inner.clone(),
@@ -50,7 +50,7 @@ impl<T> Clone for WorldChainOrdering<T> {
     }
 }
 
-impl<T> Default for WorldChainOrdering<T> {
+impl<T> Default for MyChainOrdering<T> {
     fn default() -> Self {
         Self {
             inner: CoinbaseTipOrdering::default(),
@@ -66,12 +66,12 @@ mod test {
 
     #[test]
     fn pbh_has_priority() {
-        let pbh = WorldChainPriority {
+        let pbh = MyChainPriority {
             is_pbh: true,
             effective_tip_per_gas: Some(U256::from(100u64)),
         };
 
-        let no_pbh = WorldChainPriority {
+        let no_pbh = MyChainPriority {
             is_pbh: false,
             effective_tip_per_gas: Some(U256::from(10000u64)),
         };
@@ -82,12 +82,12 @@ mod test {
     #[test_case(true)]
     #[test_case(false)]
     fn higher_tip_has_priority(is_pbh: bool) {
-        let lower_tip = WorldChainPriority {
+        let lower_tip = MyChainPriority {
             is_pbh,
             effective_tip_per_gas: Some(U256::from(100u64)),
         };
 
-        let higher_tip = WorldChainPriority {
+        let higher_tip = MyChainPriority {
             is_pbh,
             effective_tip_per_gas: Some(U256::from(10000u64)),
         };

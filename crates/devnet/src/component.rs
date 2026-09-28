@@ -30,15 +30,15 @@ impl fmt::Display for ContainerImage {
     }
 }
 
-/// High-level component categories in the native World Chain devnet.
+/// High-level component categories in the native My Chain devnet.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum DevnetComponentKind {
     /// L1 execution dev chain.
     L1DevChain,
     /// OP contract deployment step.
     OpContractDeployer,
-    /// World Chain L2 execution node.
-    WorldChainExecutionNode,
+    /// My Chain L2 execution node.
+    MyChainExecutionNode,
     /// OP Node / rollup consensus component.
     OpNode,
     /// OP Conductor HA sequencer coordinator.
@@ -53,21 +53,21 @@ pub enum DevnetComponentKind {
     Prometheus,
     /// Grafana dashboards.
     Grafana,
-    /// World Chain contract deployment step.
+    /// My Chain contract deployment step.
     WorldContractsDeployer,
-    /// World Chain WIP-1006 proof-system contracts on L1.
+    /// My Chain WIP-1006 proof-system contracts on L1.
     WorldProofSystem,
-    /// World Chain WIP-1006 proof-system proposer.
-    WorldChainProposer,
-    /// World Chain WIP-1006 proof-system challenger.
-    WorldChainChallenger,
-    /// World Chain WIP-1006 proof-system defender.
-    WorldChainDefender,
-    /// World Chain defender proof request queue / proving service.
+    /// My Chain WIP-1006 proof-system proposer.
+    MyChainProposer,
+    /// My Chain WIP-1006 proof-system challenger.
+    MyChainChallenger,
+    /// My Chain WIP-1006 proof-system defender.
+    MyChainDefender,
+    /// My Chain defender proof request queue / proving service.
     ProverService,
-    /// World Chain defender SP1 proving worker.
+    /// My Chain defender SP1 proving worker.
     Sp1Worker,
-    /// Flashblocks capability on the World Chain execution node.
+    /// Flashblocks capability on the My Chain execution node.
     Flashblocks,
     /// Deprecated/removed legacy component.
     RemovedLegacyService,
@@ -79,7 +79,7 @@ impl DevnetComponentKind {
         match self {
             Self::L1DevChain => "l1-dev-chain",
             Self::OpContractDeployer => "op-contract-deployer",
-            Self::WorldChainExecutionNode => "world-chain-execution-node",
+            Self::MyChainExecutionNode => "my-chain-execution-node",
             Self::OpNode => "op-node",
             Self::OpConductor => "op-conductor",
             Self::OpBatcher => "op-batcher",
@@ -89,9 +89,9 @@ impl DevnetComponentKind {
             Self::Grafana => "grafana",
             Self::WorldContractsDeployer => "world-contracts-deployer",
             Self::WorldProofSystem => "world-proof-system",
-            Self::WorldChainProposer => "world-chain-proposer",
-            Self::WorldChainChallenger => "world-chain-challenger",
-            Self::WorldChainDefender => "world-chain-defender",
+            Self::MyChainProposer => "my-chain-proposer",
+            Self::MyChainChallenger => "my-chain-challenger",
+            Self::MyChainDefender => "my-chain-defender",
             Self::ProverService => "prover-service",
             Self::Sp1Worker => "sp1-worker",
             Self::Flashblocks => "flashblocks",

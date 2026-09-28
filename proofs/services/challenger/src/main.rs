@@ -1,8 +1,8 @@
-//! `world-chain-challenger` binary: scans WIP-1006 games on the OP `DisputeGameFactory` and
+//! `my-chain-challenger` binary: scans WIP-1006 games on the OP `DisputeGameFactory` and
 //! challenges any whose claimed output root disagrees with the canonical L2 root.
 //!
 //! Mirrors the in-process challenger wired by the devnet harness
-//! (`crates/devnet/src/full_stack.rs::start_world_chain_challenger`), reading its
+//! (`crates/devnet/src/full_stack.rs::start_my_chain_challenger`), reading its
 //! configuration from flags/environment so it can run as a standalone service.
 
 use std::time::Duration;
@@ -14,19 +14,19 @@ use anyhow::{Context, Result};
 use clap::{ArgGroup, Parser};
 use tracing::info;
 use url::Url;
-use world_chain_challenger::{
+use my_chain_challenger::{
     AlloyChallengerClient, BondManager, BondManagerConfig, ChallengerClient, ChallengerConfig,
     DEFAULT_GAME_SCAN_LOOKBACK, DEFAULT_L1_TX_CONFIRMATIONS, OwnedGames, ResolutionManager,
-    ResolutionManagerConfig, WorldChainChallenger,
+    ResolutionManagerConfig, MyChainChallenger,
 };
-use world_chain_proof_metrics::RPC_ENDPOINT_VERIFYING;
-use world_chain_proof_protocol::{OptimismConsensusClient, VerifyingConsensusProvider};
-use world_chain_proof_tx_signer::build_transaction_signer;
+use my_chain_proof_metrics::RPC_ENDPOINT_VERIFYING;
+use my_chain_proof_protocol::{OptimismConsensusClient, VerifyingConsensusProvider};
+use my_chain_proof_tx_signer::build_transaction_signer;
 
 #[derive(Debug, Parser)]
 #[command(
-    name = "world-chain-challenger",
-    about = "World Chain proof-system challenger: challenges invalid output-root proposals on L1",
+    name = "my-chain-challenger",
+    about = "My Chain proof-system challenger: challenges invalid output-root proposals on L1",
     group = ArgGroup::new("transaction_signer")
         .required(true)
         .multiple(false)
@@ -94,7 +94,7 @@ struct Cli {
     #[arg(
         long,
         env = "L1_TX_RECEIPT_TIMEOUT_SECONDS",
-        default_value_t = world_chain_proof_protocol::DEFAULT_L1_TX_RECEIPT_TIMEOUT_SECONDS,
+        default_value_t = my_chain_proof_protocol::DEFAULT_L1_TX_RECEIPT_TIMEOUT_SECONDS,
         value_parser = clap::value_parser!(u64).range(1..)
     )]
     l1_tx_receipt_timeout_seconds: u64,
@@ -127,7 +127,7 @@ struct Cli {
     #[arg(
         long,
         env = "L1_RPC_TIMEOUT_SECONDS",
-        default_value_t = world_chain_proof_metrics::DEFAULT_RPC_REQUEST_TIMEOUT_SECONDS,
+        default_value_t = my_chain_proof_metrics::DEFAULT_RPC_REQUEST_TIMEOUT_SECONDS,
         value_parser = clap::value_parser!(u64).range(1..)
     )]
     l1_rpc_timeout_seconds: u64,
@@ -138,7 +138,7 @@ async fn main() -> Result<()> {
     dotenvy::dotenv().ok();
     let _telemetry_guard = telemetry_batteries::init()
         .map_err(|error| anyhow::anyhow!("failed to initialize telemetry: {error:#}"))?;
-    world_chain_proof_metrics::describe_metrics();
+    my_chain_proof_metrics::describe_metrics();
 
     let cli = Cli::parse();
 
@@ -155,10 +155,10 @@ async fn main() -> Result<()> {
         .map(Url::parse)
         .transpose()
         .context("invalid L1 fallback RPC URL")?;
-    let l1_rpc_client = world_chain_proof_metrics::metered_http_client(
+    let l1_rpc_client = my_chain_proof_metrics::metered_http_client(
         l1_rpc_url,
         l1_fallback_rpc_url,
-        world_chain_proof_metrics::RPC_TARGET_L1_EXECUTION,
+        my_chain_proof_metrics::RPC_TARGET_L1_EXECUTION,
         Duration::from_secs(cli.l1_rpc_timeout_seconds),
     )
     .context("failed to build the L1 RPC client")?;
@@ -170,7 +170,7 @@ async fn main() -> Result<()> {
         .fetch_chain_id()
         .wallet(wallet)
         .connect_client(l1_rpc_client);
-    world_chain_proof_metrics::refresh_wallet_balance(&provider, challenger_address).await;
+    my_chain_proof_metrics::refresh_wallet_balance(&provider, challenger_address).await;
 
     let client = AlloyChallengerClient::new(
         provider,
@@ -179,7 +179,7 @@ async fn main() -> Result<()> {
         Duration::from_secs(cli.l1_tx_receipt_timeout_seconds),
     )
     .await
-    .context("failed to bind the World Chain proof system")?;
+    .context("failed to bind the My Chain proof system")?;
     client.refresh_vault_balance().await;
 
     // Preflight the factory index before entering the scan loop. Crash instead of reporting the
@@ -191,7 +191,7 @@ async fn main() -> Result<()> {
                 "failed to read gameCount() from the dispute game factory at {} over {} — \
                  check the factory address and the L1 RPC endpoint",
                 cli.factory_address,
-                world_chain_proof_metrics::redact_endpoint(&cli.l1_rpc),
+                my_chain_proof_metrics::redact_endpoint(&cli.l1_rpc),
             )
         })?;
 
@@ -217,7 +217,7 @@ async fn main() -> Result<()> {
     };
     let bond_vault = client.bond_vault_address();
     let owned_games = OwnedGames::default();
-    let mut challenger = WorldChainChallenger::with_owned_games(
+    let mut challenger = MyChainChallenger::with_owned_games(
         config,
         client.clone(),
         output_roots,
@@ -228,9 +228,9 @@ async fn main() -> Result<()> {
     let mut bond_manager = BondManager::new(bond_manager_config, client, owned_games);
 
     info!(
-        l1_rpc_url = world_chain_proof_metrics::redact_endpoint(&cli.l1_rpc),
+        l1_rpc_url = my_chain_proof_metrics::redact_endpoint(&cli.l1_rpc),
         l1_fallback_rpc_configured = cli.l1_fallback_rpc.is_some(),
-        output_root_rpc_url = world_chain_proof_metrics::redact_endpoint(&cli.output_root_rpc),
+        output_root_rpc_url = my_chain_proof_metrics::redact_endpoint(&cli.output_root_rpc),
         verifying_output_root_rpc_configured = cli.verifying_output_root_rpc.is_some(),
         dispute_game_factory = %cli.factory_address,
         bond_vault = %bond_vault,
@@ -246,7 +246,7 @@ async fn main() -> Result<()> {
         bond_manager_poll_interval_seconds = cli.bond_manager_poll_interval_seconds,
         bond_manager_initial_scan_limit = cli.bond_manager_initial_scan_limit,
         l1_rpc_timeout_seconds = cli.l1_rpc_timeout_seconds,
-        "starting World Chain proof-system challenger"
+        "starting My Chain proof-system challenger"
     );
 
     tokio::select! {

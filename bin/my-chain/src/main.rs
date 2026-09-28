@@ -3,12 +3,12 @@ use eyre::config::HookBuilder;
 use reth_optimism_consensus::OpBeaconConsensus;
 use reth_tracing::tracing::info;
 use std::sync::Arc;
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_cli::{
-    Cli, WorldChainArgs, WorldChainNodeConfig, WorldChainRpcModuleValidator, WorldChainSpecParser,
+use my_chain_chainspec::MyChainSpec;
+use my_chain_cli::{
+    Cli, MyChainArgs, MyChainNodeConfig, MyChainRpcModuleValidator, MyChainSpecParser,
 };
-use world_chain_evm::WorldChainEvmConfig;
-use world_chain_node::{context::WorldChainDefaultContext, node::WorldChainNode, proof_history};
+use my_chain_evm::MyChainEvmConfig;
+use my_chain_node::{context::MyChainDefaultContext, node::MyChainNode, proof_history};
 
 #[cfg(all(feature = "jemalloc", unix))]
 #[global_allocator]
@@ -31,20 +31,20 @@ fn main() {
         }
     }
 
-    world_chain_node::init_version_metadata();
+    my_chain_node::init_version_metadata();
 
-    let result = Cli::<WorldChainSpecParser, WorldChainArgs, WorldChainRpcModuleValidator>::parse()
-        .run::<WorldChainNode<WorldChainDefaultContext>, _, _, _>(
+    let result = Cli::<MyChainSpecParser, MyChainArgs, MyChainRpcModuleValidator>::parse()
+        .run::<MyChainNode<MyChainDefaultContext>, _, _, _>(
             |mut builder, args| async move {
                 info!(target: "reth::cli", "Launching node");
-                let config: WorldChainNodeConfig = args.into_config(builder.config_mut())?;
+                let config: MyChainNodeConfig = args.into_config(builder.config_mut())?;
 
                 info!(target: "reth::cli", "Starting in Flashblocks mode");
                 proof_history::launch_node(builder, config).await
             },
-            |chain_spec: Arc<WorldChainSpec>| {
+            |chain_spec: Arc<MyChainSpec>| {
                 (
-                    WorldChainEvmConfig::optimism(chain_spec.clone()),
+                    MyChainEvmConfig::optimism(chain_spec.clone()),
                     Arc::new(OpBeaconConsensus::new(chain_spec)),
                 )
             },

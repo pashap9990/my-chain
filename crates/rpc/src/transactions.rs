@@ -11,7 +11,7 @@ use reth_transaction_pool::{
 };
 use revm_primitives::{B256, Bytes};
 
-use crate::{core::WorldChainEthApiExt, sequencer::SequencerClient};
+use crate::{core::MyChainEthApiExt, sequencer::SequencerClient};
 
 #[async_trait]
 pub trait EthTransactionsExt {
@@ -27,7 +27,7 @@ pub trait EthTransactionsExt {
 }
 
 #[async_trait]
-impl<Pool, Client> EthTransactionsExt for WorldChainEthApiExt<Pool, Client>
+impl<Pool, Client> EthTransactionsExt for MyChainEthApiExt<Pool, Client>
 where
     Pool: TransactionPool + Clone + 'static,
     Pool::Transaction: PoolTransaction,
@@ -67,7 +67,7 @@ where
     }
 }
 
-impl<Pool, Client> WorldChainEthApiExt<Pool, Client>
+impl<Pool, Client> MyChainEthApiExt<Pool, Client>
 where
     Pool: TransactionPool + Clone + 'static,
     Client: BlockReaderIdExt + StateProviderFactory + 'static,

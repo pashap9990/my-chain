@@ -18,7 +18,7 @@ use std::{
     sync::Arc,
     task::{Context, Poll},
 };
-use world_chain_primitives::primitives::FlashblocksPayloadV1;
+use my_chain_primitives::primitives::FlashblocksPayloadV1;
 
 #[derive(Clone, Debug)]
 pub enum ChainEvent {
@@ -31,16 +31,16 @@ pub enum ChainEvent {
     Pending(Arc<FlashblocksPayloadV1>),
 }
 
-/// Events yielded by [`WorldChainEventsStream`].
+/// Events yielded by [`MyChainEventsStream`].
 #[derive(Clone, Debug)]
-pub enum WorldChainEvent<T> {
+pub enum MyChainEvent<T> {
     /// An event emitted when executable pending flashblocks are observed.
     Chain(ChainEvent),
     /// An event emitted by any source.
     Event(T),
 }
 
-/// A stream of [`WorldChainEvent`]s that merges flashblocks with canonical
+/// A stream of [`MyChainEvent`]s that merges flashblocks with canonical
 /// chain notifications, reducing them through a [`BufferedFlashblocks`]
 /// state machine.
 ///
@@ -49,27 +49,27 @@ pub enum WorldChainEvent<T> {
 /// Flashblocks are buffered when the epoch parent is not yet canonical, but the
 /// [`PayloadId`] is fresh. A [`ChainEvent::Canon`] is emitted on every
 /// canonical tip change so consumers can clear pending state.
-pub type WorldChainEventsStream<T> = Pin<Box<dyn Stream<Item = WorldChainEvent<T>> + Send>>;
+pub type MyChainEventsStream<T> = Pin<Box<dyn Stream<Item = MyChainEvent<T>> + Send>>;
 
-/// Constructs a [`WorldChainEventsStream`] by merging a flashblock stream with
+/// Constructs a [`MyChainEventsStream`] by merging a flashblock stream with
 /// canonical chain notifications, reducing through [`BufferedFlashblocks`], and
 /// applying `hook` to each yielded event.
 #[must_use]
-pub fn world_chain_events_stream<T, F>(
+pub fn my_chain_events_stream<T, F>(
     flashblocks: Pin<Box<dyn Stream<Item = ChainEvent> + Send>>,
     canon: Pin<Box<dyn Stream<Item = ChainEvent> + Send>>,
     metrics: FlashblocksP2PMetrics,
     mut hook: F,
-) -> WorldChainEventsStream<T>
+) -> MyChainEventsStream<T>
 where
     T: Send + Sync + 'static,
-    F: FnMut(&WorldChainEvent<T>) -> Option<WorldChainEvent<T>> + Send + 'static,
+    F: FnMut(&MyChainEvent<T>) -> Option<MyChainEvent<T>> + Send + 'static,
 {
     let merged =
         futures::stream::select_with_strategy(canon, flashblocks, |_: &mut ()| PollNext::Left);
 
     BufferedStream::new(merged, metrics)
-        .map(WorldChainEvent::Chain)
+        .map(MyChainEvent::Chain)
         .flat_map(move |event| {
             let extra = hook(&event);
             stream::iter(std::iter::once(event).chain(extra))
@@ -309,7 +309,7 @@ impl Iterator for BufferedFlashblocks {
 mod tests {
     use super::*;
     use alloy_primitives::B256;
-    use world_chain_primitives::primitives::{
+    use my_chain_primitives::primitives::{
         ExecutionPayloadBaseV1, ExecutionPayloadFlashblockDeltaV1,
     };
 

@@ -20,7 +20,7 @@ pub fn spawn_witness_collector<P>(
 {
     let mut canon = provider.canonical_state_stream();
 
-    tasks.spawn_critical_task("world-chain-witness-collector", async move {
+    tasks.spawn_critical_task("my-chain-witness-collector", async move {
         // Captured records awaiting their block becoming canonical, keyed by block number.
         let mut queued: BTreeMap<u64, ExecutionWitnessRecord> = BTreeMap::new();
 
@@ -68,7 +68,7 @@ pub fn spawn_witness_collector<P>(
                     match result {
                         Ok(witness) => cache.insert(block_number, witness),
                         Err(err) => tracing::error!(
-                            target: "world_chain::witness",
+                            target: "my_chain::witness",
                             block_number,
                             %err,
                             "failed to assemble execution witness; skipping",

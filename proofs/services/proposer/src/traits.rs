@@ -1,6 +1,6 @@
 use alloy_primitives::{Address, B256};
 use async_trait::async_trait;
-use world_chain_proof_protocol::{LineageProvider, ResolutionStatus};
+use my_chain_proof_protocol::{LineageProvider, ResolutionStatus};
 
 use crate::{
     Proposal, ProposalSubmission, ProposerError,

@@ -1,4 +1,4 @@
-//! Compile-time embedded World Chain SP1 guest program ELFs.
+//! Compile-time embedded My Chain SP1 guest program ELFs.
 //!
 //! This crate is a **production-only** dependency: it runs the SP1 Docker
 //! build at compile time (via `build.rs`) and bakes the resulting ELF bytes
@@ -9,7 +9,7 @@ use sp1_sdk::Elf;
 #[cfg(not(clippy))]
 use sp1_sdk::{Elf, include_elf};
 
-/// Returns the compile-time embedded World Chain range-proof guest ELF.
+/// Returns the compile-time embedded My Chain range-proof guest ELF.
 pub fn range_elf() -> Elf {
     #[cfg(not(clippy))]
     {
@@ -21,7 +21,7 @@ pub fn range_elf() -> Elf {
     }
 }
 
-/// Returns the compile-time embedded World Chain aggregation guest ELF.
+/// Returns the compile-time embedded My Chain aggregation guest ELF.
 pub fn aggregation_elf() -> Elf {
     #[cfg(not(clippy))]
     {

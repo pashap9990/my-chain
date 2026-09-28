@@ -1,10 +1,10 @@
-//! Native World Chain devnet harness.
+//! Native My Chain devnet harness.
 //!
 //! This crate is the Rust replacement path for the Kurtosis package under
 //! `pkg/devnet`. The mapping is intentionally not 1:1: the new default preset
 //! keeps the useful local-dev configuration, genesis, and flashblocks setup,
 //! while dropping the historical rollup-boost and tx-proxy wiring. PBH
-//! contracts are not part of the new deployment scope. The World Chain
+//! contracts are not part of the new deployment scope. The My Chain
 //! execution node sequences directly, with lifecycle ownership held by
 //! [`WorldDevnet`].
 
@@ -33,16 +33,16 @@ use reth_optimism_payload_builder::OpPayloadAttrs;
 use reth_provider::BlockIdReader;
 use tokio::sync::watch;
 use tracing::{error, info};
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_node::context::WorldChainDefaultContext;
-use world_chain_primitives::{p2p::Authorization, payload_id::force_op_payload_id_v3};
-use world_chain_rpc::op::OpApiExtClient;
-use world_chain_test_utils::{
+use my_chain_chainspec::MyChainSpec;
+use my_chain_node::context::MyChainDefaultContext;
+use my_chain_primitives::{p2p::Authorization, payload_id::force_op_payload_id_v3};
+use my_chain_rpc::op::OpApiExtClient;
+use my_chain_test_utils::{
     DEV_CHAIN_ID,
     e2e_harness::{
         actions::EngineDriver,
         setup::{
-            CHAIN_SPEC, TX_SET_L1_BLOCK, WorldChainTestBuilder, WorldChainTestingNodeContext,
+            CHAIN_SPEC, TX_SET_L1_BLOCK, MyChainTestBuilder, MyChainTestingNodeContext,
             build_payload_attributes, encode_eip1559_params,
         },
         spammer::TxSpammer,
@@ -55,7 +55,7 @@ pub use component::{
     ContainerImage, DevnetComponent, DevnetComponentKind, DevnetComponentStatus, DevnetEndpoint,
 };
 pub use full_stack::SUPERCHAIN_GUARDIAN_PRIVATE_KEY;
-pub use hardforks::{WORLD_CHAIN_DEVNET_HARDFORK_ORDER, WorldChainHardforkConfig};
+pub use hardforks::{MY_CHAIN_DEVNET_HARDFORK_ORDER, MyChainHardforkConfig};
 pub use l1::{L1DevChain, L1DevChainConfig};
 pub use observability::{MetricsTarget, ObservabilityConfig, ObservabilityStack};
 pub use op_stack::{
@@ -67,17 +67,17 @@ pub use op_stack::{
 /// Devnet topology presets.
 ///
 /// `DirectSequencer` is the intended new local-dev shape: one L1 dev chain and
-/// one World Chain sequencing execution node, with flashblocks enabled and no
+/// one My Chain sequencing execution node, with flashblocks enabled and no
 /// rollup-boost or tx-proxy.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum WorldDevnetPreset {
-    /// New default topology: direct sequencing World Chain node plus L1 dev chain.
+    /// New default topology: direct sequencing My Chain node plus L1 dev chain.
     #[default]
     DirectSequencer,
     /// Fastest useful single-node setup. It still uses the same direct
     /// sequencing path but keeps the component count minimal.
     Minimal,
-    /// HA sequencing topology with three direct-sequencing World Chain replicas,
+    /// HA sequencing topology with three direct-sequencing My Chain replicas,
     /// op-node/op-conductor wiring, and observability. `op-challenger` is
     /// opt-in until the native devnet generates matching Cannon prestates.
     HaSequencer,
@@ -93,11 +93,11 @@ pub enum DevnetPortMode {
     Stable,
 }
 
-/// Builder for fresh isolated World Chain devnet systems.
+/// Builder for fresh isolated My Chain devnet systems.
 #[derive(Clone, Debug)]
 pub struct WorldDevnetBuilder {
     preset: WorldDevnetPreset,
-    hardforks: WorldChainHardforkConfig,
+    hardforks: MyChainHardforkConfig,
     flashblocks: bool,
     access_list: bool,
     nodes: u8,
@@ -112,7 +112,7 @@ impl Default for WorldDevnetBuilder {
     fn default() -> Self {
         Self {
             preset: WorldDevnetPreset::DirectSequencer,
-            hardforks: WorldChainHardforkConfig::default(),
+            hardforks: MyChainHardforkConfig::default(),
             flashblocks: true,
             access_list: false,
             nodes: 1,
@@ -156,7 +156,7 @@ impl WorldDevnetBuilder {
     }
 
     /// Override the hardfork selection used for the L2 chain spec.
-    pub fn hardforks(mut self, hardforks: WorldChainHardforkConfig) -> Self {
+    pub fn hardforks(mut self, hardforks: MyChainHardforkConfig) -> Self {
         self.hardforks = hardforks;
         self
     }
@@ -264,7 +264,7 @@ impl WorldDevnetBuilder {
             l1_enabled = self.l1.is_some(),
             port_mode = ?self.port_mode,
             observability = self.observability.enabled,
-            "building native World Chain devnet"
+            "building native My Chain devnet"
         );
 
         let ha_topology = self.ha_topology();
@@ -314,16 +314,16 @@ impl WorldDevnetBuilder {
         let chain_spec = Arc::new(self.hardforks.apply_to((*CHAIN_SPEC).clone()));
         info!(
             chain_id = chain_spec.chain().id(),
-            "starting in-process World Chain node swarm"
+            "starting in-process My Chain node swarm"
         );
 
-        let (_, nodes, tasks, env, tx_spammer) = WorldChainTestBuilder::builder()
+        let (_, nodes, tasks, env, tx_spammer) = MyChainTestBuilder::builder()
             .nodes(self.nodes)
             .flashblocks(self.flashblocks)
             .access_list(self.access_list)
             .chain_spec(chain_spec.clone())
             .build()
-            .setup_with::<WorldChainDefaultContext, _>(optimism_payload_attributes)
+            .setup_with::<MyChainDefaultContext, _>(optimism_payload_attributes)
             .await?;
 
         for (idx, node) in nodes.iter().enumerate() {
@@ -331,7 +331,7 @@ impl WorldDevnetBuilder {
                 node = idx,
                 rpc_url = %node.node.rpc_url(),
                 flashblocks_context = node.ext_context.is_some(),
-                "World Chain node ready"
+                "My Chain node ready"
             );
         }
 
@@ -367,20 +367,20 @@ impl WorldDevnetBuilder {
     }
 }
 
-/// Lifecycle-owned running World Chain devnet.
+/// Lifecycle-owned running My Chain devnet.
 pub struct WorldDevnet {
     preset: WorldDevnetPreset,
-    hardforks: WorldChainHardforkConfig,
+    hardforks: MyChainHardforkConfig,
     l1: Option<L1DevChain>,
     observability: Option<ObservabilityStack>,
     full_stack: Option<FullStackWorldDevnet>,
     components: Vec<DevnetComponent>,
     ha_topology: Option<HaSequencerTopology>,
-    nodes: Vec<WorldChainTestingNodeContext<WorldChainDefaultContext>>,
+    nodes: Vec<MyChainTestingNodeContext<MyChainDefaultContext>>,
     _tasks: Option<reth_tasks::TaskExecutor>,
     env: Option<reth_e2e_test_utils::testsuite::Environment<OpEngineTypes>>,
     _tx_spammer: Option<TxSpammer<OpEngineTypes>>,
-    chain_spec: Arc<WorldChainSpec>,
+    chain_spec: Arc<MyChainSpec>,
     block_time: Duration,
     flashblocks: bool,
     produced_blocks: Arc<AtomicU64>,
@@ -393,12 +393,12 @@ impl WorldDevnet {
     }
 
     /// Hardfork selection used to build this devnet.
-    pub const fn hardforks(&self) -> &WorldChainHardforkConfig {
+    pub const fn hardforks(&self) -> &MyChainHardforkConfig {
         &self.hardforks
     }
 
-    /// L2 chain spec used by the in-process World Chain node.
-    pub fn chain_spec(&self) -> Arc<WorldChainSpec> {
+    /// L2 chain spec used by the in-process My Chain node.
+    pub fn chain_spec(&self) -> Arc<MyChainSpec> {
         self.chain_spec.clone()
     }
 
@@ -621,7 +621,7 @@ impl WorldDevnet {
             full_stack.wait_ready().await?;
             info!("full OP Stack devnet is running; press Ctrl-C to stop");
             wait_for_shutdown(&mut shutdown).await;
-            info!("World Chain full-stack devnet shutting down");
+            info!("My Chain full-stack devnet shutting down");
             return Ok(());
         }
 
@@ -652,14 +652,14 @@ impl WorldDevnet {
 
         info!(
             produced_blocks = self.produced_blocks(),
-            "World Chain devnet shutting down"
+            "My Chain devnet shutting down"
         );
         Ok(())
     }
 
     /// Print endpoint URLs for manual use.
     pub fn print_endpoints(&self) {
-        info!(preset = ?self.preset, chain_id = DEV_CHAIN_ID, "World Chain devnet started");
+        info!(preset = ?self.preset, chain_id = DEV_CHAIN_ID, "My Chain devnet started");
         println!("{}", self.endpoint_summary());
         if let Some(url) = self.l1_rpc_url() {
             info!(url, "L1 RPC");
@@ -693,7 +693,7 @@ impl WorldDevnet {
     /// Human-readable endpoint summary for manual devnet runs.
     pub fn endpoint_summary(&self) -> String {
         let mut summary = format!(
-            "\nWorld Chain devnet endpoints\n\
+            "\nMy Chain devnet endpoints\n\
              preset: {:?}\n\
              chain id: {DEV_CHAIN_ID}\n\n\
              primary endpoints:\n",
@@ -778,7 +778,7 @@ impl WorldDevnet {
     fn engine_driver(
         &self,
         count: usize,
-        on_block: Option<world_chain_test_utils::e2e_harness::actions::BlockCallback>,
+        on_block: Option<my_chain_test_utils::e2e_harness::actions::BlockCallback>,
     ) -> EngineDriver<
         impl Fn(alloy_primitives::B256, OpPayloadAttrs) -> Authorization + Clone + Send + Sync + 'static,
     > {
@@ -858,7 +858,7 @@ impl WorldDevnet {
 fn build_component_manifest(
     preset: WorldDevnetPreset,
     l1: &Option<L1DevChain>,
-    nodes: &[WorldChainTestingNodeContext<WorldChainDefaultContext>],
+    nodes: &[MyChainTestingNodeContext<MyChainDefaultContext>],
     observability: Option<&ObservabilityStack>,
     ha_topology: Option<&HaSequencerTopology>,
 ) -> Vec<DevnetComponent> {
@@ -878,12 +878,12 @@ fn build_component_manifest(
     for (idx, node) in nodes.iter().enumerate() {
         components.push(
             DevnetComponent::new(
-                format!("world-chain-el-{idx}"),
-                DevnetComponentKind::WorldChainExecutionNode,
+                format!("my-chain-el-{idx}"),
+                DevnetComponentKind::MyChainExecutionNode,
                 DevnetComponentStatus::Running,
             )
             .with_endpoint("rpc", node.node.rpc_url().to_string())
-            .with_note("in-process World Chain node driven through the Rust Engine API harness"),
+            .with_note("in-process My Chain node driven through the Rust Engine API harness"),
         );
 
         if node.ext_context.is_some() {
@@ -894,7 +894,7 @@ fn build_component_manifest(
                     DevnetComponentStatus::Running,
                 )
                 .with_endpoint("rpc", node.node.rpc_url().to_string())
-                .with_note("flashblocks enabled on the World Chain execution node"),
+                .with_note("flashblocks enabled on the My Chain execution node"),
             );
         }
     }
@@ -908,7 +908,7 @@ fn build_component_manifest(
         for component in &mut planned {
             match component.kind {
                 DevnetComponentKind::L1DevChain
-                | DevnetComponentKind::WorldChainExecutionNode
+                | DevnetComponentKind::MyChainExecutionNode
                 | DevnetComponentKind::Prometheus
                 | DevnetComponentKind::Grafana
                     if components.iter().any(|running| running.id == component.id) =>
@@ -972,7 +972,7 @@ pub fn is_docker_unavailable(err: &eyre::Report) -> bool {
 }
 
 /// Validate default local devnet chain ID invariants.
-pub fn ensure_dev_chain_id(chain_spec: &WorldChainSpec) -> Result<()> {
+pub fn ensure_dev_chain_id(chain_spec: &MyChainSpec) -> Result<()> {
     if chain_spec.chain().id() != DEV_CHAIN_ID {
         bail!(
             "World devnet chain id mismatch: expected {}, got {}",

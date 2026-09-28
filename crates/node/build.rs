@@ -32,11 +32,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     let pkg_version = env!("CARGO_PKG_VERSION");
     let target = env::var("VERGEN_CARGO_TARGET_TRIPLE")?;
     let profile = build_profile()?;
-    let client_version = format!("world-chain/v{pkg_version}-{short_sha}/{target}");
+    let client_version = format!("my-chain/v{pkg_version}-{short_sha}/{target}");
 
     println!("cargo:rustc-env=VERGEN_GIT_SHA={sha}");
     println!("cargo:rustc-env=VERGEN_GIT_SHA_SHORT={short_sha}");
-    println!("cargo:rustc-env=WORLD_CHAIN_CLIENT_VERSION={client_version}");
+    println!("cargo:rustc-env=MY_CHAIN_CLIENT_VERSION={client_version}");
     println!("cargo:rustc-env=RETH_BUILD_PROFILE={profile}");
     println!("cargo:rustc-env=RETH_SHORT_VERSION={pkg_version} ({short_sha})");
     println!("cargo:rustc-env=RETH_LONG_VERSION_0=Version: {pkg_version}");

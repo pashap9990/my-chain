@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use alloy_primitives::Address;
 use tracing::{info, warn};
-use world_chain_proof_protocol::{GameStatus, InvalidationReason};
+use my_chain_proof_protocol::{GameStatus, InvalidationReason};
 
 use crate::{BondManagerClient, BondManagerConfig, ProposerError};
 
@@ -100,7 +100,7 @@ where
         for game in proposed_games {
             let result: Result<bool, ProposerError> = async {
                 if self.execution_provider.is_game_settled(game).await? {
-                    world_chain_proof_metrics::increment_games_closed(
+                    my_chain_proof_metrics::increment_games_closed(
                         "proposer",
                         "already_settled",
                     );
@@ -150,7 +150,7 @@ where
                 }
 
                 let submission = self.execution_provider.close_game(game).await?;
-                world_chain_proof_metrics::increment_games_closed("proposer", "submitted");
+                my_chain_proof_metrics::increment_games_closed("proposer", "submitted");
                 info!(
                     tx_hash = ?submission.tx_hash,
                     game_address = %game,

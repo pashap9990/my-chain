@@ -2,7 +2,7 @@ use std::{fs, path::PathBuf};
 
 use anyhow::{Context, Result, bail};
 use clap::Args;
-use world_chain_proof_sp1_host::vkeys::{EmbeddedVkeyManifest, embedded_vkey_manifest};
+use my_chain_proof_sp1_host::vkeys::{EmbeddedVkeyManifest, embedded_vkey_manifest};
 
 #[derive(Debug, Args)]
 pub struct VkeysArgs {

@@ -1,6 +1,6 @@
 use crate::{
     config::DefenderConfig,
-    defender::WorldChainDefender,
+    defender::MyChainDefender,
     error::DefenderError,
     traits::DefenderClient,
     types::{DefenderSubmission, GameMetadata},
@@ -17,12 +17,12 @@ use std::{
     time::Duration,
 };
 use world_chain_proof_core::boot::TransitionPublicValues;
-use world_chain_proof_protocol::{
+use my_chain_proof_protocol::{
     ClaimData, ConsensusError, ConsensusProvider, GameStatus, InvalidationReason, LineageAnchor,
     LineageError, LineageGame, LineageProvider, LineageTransition, MAX_ATTEMPT_SCAN,
     PROOF_THRESHOLD, ProofLane, ProposalCommitment, ProposalStatus, ResolutionStatus, proof_count,
 };
-use world_chain_prover_service::{
+use my_chain_prover_service::{
     ProofBackend, ProofData, ProofRequest, ProofRequestError, ProofRequestId, ProofRequester,
     ProofResponse, ProofStatus, RequestProofResponse, SucceededProofResponse,
     TooManyRetriesErrorData,
@@ -447,7 +447,7 @@ async fn selected_proposed_game_gets_initial_tee_proof() {
     let client = MockClient::new();
     client.insert_game(GAME_1, ANCHOR, root, L2_BLOCK, 0, GameLifecycle::Proposed);
     let prover = MockProver::default();
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         config(),
         client.clone(),
         output_roots(&[(L2_BLOCK, root)], L2_BLOCK),
@@ -476,7 +476,7 @@ async fn selected_proposed_game_with_council_support_needs_no_tee_proof() {
     client.insert_game(GAME_1, ANCHOR, root, L2_BLOCK, 0, GameLifecycle::Proposed);
     client.set_bitmap(GAME_1, ProofLane::SecurityCouncil.mask());
     let prover = MockProver::default();
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         config(),
         client,
         output_roots(&[(L2_BLOCK, root)], L2_BLOCK),
@@ -494,7 +494,7 @@ async fn selected_challenged_game_gets_threshold_lanes() {
     let client = MockClient::new();
     client.insert_game(GAME_1, ANCHOR, root, L2_BLOCK, 0, GameLifecycle::Challenged);
     let prover = MockProver::default();
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         config(),
         client.clone(),
         output_roots(&[(L2_BLOCK, root)], L2_BLOCK),
@@ -538,7 +538,7 @@ async fn selected_challenged_game_with_council_support_only_requests_tee() {
     client.insert_game(GAME_1, ANCHOR, root, L2_BLOCK, 0, GameLifecycle::Challenged);
     client.set_bitmap(GAME_1, ProofLane::SecurityCouncil.mask());
     let prover = MockProver::default();
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         config(),
         client.clone(),
         output_roots(&[(L2_BLOCK, root)], L2_BLOCK),
@@ -572,7 +572,7 @@ async fn cancelled_proof_is_requested_again_when_a_supported_game_is_challenged(
         status: Some(ProofStatus::Cancelled),
         ..Default::default()
     };
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         config(),
         client.clone(),
         output_roots(&[(L2_BLOCK, root)], L2_BLOCK),
@@ -617,7 +617,7 @@ async fn selected_descendant_is_defended_before_parent_resolves() {
         GameLifecycle::Challenged,
     );
     let prover = MockProver::default();
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         config(),
         client,
         output_roots(
@@ -651,7 +651,7 @@ async fn game_for_a_different_root_is_not_selected() {
         GameLifecycle::Challenged,
     );
     let prover = MockProver::default();
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         config(),
         client,
         output_roots(&[(L2_BLOCK, expected_root)], L2_BLOCK),
@@ -669,7 +669,7 @@ async fn retry_replaces_active_old_attempt() {
     let client = MockClient::new();
     client.insert_game(GAME_1, ANCHOR, root, L2_BLOCK, 0, GameLifecycle::Challenged);
     let prover = MockProver::default();
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         config(),
         client.clone(),
         output_roots(&[(L2_BLOCK, root)], L2_BLOCK),
@@ -717,7 +717,7 @@ async fn anchor_advance_drops_the_old_prefix() {
         0,
         GameLifecycle::Proposed,
     );
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         config(),
         client.clone(),
         output_roots(
@@ -754,7 +754,7 @@ async fn invalidated_selected_attempt_is_left_for_the_proposer() {
         InvalidationReason::ProofTimeout,
     );
     let prover = MockProver::default();
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         config(),
         client,
         output_roots(&[(L2_BLOCK, root)], L2_BLOCK),
@@ -772,7 +772,7 @@ async fn unfinalized_transition_is_not_selected_yet() {
     let client = MockClient::new();
     client.insert_game(GAME_1, ANCHOR, root, L2_BLOCK, 0, GameLifecycle::Challenged);
     let prover = MockProver::default();
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         config(),
         client,
         output_roots(&[(L2_BLOCK, root)], L2_BLOCK - 1),
@@ -790,7 +790,7 @@ async fn existing_lane_is_not_requested_again() {
     client.insert_game(GAME_1, ANCHOR, root, L2_BLOCK, 0, GameLifecycle::Challenged);
     client.set_bitmap(GAME_1, ProofLane::ValidityProof.mask());
     let prover = MockProver::default();
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         config(),
         client,
         output_roots(&[(L2_BLOCK, root)], L2_BLOCK),
@@ -809,7 +809,7 @@ async fn existing_tee_lane_only_requests_sp1_when_challenged() {
     client.insert_game(GAME_1, ANCHOR, root, L2_BLOCK, 0, GameLifecycle::Challenged);
     client.set_bitmap(GAME_1, ProofLane::TeeAttestation.mask());
     let prover = MockProver::default();
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         config(),
         client,
         output_roots(&[(L2_BLOCK, root)], L2_BLOCK),
@@ -827,7 +827,7 @@ async fn exhausted_challenged_proofs_are_not_restarted() {
     let client = MockClient::new();
     client.insert_game(GAME_1, ANCHOR, root, L2_BLOCK, 0, GameLifecycle::Challenged);
     let prover = MockProver::failing(2);
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         config(),
         client,
         output_roots(&[(L2_BLOCK, root)], L2_BLOCK),
@@ -850,7 +850,7 @@ async fn selected_game_deadline_stops_proof_work() {
     client.insert_game(GAME_1, ANCHOR, root, L2_BLOCK, 0, GameLifecycle::Proposed);
     client.set_deadlines(GAME_1, 10, 20);
     let prover = MockProver::default();
-    let mut defender = WorldChainDefender::new(
+    let mut defender = MyChainDefender::new(
         config(),
         client,
         output_roots(&[(L2_BLOCK, root)], L2_BLOCK),

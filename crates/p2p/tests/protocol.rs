@@ -3,8 +3,8 @@ use ed25519_dalek::SigningKey;
 use futures::StreamExt as _;
 use std::time::Duration;
 use tokio::task;
-use world_chain_p2p::protocol::handler::{FlashblocksHandle, PublishingStatus};
-use world_chain_primitives::{
+use my_chain_p2p::protocol::handler::{FlashblocksHandle, PublishingStatus};
+use my_chain_primitives::{
     flashblocks::FlashblockMetadata,
     p2p::{Authorization, AuthorizedPayload},
     primitives::{ExecutionPayloadBaseV1, ExecutionPayloadFlashblockDeltaV1, FlashblocksPayloadV1},
@@ -61,7 +61,7 @@ async fn publish_without_clearance_is_rejected() {
     let err = handle.publish_new(signed).unwrap_err();
     assert!(matches!(
         err,
-        world_chain_p2p::protocol::error::FlashblocksP2PError::NotClearedToPublish
+        my_chain_p2p::protocol::error::FlashblocksP2PError::NotClearedToPublish
     ));
 }
 
@@ -93,7 +93,7 @@ async fn expired_authorization_is_rejected() {
     let err = handle.publish_new(signed).unwrap_err();
     assert!(matches!(
         err,
-        world_chain_p2p::protocol::error::FlashblocksP2PError::ExpiredAuthorization
+        my_chain_p2p::protocol::error::FlashblocksP2PError::ExpiredAuthorization
     ));
 }
 

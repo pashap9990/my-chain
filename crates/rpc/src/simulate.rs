@@ -31,7 +31,7 @@ use std::{
     num::NonZeroUsize,
     sync::{Arc, Mutex},
 };
-use world_chain_evm::WorldChainEvmConfig;
+use my_chain_evm::MyChainEvmConfig;
 
 use crate::simulate_consts::*;
 
@@ -740,7 +740,7 @@ pub fn relax_cfg_for_simulation<Spec>(cfg_env: &mut CfgEnv<Spec>) {
 
 /// Implementation of the `simulate_unsignedUserOp` RPC endpoint.
 #[derive(Debug, Clone)]
-pub struct Simulate<Client, EvmConfig = WorldChainEvmConfig> {
+pub struct Simulate<Client, EvmConfig = MyChainEvmConfig> {
     client: Client,
     evm_config: EvmConfig,
     metadata_cache: MetadataCache,

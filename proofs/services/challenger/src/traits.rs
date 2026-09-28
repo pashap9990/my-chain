@@ -4,7 +4,7 @@ use crate::{
 };
 use alloy_primitives::Address;
 use async_trait::async_trait;
-use world_chain_proof_protocol::{ProposalStatus, ResolutionStatus};
+use my_chain_proof_protocol::{ProposalStatus, ResolutionStatus};
 
 /// Contract surface needed by the output-root challenger.
 #[async_trait]

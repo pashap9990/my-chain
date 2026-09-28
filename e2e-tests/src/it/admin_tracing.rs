@@ -1,6 +1,6 @@
 //! End-to-end test for the `admin_tracingDirectives` RPC over a full node.
 //!
-//! Spins up a single World Chain node with the `admin` namespace enabled,
+//! Spins up a single My Chain node with the `admin` namespace enabled,
 //! installs a reloadable tracing subscriber (mirroring what the CLI does when
 //! the admin namespace is enabled — the in-process harness does not run the CLI
 //! path), and exercises the endpoint over real HTTP: an ephemeral override is
@@ -15,8 +15,8 @@ use reth_tracing::tracing_subscriber::{
     EnvFilter, fmt, layer::SubscriberExt, reload, util::SubscriberInitExt,
 };
 use tracing::level_filters::LevelFilter;
-use world_chain_node::context::WorldChainDefaultContext;
-use world_chain_test_utils::e2e_harness::setup::WorldChainTestBuilder;
+use my_chain_node::context::MyChainDefaultContext;
+use my_chain_test_utils::e2e_harness::setup::MyChainTestBuilder;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn test_admin_tracing_directives_apply_and_revert() -> eyre::Result<()> {
@@ -29,7 +29,7 @@ async fn test_admin_tracing_directives_apply_and_revert() -> eyre::Result<()> {
         .with(fmt::layer())
         .try_init();
     reth_tracing::install_log_handle(handle);
-    world_chain_primitives::tracing::set_startup_tracing_directives("info".to_string());
+    my_chain_primitives::tracing::set_startup_tracing_directives("info".to_string());
 
     assert!(
         reth_tracing::log_handle_available(),
@@ -38,12 +38,12 @@ async fn test_admin_tracing_directives_apply_and_revert() -> eyre::Result<()> {
     assert_eq!(LevelFilter::current(), LevelFilter::INFO);
 
     // Spin up a single full node with the `admin` RPC namespace enabled.
-    let (_, nodes, _tasks, _env, _spammer) = WorldChainTestBuilder::builder()
+    let (_, nodes, _tasks, _env, _spammer) = MyChainTestBuilder::builder()
         .nodes(1)
         .flashblocks(false)
         .admin_rpc(true)
         .build()
-        .setup::<WorldChainDefaultContext>()
+        .setup::<MyChainDefaultContext>()
         .await?;
 
     let rpc_url = nodes[0].node.rpc_url();

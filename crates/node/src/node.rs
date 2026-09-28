@@ -1,6 +1,6 @@
 use std::{fmt::Debug, sync::Arc};
 
-use crate::pool::WorldChainPoolBuilder;
+use crate::pool::MyChainPoolBuilder;
 use alloy_consensus::{Block, BlockBody, BlockHeader, Header};
 use alloy_eips::eip1559::BaseFeeParams;
 use alloy_primitives::{Address, B64};
@@ -27,16 +27,16 @@ use reth_optimism_primitives::OpPrimitives;
 use reth_primitives_traits::{ReceiptTy, SealedHeader, TxTy};
 use reth_rpc_eth_api::EthApiTypes;
 use reth_transaction_pool::TransactionPool;
-use world_chain_cli::WorldChainNodeConfig;
-use world_chain_evm::WorldChainExecutorBuilder;
+use my_chain_cli::MyChainNodeConfig;
+use my_chain_evm::MyChainExecutorBuilder;
 
-/// Primitive types for a World Chain node implementation.
+/// Primitive types for a My Chain node implementation.
 ///
-/// This trait parameterizes `NodeTypes` inherited via `WorldChainNode<T>`.
-/// Allows `WorldChainNode<T>` to be fully generic over the Engine, Transaction, Block, and Receipt primitives
-/// while inheriting a unified testing harness generic over `T: WorldChainNodeContext`.
-pub trait WorldChainNodePrimitiveTypes:
-    Sized + From<WorldChainNodeConfig> + Clone + Debug + Unpin + Send + Sync + 'static
+/// This trait parameterizes `NodeTypes` inherited via `MyChainNode<T>`.
+/// Allows `MyChainNode<T>` to be fully generic over the Engine, Transaction, Block, and Receipt primitives
+/// while inheriting a unified testing harness generic over `T: MyChainNodeContext`.
+pub trait MyChainNodePrimitiveTypes:
+    Sized + From<MyChainNodeConfig> + Clone + Debug + Unpin + Send + Sync + 'static
 where
     TxTy<Self::Primitives>: Compress + Decompress,
     ReceiptTy<Self::Primitives>: Compress + Decompress,
@@ -58,35 +58,35 @@ where
     type ChainSpec: EthChainSpec<Header = Header> + 'static;
 }
 
-/// Context trait for World Chain node implementations.
+/// Context trait for My Chain node implementations.
 ///
-/// This trait defines the configuration context required for setting up a World Chain node,
+/// This trait defines the configuration context required for setting up a My Chain node,
 /// including the EVM configuration, network builder, payload service, and various components
 /// and add-ons. Implementors provide the necessary types and builders to construct a fully
-/// functional World Chain node.
+/// functional My Chain node.
 ///
-/// The trait is parameterized by `N`, which must be a `FullNodeTypes` with `Types = WorldChainNode<Self>`,
+/// The trait is parameterized by `N`, which must be a `FullNodeTypes` with `Types = MyChainNode<Self>`,
 /// ensuring type safety between the context and the node it configures.
-pub trait WorldChainNodeContext<N: FullNodeTypes<Types = WorldChainNode<Self>>>:
-    WorldChainNodePrimitiveTypes
+pub trait MyChainNodeContext<N: FullNodeTypes<Types = MyChainNode<Self>>>:
+    MyChainNodePrimitiveTypes
 {
-    /// The EVM configuration used for this World Chain node.
+    /// The EVM configuration used for this My Chain node.
     ///
     /// Provides the execution environment configuration, including gas settings,
-    /// precompiles, and other EVM-specific parameters for World Chain.
+    /// precompiles, and other EVM-specific parameters for My Chain.
     type Evm: ConfigureEvm<Primitives = Self::Primitives> + 'static;
 
     /// The transaction pool type used by this node context.
     ///
-    /// Production nodes use the existing World Chain pool. Native-AA test
-    /// contexts can introduce a pool parameterized over `WorldChainTxEnvelope`
+    /// Production nodes use the existing My Chain pool. Native-AA test
+    /// contexts can introduce a pool parameterized over `MyChainTxEnvelope`
     /// in a stacked change without changing the node type itself.
     type Pool: TransactionPool + Unpin + 'static;
 
     /// The network builder for establishing P2P connections and protocol handling.
     ///
     /// Configures the networking layer, including peer discovery, message propagation,
-    /// and transaction pool synchronization for the World Chain network.
+    /// and transaction pool synchronization for the My Chain network.
     type Net: NetworkBuilder<N, Self::Pool> + 'static;
 
     /// Builder for the payload service that handles block building and validation.
@@ -111,7 +111,7 @@ pub trait WorldChainNodeContext<N: FullNodeTypes<Types = WorldChainNode<Self>>>:
     /// Customizable add-on types for extending node functionality.
     ///
     /// Allows for optional extensions such as additional RPC endpoints, custom metrics,
-    /// or specialized services that enhance the base World Chain node capabilities.
+    /// or specialized services that enhance the base My Chain node capabilities.
     type AddOns: NodeAddOns<
             NodeAdapter<N, <Self::ComponentsBuilder as NodeComponentsBuilder<N>>::Components>,
         > + RethRpcAddOns<
@@ -133,67 +133,67 @@ pub trait WorldChainNodeContext<N: FullNodeTypes<Types = WorldChainNode<Self>>>:
     /// Returns the add-ons configuration for extending node functionality.
     ///
     /// Provides access to optional extensions and customizations that can be
-    /// applied to the World Chain node beyond its core functionality.
+    /// applied to the My Chain node beyond its core functionality.
     fn add_ons(&self) -> Self::AddOns;
 
     /// Returns the extension context for the node.
     fn ext_context(&self) -> Self::ExtContext;
 }
 
-/// A Generic World Chain node type.
+/// A Generic My Chain node type.
 #[derive(Debug, Default, Clone)]
 #[non_exhaustive]
-pub struct WorldChainNode<T>(T);
+pub struct MyChainNode<T>(T);
 
-/// A [`ComponentsBuilder`] with its generic arguments set to a stack of World Chain specific builders.
-pub type WorldChainNodeComponentBuilder<Node, T> = ComponentsBuilder<
+/// A [`ComponentsBuilder`] with its generic arguments set to a stack of My Chain specific builders.
+pub type MyChainNodeComponentBuilder<Node, T> = ComponentsBuilder<
     Node,
-    WorldChainPoolBuilder,
-    <T as WorldChainNodeContext<Node>>::PayloadServiceBuilder,
-    <T as WorldChainNodeContext<Node>>::Net,
-    WorldChainExecutorBuilder,
+    MyChainPoolBuilder,
+    <T as MyChainNodeContext<Node>>::PayloadServiceBuilder,
+    <T as MyChainNodeContext<Node>>::Net,
+    MyChainExecutorBuilder,
     OpConsensusBuilder,
 >;
 
-impl<T> WorldChainNode<T>
+impl<T> MyChainNode<T>
 where
-    T: From<WorldChainNodeConfig> + Clone,
+    T: From<MyChainNodeConfig> + Clone,
 {
-    /// Creates a new instance of the World Chain node type.
-    pub fn new(config: WorldChainNodeConfig) -> Self {
+    /// Creates a new instance of the My Chain node type.
+    pub fn new(config: MyChainNodeConfig) -> Self {
         Self(config.into())
     }
 
-    /// Returns the components for the given [`WorldChainArgs`].
+    /// Returns the components for the given [`MyChainArgs`].
     pub fn components<Node>(&self) -> T::ComponentsBuilder
     where
         Node: FullNodeTypes<Types = Self>,
-        T: WorldChainNodeContext<Node> + From<WorldChainNodeConfig>,
+        T: MyChainNodeContext<Node> + From<MyChainNodeConfig>,
     {
-        <T as WorldChainNodeContext<Node>>::components(&self.0)
+        <T as MyChainNodeContext<Node>>::components(&self.0)
     }
 
     pub fn add_ons<Node>(&self) -> T::AddOns
     where
         Node: FullNodeTypes<Types = Self>,
-        T: WorldChainNodeContext<Node> + From<WorldChainNodeConfig>,
+        T: MyChainNodeContext<Node> + From<MyChainNodeConfig>,
     {
-        <T as WorldChainNodeContext<Node>>::add_ons(&self.0)
+        <T as MyChainNodeContext<Node>>::add_ons(&self.0)
     }
 
     pub fn ext_context<Node>(&self) -> T::ExtContext
     where
         Node: FullNodeTypes<Types = Self>,
-        T: WorldChainNodeContext<Node> + From<WorldChainNodeConfig>,
+        T: MyChainNodeContext<Node> + From<MyChainNodeConfig>,
     {
-        <T as WorldChainNodeContext<Node>>::ext_context(&self.0)
+        <T as MyChainNodeContext<Node>>::ext_context(&self.0)
     }
 }
 
-impl<N, T> Node<N> for WorldChainNode<T>
+impl<N, T> Node<N> for MyChainNode<T>
 where
     N: FullNodeTypes<Types = Self>,
-    T: WorldChainNodeContext<N> + From<WorldChainNodeConfig>,
+    T: MyChainNodeContext<N> + From<MyChainNodeConfig>,
 {
     type ComponentsBuilder = T::ComponentsBuilder;
 
@@ -208,12 +208,12 @@ where
     }
 }
 
-impl<N, T> DebugNode<N> for WorldChainNode<T>
+impl<N, T> DebugNode<N> for MyChainNode<T>
 where
     N: FullNodeComponents<Types = Self>,
-    T: WorldChainNodeContext<N, Primitives = OpPrimitives> + From<WorldChainNodeConfig>,
+    T: MyChainNodeContext<N, Primitives = OpPrimitives> + From<MyChainNodeConfig>,
     T::ChainSpec: Clone + EthereumHardforks + OpHardforks,
-    WorldChainNodeComponentBuilder<N, T>: NodeComponentsBuilder<N>,
+    MyChainNodeComponentBuilder<N, T>: NodeComponentsBuilder<N>,
 {
     type RpcBlock = alloy_rpc_types_eth::Block<OpTxEnvelope>;
 
@@ -230,7 +230,7 @@ where
     }
 }
 
-impl<T: WorldChainNodePrimitiveTypes> NodeTypes for WorldChainNode<T> {
+impl<T: MyChainNodePrimitiveTypes> NodeTypes for MyChainNode<T> {
     type Primitives = T::Primitives;
     type ChainSpec = T::ChainSpec;
     type Storage = OpStorage<TxTy<T::Primitives>>;

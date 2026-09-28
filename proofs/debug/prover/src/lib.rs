@@ -11,11 +11,11 @@ use clap::Args;
 use reqwest::Client;
 use serde::Serialize;
 use serde_json::{Value, json};
-use world_chain_chainspec::WorldChainSpec;
+use my_chain_chainspec::MyChainSpec;
 use world_chain_proof_core::{
     hash_world_rollup_config, range::WorldRangeHardforkConfig, witness::WorldRangeWitnessData,
 };
-use world_chain_proof_kona_host::online::{
+use my_chain_proof_kona_host::online::{
     OnlineHostConfig, RangeProofInput, RangeWitnessRequest, build_range_input,
     hardfork_config_from_chain_spec, rpc,
 };
@@ -23,23 +23,23 @@ use world_chain_proof_kona_host::online::{
 #[derive(Debug, Clone, Copy, clap::ValueEnum)]
 pub enum Network {
     #[value(name = "worldchain")]
-    WorldChain,
+    MyChain,
     #[value(name = "worldchain-sepolia")]
-    WorldChainSepolia,
+    MyChainSepolia,
 }
 
 impl Network {
     pub fn chain_id(self) -> u64 {
         match self {
-            Self::WorldChain => 480,
-            Self::WorldChainSepolia => 4801,
+            Self::MyChain => 480,
+            Self::MyChainSepolia => 4801,
         }
     }
 
-    fn chain_spec(self) -> Arc<WorldChainSpec> {
+    fn chain_spec(self) -> Arc<MyChainSpec> {
         match self {
-            Self::WorldChain => WorldChainSpec::mainnet(),
-            Self::WorldChainSepolia => WorldChainSpec::sepolia(),
+            Self::MyChain => MyChainSpec::mainnet(),
+            Self::MyChainSepolia => MyChainSpec::sepolia(),
         }
     }
 }

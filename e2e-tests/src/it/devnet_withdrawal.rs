@@ -1,8 +1,8 @@
 use alloy_primitives::U256;
 use alloy_signer_local::PrivateKeySigner;
 use eyre::eyre::{OptionExt, ensure};
-use world_chain_devnet::SUPERCHAIN_GUARDIAN_PRIVATE_KEY;
-use world_chain_proof_protocol::MULTI_PROOF_GAME_TYPE;
+use my_chain_devnet::SUPERCHAIN_GUARDIAN_PRIVATE_KEY;
+use my_chain_proof_protocol::MULTI_PROOF_GAME_TYPE;
 
 use crate::it::utils::{
     devnet::{

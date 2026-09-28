@@ -9034,6 +9034,1169 @@ dependencies = [
 ]
 
 [[package]]
+name = "my-chain"
+version = "2.4.4"
+dependencies = [
+ "clap",
+ "color-eyre",
+ "dotenvy",
+ "my-chain-chainspec",
+ "my-chain-cli",
+ "my-chain-evm",
+ "my-chain-node",
+ "my-chain-rpc",
+ "reth-cli-util",
+ "reth-node-builder",
+ "reth-optimism-consensus",
+ "reth-provider",
+ "reth-tracing",
+ "tikv-jemallocator",
+]
+
+[[package]]
+name = "my-chain-builder"
+version = "2.4.4"
+dependencies = [
+ "alloy-consensus 2.1.1",
+ "alloy-eips 2.1.1",
+ "alloy-network 2.1.1",
+ "alloy-op-evm 0.32.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "alloy-primitives",
+ "alloy-rpc-types-engine",
+ "alloy-signer-local 2.1.1",
+ "color-eyre",
+ "criterion",
+ "crossbeam-channel",
+ "metrics",
+ "metrics-derive",
+ "my-chain-builder",
+ "my-chain-chainspec",
+ "my-chain-evm",
+ "my-chain-node",
+ "my-chain-pool",
+ "my-chain-primitives",
+ "my-chain-test-utils",
+ "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "op-alloy-rpc-types 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "op-revm 20.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "reth-basic-payload-builder",
+ "reth-chainspec",
+ "reth-evm",
+ "reth-node-api",
+ "reth-optimism-forks",
+ "reth-optimism-node",
+ "reth-optimism-payload-builder",
+ "reth-optimism-primitives",
+ "reth-payload-primitives",
+ "reth-payload-util",
+ "reth-primitives-traits",
+ "reth-provider",
+ "reth-revm",
+ "reth-tasks",
+ "reth-tracing",
+ "reth-transaction-pool",
+ "revm",
+ "revm-database",
+ "semaphore-rs",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "my-chain-chainspec"
+version = "2.4.4"
+dependencies = [
+ "alloy-chains",
+ "alloy-consensus 2.1.1",
+ "alloy-eips 2.1.1",
+ "alloy-genesis",
+ "alloy-hardforks",
+ "alloy-primitives",
+ "auto_impl",
+ "derive_more 2.1.1",
+ "op-alloy-rpc-types 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "reth-chainspec",
+ "reth-network-peers",
+ "reth-optimism-chainspec",
+ "reth-optimism-forks",
+ "reth-primitives-traits",
+ "serde",
+ "tracing",
+]
+
+[[package]]
+name = "my-chain-challenger"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-consensus 2.1.1",
+ "alloy-contract",
+ "alloy-eips 2.1.1",
+ "alloy-network 2.1.1",
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-rpc-types-eth 2.1.1",
+ "alloy-signer-local 2.1.1",
+ "alloy-transport",
+ "anyhow",
+ "async-trait",
+ "clap",
+ "dotenvy",
+ "futures-util",
+ "my-chain-proof-metrics",
+ "my-chain-proof-protocol",
+ "my-chain-proof-tx-signer",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "telemetry-batteries",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "my-chain-cli"
+version = "2.4.4"
+dependencies = [
+ "alloy-chains",
+ "alloy-genesis",
+ "alloy-primitives",
+ "alloy-signer-local 2.1.1",
+ "clap",
+ "color-eyre",
+ "ed25519-dalek",
+ "futures-util",
+ "hex",
+ "my-chain-chainspec",
+ "my-chain-commands",
+ "my-chain-primitives",
+ "reth-chainspec",
+ "reth-cli",
+ "reth-cli-commands",
+ "reth-cli-runner",
+ "reth-db",
+ "reth-network-peers",
+ "reth-node-builder",
+ "reth-node-core",
+ "reth-node-metrics",
+ "reth-optimism-chainspec",
+ "reth-optimism-consensus",
+ "reth-optimism-evm",
+ "reth-optimism-node",
+ "reth-optimism-payload-builder",
+ "reth-rpc-server-types",
+ "reth-tracing",
+ "tracing",
+]
+
+[[package]]
+name = "my-chain-commands"
+version = "2.4.4"
+dependencies = [
+ "clap",
+ "color-eyre",
+ "my-chain-chainspec",
+ "reth-chainspec",
+ "reth-cli",
+ "reth-cli-commands",
+ "reth-node-core",
+ "reth-optimism-node",
+ "reth-optimism-trie",
+ "reth-provider",
+ "reth-tasks",
+ "tracing",
+]
+
+[[package]]
+name = "my-chain-defender"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-contract",
+ "alloy-network 2.1.1",
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-signer-local 2.1.1",
+ "alloy-sol-types",
+ "alloy-transport",
+ "anyhow",
+ "async-trait",
+ "clap",
+ "dotenvy",
+ "futures-util",
+ "my-chain-proof-metrics",
+ "my-chain-proof-protocol",
+ "my-chain-proof-tx-signer",
+ "my-chain-prover-service",
+ "telemetry-batteries",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+ "tracing-subscriber 0.3.23",
+ "url",
+ "world-chain-proof-core",
+]
+
+[[package]]
+name = "my-chain-devnet"
+version = "2.4.4"
+dependencies = [
+ "alloy-contract",
+ "alloy-eips 2.1.1",
+ "alloy-genesis",
+ "alloy-hardforks",
+ "alloy-network 2.1.1",
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-signer-local 2.1.1",
+ "alloy-sol-types",
+ "anyhow",
+ "async-trait",
+ "base64 0.22.1",
+ "color-eyre",
+ "ed25519-dalek",
+ "flate2",
+ "futures",
+ "jsonrpsee",
+ "kona-genesis",
+ "my-chain-chainspec",
+ "my-chain-challenger",
+ "my-chain-defender",
+ "my-chain-node",
+ "my-chain-primitives",
+ "my-chain-proof-kona-host",
+ "my-chain-proof-protocol",
+ "my-chain-proof-sp1-host",
+ "my-chain-proof-sp1-worker",
+ "my-chain-proof-worker",
+ "my-chain-proposer",
+ "my-chain-prover-service",
+ "my-chain-rpc",
+ "my-chain-test-utils",
+ "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "rand 0.9.5",
+ "reqwest 0.12.28",
+ "reth-chainspec",
+ "reth-e2e-test-utils",
+ "reth-network-peers",
+ "reth-node-api",
+ "reth-optimism-node",
+ "reth-optimism-payload-builder",
+ "reth-provider",
+ "reth-tasks",
+ "secp256k1 0.30.0",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "testcontainers",
+ "tokio",
+ "tracing",
+ "url",
+ "world-chain-proof-core",
+]
+
+[[package]]
+name = "my-chain-evm"
+version = "2.4.4"
+dependencies = [
+ "alloy-consensus 2.1.1",
+ "alloy-eip7928 0.4.5",
+ "alloy-eips 2.1.1",
+ "alloy-op-evm 0.32.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "alloy-primitives",
+ "alloy-rpc-types-debug",
+ "auto_impl",
+ "bon",
+ "color-eyre",
+ "crossbeam-channel",
+ "futures",
+ "my-chain-chainspec",
+ "my-chain-primitives",
+ "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "op-revm 20.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "parking_lot",
+ "reth-evm",
+ "reth-node-api",
+ "reth-node-builder",
+ "reth-optimism-evm",
+ "reth-optimism-payload-builder",
+ "reth-optimism-primitives",
+ "reth-payload-primitives",
+ "reth-primitives-traits",
+ "reth-provider",
+ "reth-revm",
+ "reth-tasks",
+ "reth-trie-common",
+ "revm",
+ "revm-database",
+ "serde",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "my-chain-node"
+version = "2.4.4"
+dependencies = [
+ "alloy-consensus 2.1.1",
+ "alloy-eips 2.1.1",
+ "alloy-primitives",
+ "alloy-rpc-types",
+ "alloy-rpc-types-engine",
+ "alloy-rpc-types-eth 2.1.1",
+ "color-eyre",
+ "crossbeam-channel",
+ "ed25519-dalek",
+ "futures-util",
+ "hex",
+ "my-chain-builder",
+ "my-chain-chainspec",
+ "my-chain-cli",
+ "my-chain-evm",
+ "my-chain-p2p",
+ "my-chain-payload",
+ "my-chain-pool",
+ "my-chain-primitives",
+ "my-chain-rpc",
+ "my-chain-test-utils",
+ "my-chain-validator",
+ "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "op-alloy-rpc-types-engine 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "reth-basic-payload-builder",
+ "reth-chainspec",
+ "reth-codecs",
+ "reth-db",
+ "reth-db-api",
+ "reth-eth-wire",
+ "reth-eth-wire-types",
+ "reth-evm",
+ "reth-network",
+ "reth-network-peers",
+ "reth-node-api",
+ "reth-node-builder",
+ "reth-node-core",
+ "reth-optimism-chainspec",
+ "reth-optimism-evm",
+ "reth-optimism-exex",
+ "reth-optimism-forks",
+ "reth-optimism-node",
+ "reth-optimism-payload-builder",
+ "reth-optimism-primitives",
+ "reth-optimism-rpc",
+ "reth-optimism-trie",
+ "reth-payload-builder",
+ "reth-primitives-traits",
+ "reth-provider",
+ "reth-rpc-api",
+ "reth-rpc-engine-api",
+ "reth-rpc-eth-api",
+ "reth-rpc-server-types",
+ "reth-tasks",
+ "reth-transaction-pool",
+ "tokio",
+ "tracing",
+ "vergen",
+ "vergen-git2",
+]
+
+[[package]]
+name = "my-chain-p2p"
+version = "2.4.4"
+dependencies = [
+ "alloy-eips 2.1.1",
+ "alloy-primitives",
+ "alloy-rlp",
+ "alloy-rpc-types-engine",
+ "chrono",
+ "ed25519-dalek",
+ "enr",
+ "futures",
+ "metrics",
+ "metrics-derive",
+ "my-chain-cli",
+ "my-chain-primitives",
+ "parking_lot",
+ "pin-project",
+ "rand 0.9.5",
+ "reth-codecs",
+ "reth-db",
+ "reth-db-api",
+ "reth-eth-wire",
+ "reth-ethereum",
+ "reth-network",
+ "reth-network-api",
+ "reth-network-peers",
+ "reth-provider",
+ "reth-tasks",
+ "serde",
+ "tempfile",
+ "thiserror 2.0.19",
+ "tokio",
+ "tokio-stream",
+ "tokio-util",
+ "tracing",
+]
+
+[[package]]
+name = "my-chain-payload"
+version = "2.4.4"
+dependencies = [
+ "alloy-eips 2.1.1",
+ "alloy-primitives",
+ "color-eyre",
+ "futures",
+ "my-chain-builder",
+ "my-chain-chainspec",
+ "my-chain-p2p",
+ "my-chain-primitives",
+ "my-chain-validator",
+ "reth-basic-payload-builder",
+ "reth-execution-cache",
+ "reth-optimism-node",
+ "reth-optimism-payload-builder",
+ "reth-optimism-primitives",
+ "reth-payload-builder",
+ "reth-payload-primitives",
+ "reth-primitives-traits",
+ "reth-provider",
+ "reth-revm",
+ "reth-tasks",
+ "reth-trie-parallel",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "my-chain-pbh"
+version = "2.4.4"
+dependencies = [
+ "alloy-primitives",
+ "alloy-rlp",
+ "bon",
+ "chrono",
+ "color-eyre",
+ "semaphore-rs",
+ "semaphore-rs-proof",
+ "serde",
+ "strum 0.28.0",
+ "test-case",
+ "thiserror 2.0.19",
+]
+
+[[package]]
+name = "my-chain-pool"
+version = "2.4.4"
+dependencies = [
+ "alloy-consensus 2.1.1",
+ "alloy-eips 2.1.1",
+ "alloy-primitives",
+ "alloy-rlp",
+ "alloy-rpc-types",
+ "alloy-sol-types",
+ "chrono",
+ "color-eyre",
+ "my-chain-evm",
+ "my-chain-pbh",
+ "my-chain-test-utils",
+ "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "parking_lot",
+ "rayon",
+ "reth-db",
+ "reth-eth-wire-types",
+ "reth-evm",
+ "reth-node-api",
+ "reth-optimism-forks",
+ "reth-optimism-node",
+ "reth-optimism-primitives",
+ "reth-primitives-traits",
+ "reth-provider",
+ "reth-transaction-pool",
+ "revm-primitives",
+ "semaphore-rs",
+ "serde",
+ "test-case",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "my-chain-primitives"
+version = "2.4.4"
+dependencies = [
+ "alloy-consensus 2.1.1",
+ "alloy-eip7928 0.4.5",
+ "alloy-eips 2.1.1",
+ "alloy-primitives",
+ "alloy-rlp",
+ "alloy-rpc-types-engine",
+ "alloy-rpc-types-eth 2.1.1",
+ "alloy-serde 2.1.1",
+ "alloy-signer-local 2.1.1",
+ "blake3",
+ "bytes",
+ "chrono",
+ "color-eyre",
+ "ed25519-dalek",
+ "my-chain-chainspec",
+ "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "op-alloy-network 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "reth-basic-payload-builder",
+ "reth-chainspec",
+ "reth-optimism-chainspec",
+ "reth-optimism-node",
+ "reth-optimism-primitives",
+ "reth-primitives-traits",
+ "reth-storage-api",
+ "reth-trie-common",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.19",
+]
+
+[[package]]
+name = "my-chain-proof-it"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-primitives",
+ "alloy-sol-types",
+ "anyhow",
+ "async-trait",
+ "my-chain-challenger",
+ "my-chain-defender",
+ "my-chain-proof-protocol",
+ "my-chain-proof-worker",
+ "my-chain-proposer",
+ "my-chain-prover-service",
+ "testcontainers",
+ "testcontainers-modules",
+ "tokio",
+ "tokio-util",
+ "world-chain-proof-core",
+]
+
+[[package]]
+name = "my-chain-proof-kona-host"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-consensus 2.1.1",
+ "alloy-primitives",
+ "anyhow",
+ "hex",
+ "kona-genesis",
+ "kona-host",
+ "kona-preimage",
+ "kona-proof",
+ "kona-protocol",
+ "kona-sp1-host-utils",
+ "my-chain-chainspec",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "tokio",
+ "world-chain-proof-core",
+ "world-chain-proof-kona-client",
+]
+
+[[package]]
+name = "my-chain-proof-metrics"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-json-rpc 2.1.1",
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-rpc-client",
+ "alloy-transport",
+ "alloy-transport-http",
+ "telemetry-batteries",
+ "tower 0.5.3",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "my-chain-proof-nitro-register"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-contract",
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-signer 2.1.1",
+ "alloy-signer-local 2.1.1",
+ "alloy-sol-types",
+ "anyhow",
+ "ciborium",
+ "hex",
+ "my-chain-proof-tx-signer",
+ "sha2 0.10.9",
+ "tokio",
+ "tracing",
+ "url",
+ "world-chain-proof-nitro-enclave",
+]
+
+[[package]]
+name = "my-chain-proof-nitro-worker"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-sol-types",
+ "anyhow",
+ "async-trait",
+ "backon",
+ "clap",
+ "dotenvy",
+ "hex",
+ "my-chain-chainspec",
+ "my-chain-proof-kona-host",
+ "my-chain-proof-metrics",
+ "my-chain-proof-nitro-register",
+ "my-chain-proof-protocol",
+ "my-chain-proof-worker",
+ "my-chain-prover-service",
+ "telemetry-batteries",
+ "tokio",
+ "tracing",
+ "world-chain-proof-nitro-enclave",
+]
+
+[[package]]
+name = "my-chain-proof-protocol"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-contract",
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-sol-types",
+ "alloy-transport",
+ "async-trait",
+ "backon",
+ "futures-util",
+ "my-chain-proof-metrics",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "my-chain-proof-sp1-elfs"
+version = "1.0.0-rc.4"
+dependencies = [
+ "sp1-build",
+ "sp1-sdk",
+]
+
+[[package]]
+name = "my-chain-proof-sp1-guest-builder"
+version = "1.0.0-rc.4"
+dependencies = [
+ "anyhow",
+ "sp1-build",
+]
+
+[[package]]
+name = "my-chain-proof-sp1-host"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-primitives",
+ "alloy-sol-types",
+ "anyhow",
+ "async-trait",
+ "bincode 1.3.3",
+ "hex",
+ "my-chain-proof-kona-host",
+ "my-chain-proof-sp1-elfs",
+ "my-chain-proof-sp1-types",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_cbor",
+ "sha2 0.10.9",
+ "sp1-sdk",
+ "strum 0.28.0",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+ "world-chain-proof-core",
+]
+
+[[package]]
+name = "my-chain-proof-sp1-types"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-primitives",
+ "rkyv",
+ "serde",
+ "world-chain-proof-core",
+]
+
+[[package]]
+name = "my-chain-proof-sp1-worker"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-contract",
+ "alloy-network 2.1.1",
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-signer 2.1.1",
+ "alloy-signer-local 2.1.1",
+ "alloy-sol-types",
+ "anyhow",
+ "async-trait",
+ "clap",
+ "dotenvy",
+ "futures",
+ "my-chain-chainspec",
+ "my-chain-proof-kona-host",
+ "my-chain-proof-metrics",
+ "my-chain-proof-protocol",
+ "my-chain-proof-sp1-host",
+ "my-chain-proof-sp1-types",
+ "my-chain-proof-tx-signer",
+ "my-chain-proof-worker",
+ "my-chain-prover-service",
+ "reqwest 0.12.28",
+ "rustls 0.23.43",
+ "serde",
+ "serde_cbor",
+ "serde_json",
+ "telemetry-batteries",
+ "testcontainers",
+ "testcontainers-modules",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+ "url",
+ "world-chain-proof-core",
+]
+
+[[package]]
+name = "my-chain-proof-tx-signer"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-network 2.1.1",
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-signer-aws 2.1.1",
+ "alloy-signer-local 2.1.1",
+ "alloy-transport",
+ "aws-config",
+ "aws-sdk-kms",
+ "thiserror 2.0.19",
+ "tokio",
+ "url",
+]
+
+[[package]]
+name = "my-chain-proof-worker"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-primitives",
+ "anyhow",
+ "async-trait",
+ "backon",
+ "my-chain-proof-metrics",
+ "my-chain-prover-service",
+ "tokio",
+ "tokio-util",
+ "tracing",
+]
+
+[[package]]
+name = "my-chain-proposer"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-consensus 2.1.1",
+ "alloy-contract",
+ "alloy-eips 2.1.1",
+ "alloy-network 2.1.1",
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-signer-local 2.1.1",
+ "alloy-transport",
+ "anyhow",
+ "async-trait",
+ "clap",
+ "dotenvy",
+ "my-chain-proof-metrics",
+ "my-chain-proof-protocol",
+ "my-chain-proof-tx-signer",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "telemetry-batteries",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "my-chain-prover"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-primitives",
+ "anyhow",
+ "clap",
+ "kona-genesis",
+ "my-chain-chainspec",
+ "my-chain-proof-kona-host",
+ "reqwest 0.12.28",
+ "rkyv",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "world-chain-proof-core",
+]
+
+[[package]]
+name = "my-chain-prover-cli"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-primitives",
+ "alloy-provider",
+ "anyhow",
+ "clap",
+ "dotenvy",
+ "my-chain-proof-kona-host",
+ "my-chain-proof-protocol",
+ "my-chain-prover-service",
+ "reqwest 0.12.28",
+ "tokio",
+ "tracing",
+ "tracing-subscriber 0.3.23",
+]
+
+[[package]]
+name = "my-chain-prover-nitro"
+version = "1.0.0-rc.4"
+dependencies = [
+ "anyhow",
+ "clap",
+ "dotenvy",
+ "hex",
+ "my-chain-proof-nitro-register",
+ "my-chain-prover",
+ "serde_json",
+ "tokio",
+ "tracing-subscriber 0.3.23",
+ "world-chain-proof-nitro-enclave",
+]
+
+[[package]]
+name = "my-chain-prover-service"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-sol-types",
+ "alloy-transport",
+ "anyhow",
+ "async-trait",
+ "auto_impl",
+ "chrono",
+ "clap",
+ "dotenvy",
+ "jsonrpsee",
+ "my-chain-proof-metrics",
+ "my-chain-proof-protocol",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "telemetry-batteries",
+ "testcontainers",
+ "testcontainers-modules",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "my-chain-prover-sp1"
+version = "1.0.0-rc.4"
+dependencies = [
+ "alloy-primitives",
+ "anyhow",
+ "clap",
+ "dotenvy",
+ "hex",
+ "my-chain-proof-sp1-elfs",
+ "my-chain-proof-sp1-host",
+ "my-chain-proof-sp1-types",
+ "my-chain-prover",
+ "serde_json",
+ "sha2 0.10.9",
+ "sp1-sdk",
+ "tokio",
+ "world-chain-proof-core",
+]
+
+[[package]]
+name = "my-chain-rpc"
+version = "2.4.4"
+dependencies = [
+ "alloy",
+ "alloy-consensus 2.1.1",
+ "alloy-eips 2.1.1",
+ "alloy-op-evm 0.32.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-rpc-types",
+ "alloy-rpc-types-debug",
+ "alloy-rpc-types-engine",
+ "alloy-sol-types",
+ "color-eyre",
+ "hex",
+ "jsonrpsee",
+ "jsonrpsee-core",
+ "jsonrpsee-types",
+ "lru 0.18.2",
+ "my-chain-evm",
+ "my-chain-primitives",
+ "my-chain-validator",
+ "op-alloy-network 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "op-alloy-rpc-types 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "op-alloy-rpc-types-engine 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "op-revm 20.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "reqwest 0.12.28",
+ "reth-chain-state",
+ "reth-chainspec",
+ "reth-evm",
+ "reth-node-api",
+ "reth-node-builder",
+ "reth-optimism-evm",
+ "reth-optimism-forks",
+ "reth-optimism-node",
+ "reth-optimism-primitives",
+ "reth-optimism-rpc",
+ "reth-primitives-traits",
+ "reth-provider",
+ "reth-revm",
+ "reth-rpc-api",
+ "reth-rpc-eth-api",
+ "reth-rpc-eth-types",
+ "reth-storage-api",
+ "reth-tasks",
+ "reth-tracing",
+ "reth-transaction-pool",
+ "revm",
+ "revm-database",
+ "revm-database-interface",
+ "revm-primitives",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "my-chain-test-utils"
+version = "2.4.4"
+dependencies = [
+ "alloy-consensus 2.1.1",
+ "alloy-contract",
+ "alloy-eips 2.1.1",
+ "alloy-evm",
+ "alloy-genesis",
+ "alloy-network 2.1.1",
+ "alloy-op-evm 0.32.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-rpc-types",
+ "alloy-rpc-types-engine",
+ "alloy-rpc-types-eth 2.1.1",
+ "alloy-signer 2.1.1",
+ "alloy-signer-local 2.1.1",
+ "alloy-sol-types",
+ "alloy-trie",
+ "bon",
+ "chrono",
+ "color-eyre",
+ "crossbeam-channel",
+ "ed25519-dalek",
+ "futures",
+ "lazy_static",
+ "my-chain-builder",
+ "my-chain-chainspec",
+ "my-chain-cli",
+ "my-chain-evm",
+ "my-chain-node",
+ "my-chain-p2p",
+ "my-chain-pbh",
+ "my-chain-pool",
+ "my-chain-primitives",
+ "my-chain-rpc",
+ "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "op-alloy-network 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "op-alloy-rpc-types 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "op-alloy-rpc-types-engine 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "op-revm 20.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "parking_lot",
+ "rand 0.9.5",
+ "reqwest 0.12.28",
+ "reth-chain-state",
+ "reth-chainspec",
+ "reth-db",
+ "reth-e2e-test-utils",
+ "reth-engine-tree",
+ "reth-evm",
+ "reth-network-api",
+ "reth-network-peers",
+ "reth-node-api",
+ "reth-node-builder",
+ "reth-node-core",
+ "reth-node-ethereum",
+ "reth-optimism-evm",
+ "reth-optimism-forks",
+ "reth-optimism-node",
+ "reth-optimism-payload-builder",
+ "reth-optimism-primitives",
+ "reth-primitives-traits",
+ "reth-provider",
+ "reth-prune-types",
+ "reth-revm",
+ "reth-rpc-api",
+ "reth-rpc-server-types",
+ "reth-stages-types",
+ "reth-tasks",
+ "reth-tracing",
+ "reth-transaction-pool",
+ "reth-trie",
+ "reth-trie-common",
+ "revm",
+ "revm-primitives",
+ "semaphore-rs",
+ "serde",
+ "serde_json",
+ "test-case",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "my-chain-tests"
+version = "2.4.4"
+dependencies = [
+ "alloy-consensus 2.1.1",
+ "alloy-contract",
+ "alloy-eips 2.1.1",
+ "alloy-network 2.1.1",
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-rpc-client",
+ "alloy-rpc-types",
+ "alloy-rpc-types-engine",
+ "alloy-rpc-types-eth 2.1.1",
+ "alloy-signer 2.1.1",
+ "alloy-signer-local 2.1.1",
+ "alloy-sol-types",
+ "alloy-transport",
+ "alloy-transport-http",
+ "color-eyre",
+ "ed25519-dalek",
+ "futures",
+ "jsonrpsee",
+ "my-chain-chainspec",
+ "my-chain-cli",
+ "my-chain-devnet",
+ "my-chain-evm",
+ "my-chain-node",
+ "my-chain-p2p",
+ "my-chain-primitives",
+ "my-chain-proof-protocol",
+ "my-chain-proposer",
+ "my-chain-test-utils",
+ "my-chain-validator",
+ "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "op-alloy-network 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "op-alloy-rpc-types 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "proptest",
+ "reth-chainspec",
+ "reth-e2e-test-utils",
+ "reth-eth-wire",
+ "reth-network",
+ "reth-network-api",
+ "reth-network-peers",
+ "reth-node-api",
+ "reth-node-builder",
+ "reth-node-core",
+ "reth-optimism-evm",
+ "reth-optimism-node",
+ "reth-optimism-payload-builder",
+ "reth-optimism-primitives",
+ "reth-provider",
+ "reth-rpc-api",
+ "reth-tasks",
+ "reth-tracing",
+ "reth-transaction-pool",
+ "revm",
+ "revm-primitives",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "my-chain-validator"
+version = "2.4.4"
+dependencies = [
+ "alloy-consensus 2.1.1",
+ "alloy-eip7928 0.4.5",
+ "alloy-eips 2.1.1",
+ "alloy-op-evm 0.32.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "alloy-primitives",
+ "alloy-rlp",
+ "alloy-rpc-types-engine",
+ "color-eyre",
+ "criterion",
+ "crossbeam-channel",
+ "futures",
+ "metrics",
+ "metrics-derive",
+ "my-chain-chainspec",
+ "my-chain-evm",
+ "my-chain-node",
+ "my-chain-p2p",
+ "my-chain-primitives",
+ "my-chain-test-utils",
+ "my-chain-validator",
+ "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
+ "parking_lot",
+ "rayon",
+ "reth-chain-state",
+ "reth-db",
+ "reth-db-api",
+ "reth-evm",
+ "reth-node-api",
+ "reth-node-builder",
+ "reth-node-core",
+ "reth-optimism-evm",
+ "reth-optimism-node",
+ "reth-optimism-primitives",
+ "reth-primitives-traits",
+ "reth-provider",
+ "reth-revm",
+ "reth-tasks",
+ "reth-trie-common",
+ "revm",
+ "revm-database",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+]
+
+[[package]]
 name = "native-tls"
 version = "0.2.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -19937,530 +21100,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ebf944e87a7c253233ad6766e082e3cd714b5d03812acc24c318f549614536e"
 
 [[package]]
-name = "world-chain"
-version = "2.4.4"
-dependencies = [
- "clap",
- "color-eyre",
- "dotenvy",
- "reth-cli-util",
- "reth-node-builder",
- "reth-optimism-consensus",
- "reth-provider",
- "reth-tracing",
- "tikv-jemallocator",
- "world-chain-chainspec",
- "world-chain-cli",
- "world-chain-evm",
- "world-chain-node",
- "world-chain-rpc",
-]
-
-[[package]]
-name = "world-chain-builder"
-version = "2.4.4"
-dependencies = [
- "alloy-consensus 2.1.1",
- "alloy-eips 2.1.1",
- "alloy-network 2.1.1",
- "alloy-op-evm 0.32.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "alloy-primitives",
- "alloy-rpc-types-engine",
- "alloy-signer-local 2.1.1",
- "color-eyre",
- "criterion",
- "crossbeam-channel",
- "metrics",
- "metrics-derive",
- "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "op-alloy-rpc-types 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "op-revm 20.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "reth-basic-payload-builder",
- "reth-chainspec",
- "reth-evm",
- "reth-node-api",
- "reth-optimism-forks",
- "reth-optimism-node",
- "reth-optimism-payload-builder",
- "reth-optimism-primitives",
- "reth-payload-primitives",
- "reth-payload-util",
- "reth-primitives-traits",
- "reth-provider",
- "reth-revm",
- "reth-tasks",
- "reth-tracing",
- "reth-transaction-pool",
- "revm",
- "revm-database",
- "semaphore-rs",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
- "world-chain-builder",
- "world-chain-chainspec",
- "world-chain-evm",
- "world-chain-node",
- "world-chain-pool",
- "world-chain-primitives",
- "world-chain-test-utils",
-]
-
-[[package]]
-name = "world-chain-chainspec"
-version = "2.4.4"
-dependencies = [
- "alloy-chains",
- "alloy-consensus 2.1.1",
- "alloy-eips 2.1.1",
- "alloy-genesis",
- "alloy-hardforks",
- "alloy-primitives",
- "auto_impl",
- "derive_more 2.1.1",
- "op-alloy-rpc-types 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "reth-chainspec",
- "reth-network-peers",
- "reth-optimism-chainspec",
- "reth-optimism-forks",
- "reth-primitives-traits",
- "serde",
- "tracing",
-]
-
-[[package]]
-name = "world-chain-challenger"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-consensus 2.1.1",
- "alloy-contract",
- "alloy-eips 2.1.1",
- "alloy-network 2.1.1",
- "alloy-primitives",
- "alloy-provider",
- "alloy-rpc-types-eth 2.1.1",
- "alloy-signer-local 2.1.1",
- "alloy-transport",
- "anyhow",
- "async-trait",
- "clap",
- "dotenvy",
- "futures-util",
- "reqwest 0.12.28",
- "serde",
- "serde_json",
- "telemetry-batteries",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "url",
- "world-chain-proof-metrics",
- "world-chain-proof-protocol",
- "world-chain-proof-tx-signer",
-]
-
-[[package]]
-name = "world-chain-cli"
-version = "2.4.4"
-dependencies = [
- "alloy-chains",
- "alloy-genesis",
- "alloy-primitives",
- "alloy-signer-local 2.1.1",
- "clap",
- "color-eyre",
- "ed25519-dalek",
- "futures-util",
- "hex",
- "reth-chainspec",
- "reth-cli",
- "reth-cli-commands",
- "reth-cli-runner",
- "reth-db",
- "reth-network-peers",
- "reth-node-builder",
- "reth-node-core",
- "reth-node-metrics",
- "reth-optimism-chainspec",
- "reth-optimism-consensus",
- "reth-optimism-evm",
- "reth-optimism-node",
- "reth-optimism-payload-builder",
- "reth-rpc-server-types",
- "reth-tracing",
- "tracing",
- "world-chain-chainspec",
- "world-chain-commands",
- "world-chain-primitives",
-]
-
-[[package]]
-name = "world-chain-commands"
-version = "2.4.4"
-dependencies = [
- "clap",
- "color-eyre",
- "reth-chainspec",
- "reth-cli",
- "reth-cli-commands",
- "reth-node-core",
- "reth-optimism-node",
- "reth-optimism-trie",
- "reth-provider",
- "reth-tasks",
- "tracing",
- "world-chain-chainspec",
-]
-
-[[package]]
-name = "world-chain-defender"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-contract",
- "alloy-network 2.1.1",
- "alloy-primitives",
- "alloy-provider",
- "alloy-signer-local 2.1.1",
- "alloy-sol-types",
- "alloy-transport",
- "anyhow",
- "async-trait",
- "clap",
- "dotenvy",
- "futures-util",
- "telemetry-batteries",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "tracing-subscriber 0.3.23",
- "url",
- "world-chain-proof-core",
- "world-chain-proof-metrics",
- "world-chain-proof-protocol",
- "world-chain-proof-tx-signer",
- "world-chain-prover-service",
-]
-
-[[package]]
-name = "world-chain-devnet"
-version = "2.4.4"
-dependencies = [
- "alloy-contract",
- "alloy-eips 2.1.1",
- "alloy-genesis",
- "alloy-hardforks",
- "alloy-network 2.1.1",
- "alloy-primitives",
- "alloy-provider",
- "alloy-signer-local 2.1.1",
- "alloy-sol-types",
- "anyhow",
- "async-trait",
- "base64 0.22.1",
- "color-eyre",
- "ed25519-dalek",
- "flate2",
- "futures",
- "jsonrpsee",
- "kona-genesis",
- "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "rand 0.9.5",
- "reqwest 0.12.28",
- "reth-chainspec",
- "reth-e2e-test-utils",
- "reth-network-peers",
- "reth-node-api",
- "reth-optimism-node",
- "reth-optimism-payload-builder",
- "reth-provider",
- "reth-tasks",
- "secp256k1 0.30.0",
- "serde",
- "serde_json",
- "tempfile",
- "testcontainers",
- "tokio",
- "tracing",
- "url",
- "world-chain-chainspec",
- "world-chain-challenger",
- "world-chain-defender",
- "world-chain-node",
- "world-chain-primitives",
- "world-chain-proof-core",
- "world-chain-proof-kona-host",
- "world-chain-proof-protocol",
- "world-chain-proof-sp1-host",
- "world-chain-proof-sp1-worker",
- "world-chain-proof-worker",
- "world-chain-proposer",
- "world-chain-prover-service",
- "world-chain-rpc",
- "world-chain-test-utils",
-]
-
-[[package]]
-name = "world-chain-evm"
-version = "2.4.4"
-dependencies = [
- "alloy-consensus 2.1.1",
- "alloy-eip7928 0.4.5",
- "alloy-eips 2.1.1",
- "alloy-op-evm 0.32.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "alloy-primitives",
- "alloy-rpc-types-debug",
- "auto_impl",
- "bon",
- "color-eyre",
- "crossbeam-channel",
- "futures",
- "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "op-revm 20.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "parking_lot",
- "reth-evm",
- "reth-node-api",
- "reth-node-builder",
- "reth-optimism-evm",
- "reth-optimism-payload-builder",
- "reth-optimism-primitives",
- "reth-payload-primitives",
- "reth-primitives-traits",
- "reth-provider",
- "reth-revm",
- "reth-tasks",
- "reth-trie-common",
- "revm",
- "revm-database",
- "serde",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "world-chain-chainspec",
- "world-chain-primitives",
-]
-
-[[package]]
-name = "world-chain-node"
-version = "2.4.4"
-dependencies = [
- "alloy-consensus 2.1.1",
- "alloy-eips 2.1.1",
- "alloy-primitives",
- "alloy-rpc-types",
- "alloy-rpc-types-engine",
- "alloy-rpc-types-eth 2.1.1",
- "color-eyre",
- "crossbeam-channel",
- "ed25519-dalek",
- "futures-util",
- "hex",
- "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "op-alloy-rpc-types-engine 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "reth-basic-payload-builder",
- "reth-chainspec",
- "reth-codecs",
- "reth-db",
- "reth-db-api",
- "reth-eth-wire",
- "reth-eth-wire-types",
- "reth-evm",
- "reth-network",
- "reth-network-peers",
- "reth-node-api",
- "reth-node-builder",
- "reth-node-core",
- "reth-optimism-chainspec",
- "reth-optimism-evm",
- "reth-optimism-exex",
- "reth-optimism-forks",
- "reth-optimism-node",
- "reth-optimism-payload-builder",
- "reth-optimism-primitives",
- "reth-optimism-rpc",
- "reth-optimism-trie",
- "reth-payload-builder",
- "reth-primitives-traits",
- "reth-provider",
- "reth-rpc-api",
- "reth-rpc-engine-api",
- "reth-rpc-eth-api",
- "reth-rpc-server-types",
- "reth-tasks",
- "reth-transaction-pool",
- "tokio",
- "tracing",
- "vergen",
- "vergen-git2",
- "world-chain-builder",
- "world-chain-chainspec",
- "world-chain-cli",
- "world-chain-evm",
- "world-chain-p2p",
- "world-chain-payload",
- "world-chain-pool",
- "world-chain-primitives",
- "world-chain-rpc",
- "world-chain-test-utils",
- "world-chain-validator",
-]
-
-[[package]]
-name = "world-chain-p2p"
-version = "2.4.4"
-dependencies = [
- "alloy-eips 2.1.1",
- "alloy-primitives",
- "alloy-rlp",
- "alloy-rpc-types-engine",
- "chrono",
- "ed25519-dalek",
- "enr",
- "futures",
- "metrics",
- "metrics-derive",
- "parking_lot",
- "pin-project",
- "rand 0.9.5",
- "reth-codecs",
- "reth-db",
- "reth-db-api",
- "reth-eth-wire",
- "reth-ethereum",
- "reth-network",
- "reth-network-api",
- "reth-network-peers",
- "reth-provider",
- "reth-tasks",
- "serde",
- "tempfile",
- "thiserror 2.0.19",
- "tokio",
- "tokio-stream",
- "tokio-util",
- "tracing",
- "world-chain-cli",
- "world-chain-primitives",
-]
-
-[[package]]
-name = "world-chain-payload"
-version = "2.4.4"
-dependencies = [
- "alloy-eips 2.1.1",
- "alloy-primitives",
- "color-eyre",
- "futures",
- "reth-basic-payload-builder",
- "reth-execution-cache",
- "reth-optimism-node",
- "reth-optimism-payload-builder",
- "reth-optimism-primitives",
- "reth-payload-builder",
- "reth-payload-primitives",
- "reth-primitives-traits",
- "reth-provider",
- "reth-revm",
- "reth-tasks",
- "reth-trie-parallel",
- "tokio",
- "tracing",
- "world-chain-builder",
- "world-chain-chainspec",
- "world-chain-p2p",
- "world-chain-primitives",
- "world-chain-validator",
-]
-
-[[package]]
-name = "world-chain-pbh"
-version = "2.4.4"
-dependencies = [
- "alloy-primitives",
- "alloy-rlp",
- "bon",
- "chrono",
- "color-eyre",
- "semaphore-rs",
- "semaphore-rs-proof",
- "serde",
- "strum 0.28.0",
- "test-case",
- "thiserror 2.0.19",
-]
-
-[[package]]
-name = "world-chain-pool"
-version = "2.4.4"
-dependencies = [
- "alloy-consensus 2.1.1",
- "alloy-eips 2.1.1",
- "alloy-primitives",
- "alloy-rlp",
- "alloy-rpc-types",
- "alloy-sol-types",
- "chrono",
- "color-eyre",
- "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "parking_lot",
- "rayon",
- "reth-db",
- "reth-eth-wire-types",
- "reth-evm",
- "reth-node-api",
- "reth-optimism-forks",
- "reth-optimism-node",
- "reth-optimism-primitives",
- "reth-primitives-traits",
- "reth-provider",
- "reth-transaction-pool",
- "revm-primitives",
- "semaphore-rs",
- "serde",
- "test-case",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "world-chain-evm",
- "world-chain-pbh",
- "world-chain-test-utils",
-]
-
-[[package]]
-name = "world-chain-primitives"
-version = "2.4.4"
-dependencies = [
- "alloy-consensus 2.1.1",
- "alloy-eip7928 0.4.5",
- "alloy-eips 2.1.1",
- "alloy-primitives",
- "alloy-rlp",
- "alloy-rpc-types-engine",
- "alloy-rpc-types-eth 2.1.1",
- "alloy-serde 2.1.1",
- "alloy-signer-local 2.1.1",
- "blake3",
- "bytes",
- "chrono",
- "color-eyre",
- "ed25519-dalek",
- "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "op-alloy-network 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "reth-basic-payload-builder",
- "reth-chainspec",
- "reth-optimism-chainspec",
- "reth-optimism-node",
- "reth-optimism-primitives",
- "reth-primitives-traits",
- "reth-storage-api",
- "reth-trie-common",
- "serde",
- "serde_json",
- "thiserror 2.0.19",
- "world-chain-chainspec",
-]
-
-[[package]]
 name = "world-chain-proof-core"
 version = "1.0.0-rc.4"
 dependencies = [
@@ -20474,27 +21113,6 @@ dependencies = [
  "serde_json",
  "sha2 0.10.9",
  "thiserror 2.0.19",
-]
-
-[[package]]
-name = "world-chain-proof-it"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-primitives",
- "alloy-sol-types",
- "anyhow",
- "async-trait",
- "testcontainers",
- "testcontainers-modules",
- "tokio",
- "tokio-util",
- "world-chain-challenger",
- "world-chain-defender",
- "world-chain-proof-core",
- "world-chain-proof-protocol",
- "world-chain-proof-worker",
- "world-chain-proposer",
- "world-chain-prover-service",
 ]
 
 [[package]]
@@ -20519,45 +21137,6 @@ dependencies = [
  "spin 0.10.1",
  "tracing",
  "world-chain-proof-core",
-]
-
-[[package]]
-name = "world-chain-proof-kona-host"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-consensus 2.1.1",
- "alloy-primitives",
- "anyhow",
- "hex",
- "kona-genesis",
- "kona-host",
- "kona-preimage",
- "kona-proof",
- "kona-protocol",
- "kona-sp1-host-utils",
- "reqwest 0.12.28",
- "serde",
- "serde_json",
- "tokio",
- "world-chain-chainspec",
- "world-chain-proof-core",
- "world-chain-proof-kona-client",
-]
-
-[[package]]
-name = "world-chain-proof-metrics"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-json-rpc 2.1.1",
- "alloy-primitives",
- "alloy-provider",
- "alloy-rpc-client",
- "alloy-transport",
- "alloy-transport-http",
- "telemetry-batteries",
- "tower 0.5.3",
- "tracing",
- "url",
 ]
 
 [[package]]
@@ -20591,585 +21170,6 @@ dependencies = [
  "world-chain-proof-core",
  "world-chain-proof-kona-client",
  "x509-parser 0.18.1",
-]
-
-[[package]]
-name = "world-chain-proof-nitro-register"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-contract",
- "alloy-primitives",
- "alloy-provider",
- "alloy-signer 2.1.1",
- "alloy-signer-local 2.1.1",
- "alloy-sol-types",
- "anyhow",
- "ciborium",
- "hex",
- "sha2 0.10.9",
- "tokio",
- "tracing",
- "url",
- "world-chain-proof-nitro-enclave",
- "world-chain-proof-tx-signer",
-]
-
-[[package]]
-name = "world-chain-proof-nitro-worker"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-primitives",
- "alloy-provider",
- "alloy-sol-types",
- "anyhow",
- "async-trait",
- "backon",
- "clap",
- "dotenvy",
- "hex",
- "telemetry-batteries",
- "tokio",
- "tracing",
- "world-chain-chainspec",
- "world-chain-proof-kona-host",
- "world-chain-proof-metrics",
- "world-chain-proof-nitro-enclave",
- "world-chain-proof-nitro-register",
- "world-chain-proof-protocol",
- "world-chain-proof-worker",
- "world-chain-prover-service",
-]
-
-[[package]]
-name = "world-chain-proof-protocol"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-contract",
- "alloy-primitives",
- "alloy-provider",
- "alloy-sol-types",
- "alloy-transport",
- "async-trait",
- "backon",
- "futures-util",
- "reqwest 0.12.28",
- "serde",
- "serde_json",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "world-chain-proof-metrics",
-]
-
-[[package]]
-name = "world-chain-proof-sp1-elfs"
-version = "1.0.0-rc.4"
-dependencies = [
- "sp1-build",
- "sp1-sdk",
-]
-
-[[package]]
-name = "world-chain-proof-sp1-guest-builder"
-version = "1.0.0-rc.4"
-dependencies = [
- "anyhow",
- "sp1-build",
-]
-
-[[package]]
-name = "world-chain-proof-sp1-host"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-primitives",
- "alloy-sol-types",
- "anyhow",
- "async-trait",
- "bincode 1.3.3",
- "hex",
- "reqwest 0.12.28",
- "serde",
- "serde_cbor",
- "sha2 0.10.9",
- "sp1-sdk",
- "strum 0.28.0",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "world-chain-proof-core",
- "world-chain-proof-kona-host",
- "world-chain-proof-sp1-elfs",
- "world-chain-proof-sp1-types",
-]
-
-[[package]]
-name = "world-chain-proof-sp1-types"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-primitives",
- "rkyv",
- "serde",
- "world-chain-proof-core",
-]
-
-[[package]]
-name = "world-chain-proof-sp1-worker"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-contract",
- "alloy-network 2.1.1",
- "alloy-primitives",
- "alloy-provider",
- "alloy-signer 2.1.1",
- "alloy-signer-local 2.1.1",
- "alloy-sol-types",
- "anyhow",
- "async-trait",
- "clap",
- "dotenvy",
- "futures",
- "reqwest 0.12.28",
- "rustls 0.23.43",
- "serde",
- "serde_cbor",
- "serde_json",
- "telemetry-batteries",
- "testcontainers",
- "testcontainers-modules",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "url",
- "world-chain-chainspec",
- "world-chain-proof-core",
- "world-chain-proof-kona-host",
- "world-chain-proof-metrics",
- "world-chain-proof-protocol",
- "world-chain-proof-sp1-host",
- "world-chain-proof-sp1-types",
- "world-chain-proof-tx-signer",
- "world-chain-proof-worker",
- "world-chain-prover-service",
-]
-
-[[package]]
-name = "world-chain-proof-tx-signer"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-network 2.1.1",
- "alloy-primitives",
- "alloy-provider",
- "alloy-signer-aws 2.1.1",
- "alloy-signer-local 2.1.1",
- "alloy-transport",
- "aws-config",
- "aws-sdk-kms",
- "thiserror 2.0.19",
- "tokio",
- "url",
-]
-
-[[package]]
-name = "world-chain-proof-worker"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-primitives",
- "anyhow",
- "async-trait",
- "backon",
- "tokio",
- "tokio-util",
- "tracing",
- "world-chain-proof-metrics",
- "world-chain-prover-service",
-]
-
-[[package]]
-name = "world-chain-proposer"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-consensus 2.1.1",
- "alloy-contract",
- "alloy-eips 2.1.1",
- "alloy-network 2.1.1",
- "alloy-primitives",
- "alloy-provider",
- "alloy-signer-local 2.1.1",
- "alloy-transport",
- "anyhow",
- "async-trait",
- "clap",
- "dotenvy",
- "reqwest 0.12.28",
- "serde",
- "serde_json",
- "telemetry-batteries",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "url",
- "world-chain-proof-metrics",
- "world-chain-proof-protocol",
- "world-chain-proof-tx-signer",
-]
-
-[[package]]
-name = "world-chain-prover"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-primitives",
- "anyhow",
- "clap",
- "kona-genesis",
- "reqwest 0.12.28",
- "rkyv",
- "serde",
- "serde_json",
- "tempfile",
- "world-chain-chainspec",
- "world-chain-proof-core",
- "world-chain-proof-kona-host",
-]
-
-[[package]]
-name = "world-chain-prover-cli"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-primitives",
- "alloy-provider",
- "anyhow",
- "clap",
- "dotenvy",
- "reqwest 0.12.28",
- "tokio",
- "tracing",
- "tracing-subscriber 0.3.23",
- "world-chain-proof-kona-host",
- "world-chain-proof-protocol",
- "world-chain-prover-service",
-]
-
-[[package]]
-name = "world-chain-prover-nitro"
-version = "1.0.0-rc.4"
-dependencies = [
- "anyhow",
- "clap",
- "dotenvy",
- "hex",
- "serde_json",
- "tokio",
- "tracing-subscriber 0.3.23",
- "world-chain-proof-nitro-enclave",
- "world-chain-proof-nitro-register",
- "world-chain-prover",
-]
-
-[[package]]
-name = "world-chain-prover-service"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-primitives",
- "alloy-provider",
- "alloy-sol-types",
- "alloy-transport",
- "anyhow",
- "async-trait",
- "auto_impl",
- "chrono",
- "clap",
- "dotenvy",
- "jsonrpsee",
- "serde",
- "serde_json",
- "sqlx",
- "telemetry-batteries",
- "testcontainers",
- "testcontainers-modules",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "uuid",
- "world-chain-proof-metrics",
- "world-chain-proof-protocol",
-]
-
-[[package]]
-name = "world-chain-prover-sp1"
-version = "1.0.0-rc.4"
-dependencies = [
- "alloy-primitives",
- "anyhow",
- "clap",
- "dotenvy",
- "hex",
- "serde_json",
- "sha2 0.10.9",
- "sp1-sdk",
- "tokio",
- "world-chain-proof-core",
- "world-chain-proof-sp1-elfs",
- "world-chain-proof-sp1-host",
- "world-chain-proof-sp1-types",
- "world-chain-prover",
-]
-
-[[package]]
-name = "world-chain-rpc"
-version = "2.4.4"
-dependencies = [
- "alloy",
- "alloy-consensus 2.1.1",
- "alloy-eips 2.1.1",
- "alloy-op-evm 0.32.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "alloy-primitives",
- "alloy-provider",
- "alloy-rpc-types",
- "alloy-rpc-types-debug",
- "alloy-rpc-types-engine",
- "alloy-sol-types",
- "color-eyre",
- "hex",
- "jsonrpsee",
- "jsonrpsee-core",
- "jsonrpsee-types",
- "lru 0.18.2",
- "op-alloy-network 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "op-alloy-rpc-types 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "op-alloy-rpc-types-engine 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "op-revm 20.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "reqwest 0.12.28",
- "reth-chain-state",
- "reth-chainspec",
- "reth-evm",
- "reth-node-api",
- "reth-node-builder",
- "reth-optimism-evm",
- "reth-optimism-forks",
- "reth-optimism-node",
- "reth-optimism-primitives",
- "reth-optimism-rpc",
- "reth-primitives-traits",
- "reth-provider",
- "reth-revm",
- "reth-rpc-api",
- "reth-rpc-eth-api",
- "reth-rpc-eth-types",
- "reth-storage-api",
- "reth-tasks",
- "reth-tracing",
- "reth-transaction-pool",
- "revm",
- "revm-database",
- "revm-database-interface",
- "revm-primitives",
- "serde",
- "serde_json",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "world-chain-evm",
- "world-chain-primitives",
- "world-chain-validator",
-]
-
-[[package]]
-name = "world-chain-test-utils"
-version = "2.4.4"
-dependencies = [
- "alloy-consensus 2.1.1",
- "alloy-contract",
- "alloy-eips 2.1.1",
- "alloy-evm",
- "alloy-genesis",
- "alloy-network 2.1.1",
- "alloy-op-evm 0.32.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "alloy-primitives",
- "alloy-provider",
- "alloy-rpc-types",
- "alloy-rpc-types-engine",
- "alloy-rpc-types-eth 2.1.1",
- "alloy-signer 2.1.1",
- "alloy-signer-local 2.1.1",
- "alloy-sol-types",
- "alloy-trie",
- "bon",
- "chrono",
- "color-eyre",
- "crossbeam-channel",
- "ed25519-dalek",
- "futures",
- "lazy_static",
- "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "op-alloy-network 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "op-alloy-rpc-types 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "op-alloy-rpc-types-engine 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "op-revm 20.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "parking_lot",
- "rand 0.9.5",
- "reqwest 0.12.28",
- "reth-chain-state",
- "reth-chainspec",
- "reth-db",
- "reth-e2e-test-utils",
- "reth-engine-tree",
- "reth-evm",
- "reth-network-api",
- "reth-network-peers",
- "reth-node-api",
- "reth-node-builder",
- "reth-node-core",
- "reth-node-ethereum",
- "reth-optimism-evm",
- "reth-optimism-forks",
- "reth-optimism-node",
- "reth-optimism-payload-builder",
- "reth-optimism-primitives",
- "reth-primitives-traits",
- "reth-provider",
- "reth-prune-types",
- "reth-revm",
- "reth-rpc-api",
- "reth-rpc-server-types",
- "reth-stages-types",
- "reth-tasks",
- "reth-tracing",
- "reth-transaction-pool",
- "reth-trie",
- "reth-trie-common",
- "revm",
- "revm-primitives",
- "semaphore-rs",
- "serde",
- "serde_json",
- "test-case",
- "tokio",
- "tracing",
- "world-chain-builder",
- "world-chain-chainspec",
- "world-chain-cli",
- "world-chain-evm",
- "world-chain-node",
- "world-chain-p2p",
- "world-chain-pbh",
- "world-chain-pool",
- "world-chain-primitives",
- "world-chain-rpc",
-]
-
-[[package]]
-name = "world-chain-tests"
-version = "2.4.4"
-dependencies = [
- "alloy-consensus 2.1.1",
- "alloy-contract",
- "alloy-eips 2.1.1",
- "alloy-network 2.1.1",
- "alloy-primitives",
- "alloy-provider",
- "alloy-rpc-client",
- "alloy-rpc-types",
- "alloy-rpc-types-engine",
- "alloy-rpc-types-eth 2.1.1",
- "alloy-signer 2.1.1",
- "alloy-signer-local 2.1.1",
- "alloy-sol-types",
- "alloy-transport",
- "alloy-transport-http",
- "color-eyre",
- "ed25519-dalek",
- "futures",
- "jsonrpsee",
- "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "op-alloy-network 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "op-alloy-rpc-types 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "proptest",
- "reth-chainspec",
- "reth-e2e-test-utils",
- "reth-eth-wire",
- "reth-network",
- "reth-network-api",
- "reth-network-peers",
- "reth-node-api",
- "reth-node-builder",
- "reth-node-core",
- "reth-optimism-evm",
- "reth-optimism-node",
- "reth-optimism-payload-builder",
- "reth-optimism-primitives",
- "reth-provider",
- "reth-rpc-api",
- "reth-tasks",
- "reth-tracing",
- "reth-transaction-pool",
- "revm",
- "revm-primitives",
- "serde",
- "serde_json",
- "tempfile",
- "tokio",
- "tracing",
- "url",
- "world-chain-chainspec",
- "world-chain-cli",
- "world-chain-devnet",
- "world-chain-evm",
- "world-chain-node",
- "world-chain-p2p",
- "world-chain-primitives",
- "world-chain-proof-protocol",
- "world-chain-proposer",
- "world-chain-test-utils",
- "world-chain-validator",
-]
-
-[[package]]
-name = "world-chain-validator"
-version = "2.4.4"
-dependencies = [
- "alloy-consensus 2.1.1",
- "alloy-eip7928 0.4.5",
- "alloy-eips 2.1.1",
- "alloy-op-evm 0.32.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "alloy-primitives",
- "alloy-rlp",
- "alloy-rpc-types-engine",
- "color-eyre",
- "criterion",
- "crossbeam-channel",
- "futures",
- "metrics",
- "metrics-derive",
- "op-alloy-consensus 2.0.0 (git+https://github.com/ethereum-optimism/optimism?rev=b60a1a6398209ccc47267e77deb6e4bf4c1ede8a)",
- "parking_lot",
- "rayon",
- "reth-chain-state",
- "reth-db",
- "reth-db-api",
- "reth-evm",
- "reth-node-api",
- "reth-node-builder",
- "reth-node-core",
- "reth-optimism-evm",
- "reth-optimism-node",
- "reth-optimism-primitives",
- "reth-primitives-traits",
- "reth-provider",
- "reth-revm",
- "reth-tasks",
- "reth-trie-common",
- "revm",
- "revm-database",
- "tokio",
- "tokio-stream",
- "tracing",
- "world-chain-chainspec",
- "world-chain-evm",
- "world-chain-node",
- "world-chain-p2p",
- "world-chain-primitives",
- "world-chain-test-utils",
- "world-chain-validator",
 ]
 
 [[package]]
@@ -21308,6 +21308,13 @@ dependencies = [
  "ed25519-dalek",
  "futures",
  "hex",
+ "my-chain-chainspec",
+ "my-chain-cli",
+ "my-chain-devnet",
+ "my-chain-node",
+ "my-chain-pbh",
+ "my-chain-primitives",
+ "my-chain-test-utils",
  "once_cell",
  "rand 0.9.5",
  "reqwest 0.12.28",
@@ -21322,13 +21329,6 @@ dependencies = [
  "tracing",
  "tracing-appender",
  "tracing-subscriber 0.3.23",
- "world-chain-chainspec",
- "world-chain-cli",
- "world-chain-devnet",
- "world-chain-node",
- "world-chain-pbh",
- "world-chain-primitives",
- "world-chain-test-utils",
 ]
 
 [[package]]

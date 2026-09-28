@@ -16,7 +16,7 @@ macro_rules! emit_at_level {
 #[derive(Clone, Copy, Debug)]
 pub(crate) enum ProcessLogTarget {
     L1DevChain,
-    WorldChainEl,
+    MyChainEl,
     OpDeployer,
     OpNode,
     OpConductor,
@@ -52,8 +52,8 @@ pub(crate) fn emit_process_log(target: ProcessLogTarget, process: &str, line: &s
         ProcessLogTarget::L1DevChain => {
             emit_at_level!("l1_dev_chain", level, process, line.as_str())
         }
-        ProcessLogTarget::WorldChainEl => {
-            emit_at_level!("world_chain_el", level, process, line.as_str())
+        ProcessLogTarget::MyChainEl => {
+            emit_at_level!("my_chain_el", level, process, line.as_str())
         }
         ProcessLogTarget::OpDeployer => {
             emit_at_level!("op_deployer", level, process, line.as_str())

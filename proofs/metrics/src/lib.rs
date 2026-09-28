@@ -504,8 +504,8 @@ mod tests {
     #[test]
     fn keeps_port_so_in_cluster_endpoints_stay_distinguishable() {
         assert_eq!(
-            redact_endpoint("http://op-node-0.alphanet-world-chain-node.svc.cluster.local:9545"),
-            "http://op-node-0.alphanet-world-chain-node.svc.cluster.local:9545"
+            redact_endpoint("http://op-node-0.alphanet-my-chain-node.svc.cluster.local:9545"),
+            "http://op-node-0.alphanet-my-chain-node.svc.cluster.local:9545"
         );
     }
 

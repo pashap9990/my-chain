@@ -3,7 +3,7 @@ use alloy_provider::{MulticallError, PendingTransactionError, transport::RpcErro
 use alloy_transport::TransportErrorKind;
 use thiserror::Error;
 use tokio::sync::AcquireError;
-use world_chain_proof_protocol::{
+use my_chain_proof_protocol::{
     InvalidationReasonError, LineageError, ProofLane, ProposalStatusError,
 };
 

@@ -4,15 +4,15 @@ use reth_eth_wire_types::primitives::NetworkPrimitives;
 use reth_network::transactions::{PeerMetadata, config::TransactionPropagationPolicy};
 use reth_network_peers::PeerId;
 
-/// Transaction propagation policy for World Chain that restricts propagation to a specific peer list.
+/// Transaction propagation policy for My Chain that restricts propagation to a specific peer list.
 ///
 /// Transactions will only be propagated to peers whose IDs are in the allowed set.
 #[derive(Debug, Clone)]
-pub struct WorldChainTransactionPropagationPolicy {
+pub struct MyChainTransactionPropagationPolicy {
     allowed_peers: HashSet<PeerId>,
 }
 
-impl WorldChainTransactionPropagationPolicy {
+impl MyChainTransactionPropagationPolicy {
     /// Creates a new propagation policy that only propagates to the specified peers
     pub fn new(peers: impl IntoIterator<Item = PeerId>) -> Self {
         Self {
@@ -27,7 +27,7 @@ impl WorldChainTransactionPropagationPolicy {
 }
 
 impl<N: NetworkPrimitives> TransactionPropagationPolicy<N>
-    for WorldChainTransactionPropagationPolicy
+    for MyChainTransactionPropagationPolicy
 {
     fn can_propagate(&self, peer: &mut PeerMetadata<N>) -> bool {
         // Access peer_id via request_tx().peer_id
@@ -60,7 +60,7 @@ mod tests {
     #[test]
     fn test_can_propagate_allowed_peer() {
         let allowed = PeerId::random();
-        let policy = WorldChainTransactionPropagationPolicy::new(vec![allowed]);
+        let policy = MyChainTransactionPropagationPolicy::new(vec![allowed]);
 
         let mut peer_metadata = create_test_peer(allowed);
 
@@ -74,7 +74,7 @@ mod tests {
     fn test_cannot_propagate_disallowed_peer() {
         let allowed = PeerId::random();
         let disallowed = PeerId::random();
-        let policy = WorldChainTransactionPropagationPolicy::new(vec![allowed]);
+        let policy = MyChainTransactionPropagationPolicy::new(vec![allowed]);
 
         let mut peer_metadata = create_test_peer(disallowed);
 

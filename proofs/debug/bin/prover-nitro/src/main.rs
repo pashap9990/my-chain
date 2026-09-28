@@ -2,14 +2,14 @@ use std::path::PathBuf;
 
 use anyhow::{Result, bail};
 use clap::{Args, Parser, Subcommand};
-use world_chain_prover::{
+use my_chain_prover::{
     HashRollupConfigArgs, RpcArgs, WitnessArgs, print_rollup_config_hash, write_witness,
 };
 
 #[derive(Debug, Parser)]
 #[command(
-    name = "world-chain-prover-nitro",
-    about = "World Chain AWS Nitro TEE prover"
+    name = "my-chain-prover-nitro",
+    about = "My Chain AWS Nitro TEE prover"
 )]
 struct Cli {
     #[command(subcommand)]
@@ -151,7 +151,7 @@ async fn nitro_prove(args: NitroArgs) -> Result<()> {
         host::{EnclaveEndpoint, NitroProver},
         protocol::transition_commitment,
     };
-    use world_chain_prover::{build_range_input_from_args, write_json};
+    use my_chain_prover::{build_range_input_from_args, write_json};
 
     let input = build_range_input_from_args(&args.rpc).await?;
 
@@ -215,13 +215,13 @@ async fn nitro_prove(args: NitroArgs) -> Result<()> {
 
 #[cfg(not(target_os = "linux"))]
 async fn nitro_prove(_args: NitroArgs) -> Result<()> {
-    bail!("world-chain-prover-nitro requires Linux with AF_VSOCK support")
+    bail!("my-chain-prover-nitro requires Linux with AF_VSOCK support")
 }
 
 #[cfg(target_os = "linux")]
 async fn register(args: RegisterArgs) -> Result<()> {
     use world_chain_proof_nitro_enclave::ExpectedPcrs;
-    use world_chain_proof_nitro_register::{
+    use my_chain_proof_nitro_register::{
         RegisterParams, RegistrationOutcome, SignerType, register_enclave_key,
     };
 

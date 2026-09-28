@@ -81,7 +81,7 @@ where
         for game in games {
             let result: Result<bool, ChallengerError> = async {
                 if self.execution_provider.is_game_settled(game).await? {
-                    world_chain_proof_metrics::increment_games_closed(
+                    my_chain_proof_metrics::increment_games_closed(
                         "challenger",
                         "already_settled",
                     );
@@ -96,7 +96,7 @@ where
                 }
 
                 let submission = self.execution_provider.close_game(game).await?;
-                world_chain_proof_metrics::increment_games_closed("challenger", "submitted");
+                my_chain_proof_metrics::increment_games_closed("challenger", "submitted");
                 info!(
                     game_address = %game,
                     tx_hash = ?submission.tx_hash,

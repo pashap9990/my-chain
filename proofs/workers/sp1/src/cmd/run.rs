@@ -4,12 +4,12 @@ use alloy_primitives::{Address, B256, U256};
 use alloy_provider::ProviderBuilder;
 use anyhow::{Context, Result};
 use clap::{ArgGroup, Parser};
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_proof_kona_host::online::{
+use my_chain_chainspec::MyChainSpec;
+use my_chain_proof_kona_host::online::{
     OnlineHostConfig, build_online_config, hardfork_config_from_chain_spec,
 };
-use world_chain_proof_protocol::AlloyProofGameProvider;
-use world_chain_proof_sp1_host::{
+use my_chain_proof_protocol::AlloyProofGameProvider;
+use my_chain_proof_sp1_host::{
     Sp1ProverKind, WorldSuccinctProver,
     cpu_prover::{CpuSuccinctProver, SP1ProofMode},
     mock_prover::MockSuccinctProver,
@@ -19,12 +19,12 @@ use world_chain_proof_sp1_host::{
     },
     vkeys::embedded_vkey_manifest,
 };
-use world_chain_proof_sp1_worker::{
+use my_chain_proof_sp1_worker::{
     ProofWorker, ProofWorkerConfig, RangePlanConfig, RetryConfig, Sp1Backend, Sp1BackendConfig,
     planner::target_gas_per_range,
 };
-use world_chain_proof_worker::WorkerHeartbeatConfig;
-use world_chain_prover_service::RpcProverServiceClient;
+use my_chain_proof_worker::WorkerHeartbeatConfig;
+use my_chain_prover_service::RpcProverServiceClient;
 
 use super::{
     deposit::{DepositReceipt, parse_prove_amount, submit_deposit},
@@ -40,37 +40,37 @@ const DEFAULT_WORKER_MAX_CONSECUTIVE_HEARTBEAT_FAILURES: u32 = 5;
 const SP1_NETWORK_BALANCE_POLL_INTERVAL: Duration = Duration::from_secs(30);
 const DEFAULT_SP1_NETWORK_MINIMUM_BALANCE: &str = "10";
 const DEFAULT_SP1_RANGE_CYCLE_LIMIT: u64 =
-    world_chain_proof_sp1_worker::planner::DEFAULT_RANGE_CYCLE_LIMIT;
+    my_chain_proof_sp1_worker::planner::DEFAULT_RANGE_CYCLE_LIMIT;
 const DEFAULT_SP1_RANGE_GAS_LIMIT: u64 = 1_300_000_000_000;
 const DEFAULT_SP1_AGGREGATION_CYCLE_LIMIT: u64 = 7_000_000;
 const DEFAULT_SP1_AGGREGATION_GAS_LIMIT: u64 = 6_500_000;
 const DEFAULT_SP1_CYCLES_PER_GAS: u64 =
-    world_chain_proof_sp1_worker::planner::DEFAULT_CYCLES_PER_GAS;
+    my_chain_proof_sp1_worker::planner::DEFAULT_CYCLES_PER_GAS;
 const DEFAULT_SP1_MAX_BLOCKS_PER_RANGE: u64 =
-    world_chain_proof_sp1_worker::planner::DEFAULT_MAX_BLOCKS_PER_RANGE;
+    my_chain_proof_sp1_worker::planner::DEFAULT_MAX_BLOCKS_PER_RANGE;
 const DEFAULT_SP1_MAX_RANGE_SPLITS: u32 =
-    world_chain_proof_sp1_worker::planner::DEFAULT_MAX_RANGE_SPLITS;
+    my_chain_proof_sp1_worker::planner::DEFAULT_MAX_RANGE_SPLITS;
 
 #[derive(Debug, Clone, Copy, clap::ValueEnum)]
 enum Network {
     #[value(name = "worldchain")]
-    WorldChain,
+    MyChain,
     #[value(name = "worldchain-sepolia")]
-    WorldChainSepolia,
+    MyChainSepolia,
 }
 
 impl Network {
     fn chain_id(self) -> u64 {
         match self {
-            Self::WorldChain => 480,
-            Self::WorldChainSepolia => 4801,
+            Self::MyChain => 480,
+            Self::MyChainSepolia => 4801,
         }
     }
 
-    fn chain_spec(self) -> Arc<WorldChainSpec> {
+    fn chain_spec(self) -> Arc<MyChainSpec> {
         match self {
-            Self::WorldChain => WorldChainSpec::mainnet(),
-            Self::WorldChainSepolia => WorldChainSpec::sepolia(),
+            Self::MyChain => MyChainSpec::mainnet(),
+            Self::MyChainSepolia => MyChainSpec::sepolia(),
         }
     }
 }
@@ -492,7 +492,7 @@ async fn maintain_network_balance(
     let balance = match client.get_balance().await {
         Ok(balance) => balance,
         Err(error) => {
-            world_chain_proof_metrics::record_sp1_network_balance_unavailable();
+            my_chain_proof_metrics::record_sp1_network_balance_unavailable();
             tracing::warn!(%error, "failed to refresh SP1 Network credit balance");
             return false;
         }
@@ -581,10 +581,10 @@ fn record_network_balance(balance: U256, minimum_balance: U256) -> bool {
     let sufficient = balance >= minimum_balance;
     match prove_as_f64(balance) {
         Ok(balance_prove) => {
-            world_chain_proof_metrics::record_sp1_network_balance(balance_prove, sufficient);
+            my_chain_proof_metrics::record_sp1_network_balance(balance_prove, sufficient);
         }
         Err(error) => {
-            world_chain_proof_metrics::record_sp1_network_balance_unavailable();
+            my_chain_proof_metrics::record_sp1_network_balance_unavailable();
             tracing::warn!(%error, ?balance, "failed to convert SP1 Network credit balance");
         }
     }

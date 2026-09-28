@@ -12,7 +12,7 @@ use alloy_op_evm::OpBlockExecutionCtx;
 use alloy_rpc_types_engine::PayloadId;
 use eyre::eyre::bail;
 use reth_chain_state::ExecutedBlock;
-use world_chain_primitives::primitives::ExecutionPayloadFlashblockDeltaV1;
+use my_chain_primitives::primitives::ExecutionPayloadFlashblockDeltaV1;
 
 use reth_evm::{ConfigureEvm, EvmEnvFor};
 use reth_node_api::{BuiltPayload, BuiltPayloadExecutedBlock};
@@ -22,7 +22,7 @@ use reth_optimism_primitives::{OpPrimitives, OpTransactionSigned};
 use reth_provider::StateProviderFactory;
 use reth_trie_common::ComputedTrieData;
 use tracing::{error, trace_span};
-use world_chain_chainspec::WorldChainSpec;
+use my_chain_chainspec::MyChainSpec;
 
 use crate::{
     execution_strategy::{ExecutionStrategy, ValidationCtx},
@@ -31,7 +31,7 @@ use crate::{
     },
     state_root_strategy::FlashblockTypes,
 };
-use world_chain_evm::{
+use my_chain_evm::{
     PayloadBuildStage,
     execution::bal::{BalExecutorError, CommittedState},
 };
@@ -61,7 +61,7 @@ pub fn into_executed_payload(
 }
 
 pub struct FlashblocksBlockValidator<Evm: ConfigureEvm, T: FlashblockTypes<Evm>> {
-    pub chain_spec: Arc<WorldChainSpec>,
+    pub chain_spec: Arc<MyChainSpec>,
     pub evm_env: EvmEnvFor<Evm>,
     pub execution_context: OpBlockExecutionCtx,
     pub flashblock_validation_metrics: Arc<FlashblockValidationMetrics>,
@@ -71,7 +71,7 @@ pub struct FlashblocksBlockValidator<Evm: ConfigureEvm, T: FlashblockTypes<Evm>>
 
 impl<Evm: ConfigureEvm + Clone, T: FlashblockTypes<Evm>> FlashblocksBlockValidator<Evm, T> {
     pub fn new(
-        chain_spec: Arc<WorldChainSpec>,
+        chain_spec: Arc<MyChainSpec>,
         evm_env: EvmEnvFor<Evm>,
         execution_context: OpBlockExecutionCtx,
         flashblock_validation_metrics: Arc<FlashblockValidationMetrics>,

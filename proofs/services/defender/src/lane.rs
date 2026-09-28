@@ -1,8 +1,8 @@
 use crate::{error::DefenderError, traits::DefenderClient, types::GameMetadata};
 use alloy_primitives::Bytes;
 use tracing::{error, info, warn};
-use world_chain_proof_protocol::ProofLane;
-use world_chain_prover_service::{
+use my_chain_proof_protocol::ProofLane;
+use my_chain_prover_service::{
     ProofBackend, ProofData, ProofRequest, ProofRequestError, ProofRequestId, ProofRequester,
     ProofResponse, ProofStatus,
 };
@@ -175,7 +175,7 @@ where
             .await
         {
             Ok(submission) => {
-                world_chain_proof_metrics::increment_proof_lanes_submitted(lane.as_str());
+                my_chain_proof_metrics::increment_proof_lanes_submitted(lane.as_str());
                 info!(
                     lifecycle_event = "proof_lane_submitted",
                     game_address = %game,

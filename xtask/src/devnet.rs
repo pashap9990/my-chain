@@ -10,17 +10,17 @@ use clap::{Args as ClapArgs, Parser, Subcommand, ValueEnum};
 use eyre::eyre::{Result, bail};
 use tokio::sync::watch;
 use tracing::{info, warn};
-use world_chain_chainspec::WorldChainHardfork;
-use world_chain_devnet::{
+use my_chain_chainspec::MyChainHardfork;
+use my_chain_devnet::{
     DevnetComponent, DevnetPortMode, HaSequencerConfig, ObservabilityConfig,
-    WorldChainHardforkConfig, WorldDevnet, WorldDevnetBuilder, WorldDevnetPreset,
+    MyChainHardforkConfig, WorldDevnet, WorldDevnetBuilder, WorldDevnetPreset,
 };
-use world_chain_test_utils::DEV_CHAIN_ID;
+use my_chain_test_utils::DEV_CHAIN_ID;
 
 #[cfg(unix)]
 use std::os::unix::process::CommandExt;
 
-/// Manage the native Rust World Chain devnet.
+/// Manage the native Rust My Chain devnet.
 #[derive(Debug, Parser)]
 pub struct Args {
     #[command(subcommand)]
@@ -111,17 +111,17 @@ struct UpArgs {
     #[arg(long, default_value_t = 2000)]
     block_time_ms: u64,
 
-    /// Activate all World Chain hardforks through this fork.
+    /// Activate all My Chain hardforks through this fork.
     #[arg(long, value_parser = parse_hardfork)]
-    latest_hardfork: Option<WorldChainHardfork>,
+    latest_hardfork: Option<MyChainHardfork>,
 
-    /// Enable an individual World Chain hardfork.
+    /// Enable an individual My Chain hardfork.
     #[arg(long = "enable-hardfork", value_parser = parse_hardfork)]
-    enable_hardforks: Vec<WorldChainHardfork>,
+    enable_hardforks: Vec<MyChainHardfork>,
 
-    /// Disable an individual World Chain hardfork.
+    /// Disable an individual My Chain hardfork.
     #[arg(long = "disable-hardfork", value_parser = parse_hardfork)]
-    disable_hardforks: Vec<WorldChainHardfork>,
+    disable_hardforks: Vec<MyChainHardfork>,
 }
 
 #[derive(Debug, Clone, ClapArgs)]
@@ -133,7 +133,7 @@ struct DownArgs {
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, ValueEnum)]
 enum PresetArg {
-    /// One L1 dev chain and one direct-sequencing World Chain node.
+    /// One L1 dev chain and one direct-sequencing My Chain node.
     DirectSequencer,
     /// Minimal direct-sequencing single-node setup.
     Minimal,
@@ -173,7 +173,7 @@ pub fn should_reset_log(args: &Args) -> bool {
     matches!(
         &args.command,
         Command::Up(args)
-            if !args.detach || std::env::var_os("WORLD_CHAIN_DEVNET_BACKGROUND").is_some()
+            if !args.detach || std::env::var_os("MY_CHAIN_DEVNET_BACKGROUND").is_some()
     )
 }
 
@@ -186,7 +186,7 @@ async fn up(args: UpArgs) -> Result<()> {
 
     let mut hardforks = args
         .latest_hardfork
-        .map(WorldChainHardforkConfig::through)
+        .map(MyChainHardforkConfig::through)
         .unwrap_or_default();
 
     for fork in args.enable_hardforks {
@@ -252,7 +252,7 @@ async fn up(args: UpArgs) -> Result<()> {
         sequencers = args.sequencers,
         op_challenger = args.op_challenger && !args.no_op_challenger,
         proof_system = !args.no_proof_system,
-        "Starting native World Chain devnet"
+        "Starting native My Chain devnet"
     );
 
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
@@ -261,7 +261,7 @@ async fn up(args: UpArgs) -> Result<()> {
         result = builder.build() => result?,
         result = &mut ctrl_c => {
             result?;
-            info!("World Chain devnet startup interrupted");
+            info!("My Chain devnet startup interrupted");
             return Ok(());
         }
     };
@@ -358,9 +358,9 @@ async fn spawn_background(args: UpArgs) -> Result<()> {
     let mut command = StdCommand::new(exe);
     command
         .args(background_args(&args))
-        .env("WORLD_CHAIN_DEVNET_BACKGROUND", "1")
-        .env("WORLD_CHAIN_DEVNET_PID_FILE", &pid_path)
-        .env("WORLD_CHAIN_DEVNET_LOG_FILE", &log_path)
+        .env("MY_CHAIN_DEVNET_BACKGROUND", "1")
+        .env("MY_CHAIN_DEVNET_PID_FILE", &pid_path)
+        .env("MY_CHAIN_DEVNET_LOG_FILE", &log_path)
         .stdin(Stdio::null())
         .stdout(Stdio::null())
         .stderr(Stdio::null());
@@ -377,7 +377,7 @@ async fn spawn_background(args: UpArgs) -> Result<()> {
         pid_file = %pid_path.display(),
         log_file = %log_path.display(),
         endpoints_file = %devnet_endpoints_path().display(),
-        "started World Chain devnet in the background"
+        "started My Chain devnet in the background"
     );
     Ok(())
 }
@@ -387,7 +387,7 @@ async fn down(args: DownArgs) -> Result<()> {
     let Some(pid) = read_pid(&pid_path)? else {
         info!(
             pid_file = %pid_path.display(),
-            "no background World Chain devnet pid file found"
+            "no background My Chain devnet pid file found"
         );
         return Ok(());
     };
@@ -396,19 +396,19 @@ async fn down(args: DownArgs) -> Result<()> {
         remove_pid_file(&pid_path)?;
         info!(
             pid,
-            "background World Chain devnet process is not running; removed stale pid file"
+            "background My Chain devnet process is not running; removed stale pid file"
         );
         return Ok(());
     }
 
-    info!(pid, "stopping background World Chain devnet");
+    info!(pid, "stopping background My Chain devnet");
     signal_process(pid, "INT")?;
     let started_at = Instant::now();
     let timeout = Duration::from_secs(args.timeout_secs);
     while started_at.elapsed() < timeout {
         if !process_is_running(pid) {
             remove_pid_file(&pid_path)?;
-            info!(pid, "background World Chain devnet stopped");
+            info!(pid, "background My Chain devnet stopped");
             return Ok(());
         }
         tokio::time::sleep(Duration::from_millis(500)).await;
@@ -487,19 +487,19 @@ fn background_args(args: &UpArgs) -> Vec<String> {
 }
 
 fn devnet_pid_path() -> PathBuf {
-    std::env::var_os("WORLD_CHAIN_DEVNET_PID_FILE")
+    std::env::var_os("MY_CHAIN_DEVNET_PID_FILE")
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from("target/devnet/devnet.pid"))
 }
 
 fn devnet_log_path() -> PathBuf {
-    std::env::var_os("WORLD_CHAIN_DEVNET_LOG_FILE")
+    std::env::var_os("MY_CHAIN_DEVNET_LOG_FILE")
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from("target/devnet/logs/devnet.log"))
 }
 
 fn devnet_endpoints_path() -> PathBuf {
-    std::env::var_os("WORLD_CHAIN_DEVNET_ENDPOINTS_FILE")
+    std::env::var_os("MY_CHAIN_DEVNET_ENDPOINTS_FILE")
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from("target/devnet/endpoints.json"))
 }
@@ -558,7 +558,7 @@ fn write_endpoints_file(devnet: &WorldDevnet, path: &Path) -> Result<()> {
     });
 
     fs::write(path, serde_json::to_vec_pretty(&endpoints)?)?;
-    info!(path = %path.display(), "wrote World Chain devnet endpoints file");
+    info!(path = %path.display(), "wrote My Chain devnet endpoints file");
     Ok(())
 }
 
@@ -618,7 +618,7 @@ struct BackgroundPidFileGuard {
 
 impl BackgroundPidFileGuard {
     fn from_env() -> Option<Self> {
-        std::env::var_os("WORLD_CHAIN_DEVNET_BACKGROUND")?;
+        std::env::var_os("MY_CHAIN_DEVNET_BACKGROUND")?;
         let path = devnet_pid_path();
         Some(Self { path })
     }
@@ -635,8 +635,8 @@ impl Drop for BackgroundPidFileGuard {
     }
 }
 
-fn parse_hardfork(value: &str) -> std::result::Result<WorldChainHardfork, String> {
-    WorldChainHardfork::from_str(value).map_err(|err| err.to_string())
+fn parse_hardfork(value: &str) -> std::result::Result<MyChainHardfork, String> {
+    MyChainHardfork::from_str(value).map_err(|err| err.to_string())
 }
 
 fn print_components(components: &[DevnetComponent]) {

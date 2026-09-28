@@ -25,14 +25,14 @@ use reth_revm::cancelled::CancelOnDrop;
 ///     // ...
 /// }
 ///
-/// impl PayloadBuilderCtxBuilder<WorldChainEvmConfig, WorldChainSpec, MyTransaction> for MyCtxBuilder {
+/// impl PayloadBuilderCtxBuilder<MyChainEvmConfig, MyChainSpec, MyTransaction> for MyCtxBuilder {
 ///     type PayloadBuilderCtx = MyPayloadBuilderCtx;
 ///
 ///     fn build<Txs>(
 ///         &self,
-///         evm: WorldChainEvmConfig,
+///         evm: MyChainEvmConfig,
 ///         da_config: OpDAConfig,
-///         chain_spec: Arc<WorldChainSpec>,
+///         chain_spec: Arc<MyChainSpec>,
 ///         config: PayloadConfig<OpPayloadBuilderAttributes<OpTxEnvelope>, Header>,
 ///         cancel: &CancelOnDrop,
 ///         best_payload: Option<OpBuiltPayload>,

@@ -1,4 +1,4 @@
-//! World Chain `admin` namespace extension exposing runtime log-filter control.
+//! My Chain `admin` namespace extension exposing runtime log-filter control.
 //!
 //! `admin_tracingDirectives` ephemerally overrides the node's tracing filter
 //! (e.g. to raise a module to `trace` while debugging) and automatically
@@ -19,7 +19,7 @@ use jsonrpsee_types::error::INTERNAL_ERROR_CODE;
 use serde::{Deserialize, Serialize};
 use tokio::task::JoinHandle;
 use tracing::{info, warn};
-use world_chain_primitives::tracing::startup_tracing_directives;
+use my_chain_primitives::tracing::startup_tracing_directives;
 
 /// Maximum permitted TTL for an ephemeral tracing override (1 hour). Bounds how
 /// long an elevated filter can degrade the node before auto-reverting.
@@ -92,13 +92,13 @@ struct RevertState {
     task: Option<JoinHandle<()>>,
 }
 
-/// World Chain `admin` namespace extension.
+/// My Chain `admin` namespace extension.
 #[derive(Debug, Clone, Default)]
-pub struct WorldChainAdminApiExt {
+pub struct MyChainAdminApiExt {
     revert: Arc<Mutex<RevertState>>,
 }
 
-impl WorldChainAdminApiExt {
+impl MyChainAdminApiExt {
     pub fn new() -> Self {
         Self::default()
     }
@@ -129,7 +129,7 @@ fn validate(req: &TracingDirectivesRequest) -> Result<&str, ErrorObjectOwned> {
 }
 
 #[async_trait]
-impl AdminApiExtServer for WorldChainAdminApiExt {
+impl AdminApiExtServer for MyChainAdminApiExt {
     async fn tracing_directives(
         &self,
         req: TracingDirectivesRequest,
@@ -178,12 +178,12 @@ impl AdminApiExtServer for WorldChainAdminApiExt {
             }
             match reth_tracing::set_log_vmodule(&revert_baseline) {
                 Ok(()) => info!(
-                    target: "world_chain::admin",
+                    target: "my_chain::admin",
                     baseline = %revert_baseline,
                     "Reverted tracing directives to startup configuration after TTL"
                 ),
                 Err(err) => warn!(
-                    target: "world_chain::admin",
+                    target: "my_chain::admin",
                     %err,
                     "Failed to revert tracing directives after TTL"
                 ),
@@ -194,7 +194,7 @@ impl AdminApiExtServer for WorldChainAdminApiExt {
         drop(state);
 
         info!(
-            target: "world_chain::admin",
+            target: "my_chain::admin",
             %directives,
             ttl_secs = ttl,
             "Applied ephemeral tracing directives override"

@@ -8,21 +8,21 @@ use reth_optimism_chainspec::make_op_genesis_header;
 use reth_primitives_traits::SealedHeader;
 
 use crate::{
-    WorldChainHardfork, WorldChainSpec,
+    MyChainHardfork, MyChainSpec,
     spec::{convert_op_hardfork, convert_op_hardforks},
 };
 
-/// Chain spec builder for a World Chain stack chain.
+/// Chain spec builder for a My Chain stack chain.
 #[derive(Debug, Default, From)]
-pub struct WorldChainSpecBuilder {
+pub struct MyChainSpecBuilder {
     /// Inner reth chain spec builder.
     inner: ChainSpecBuilder,
 }
 
-impl WorldChainSpecBuilder {
+impl MyChainSpecBuilder {
     /// Construct a new builder from the World Chain mainnet chain spec.
     pub fn mainnet() -> Self {
-        let spec = WorldChainSpec::mainnet();
+        let spec = MyChainSpec::mainnet();
         let mut inner = ChainSpecBuilder::default()
             .chain(spec.chain)
             .genesis(spec.genesis.clone());
@@ -33,7 +33,7 @@ impl WorldChainSpecBuilder {
 
     /// Construct a new builder from the World Chain Sepolia chain spec.
     pub fn sepolia() -> Self {
-        let spec = WorldChainSpec::sepolia();
+        let spec = MyChainSpec::sepolia();
         let mut inner = ChainSpecBuilder::default()
             .chain(spec.chain)
             .genesis(spec.genesis.clone());
@@ -71,7 +71,7 @@ impl WorldChainSpecBuilder {
     }
 
     /// Remove the given fork from the spec.
-    pub fn without_fork(mut self, fork: WorldChainHardfork) -> Self {
+    pub fn without_fork(mut self, fork: MyChainHardfork) -> Self {
         self.inner = self.inner.without_fork(fork);
         self
     }
@@ -81,7 +81,7 @@ impl WorldChainSpecBuilder {
         self.inner = self.inner.paris_activated();
         self.inner = self
             .inner
-            .with_fork(WorldChainHardfork::Bedrock, ForkCondition::Block(0));
+            .with_fork(MyChainHardfork::Bedrock, ForkCondition::Block(0));
         self
     }
 
@@ -90,7 +90,7 @@ impl WorldChainSpecBuilder {
         self = self.bedrock_activated();
         self.inner = self
             .inner
-            .with_fork(WorldChainHardfork::Regolith, ForkCondition::Timestamp(0));
+            .with_fork(MyChainHardfork::Regolith, ForkCondition::Timestamp(0));
         self
     }
 
@@ -102,7 +102,7 @@ impl WorldChainSpecBuilder {
             .with_fork(EthereumHardfork::Shanghai, ForkCondition::Timestamp(0));
         self.inner = self
             .inner
-            .with_fork(WorldChainHardfork::Canyon, ForkCondition::Timestamp(0));
+            .with_fork(MyChainHardfork::Canyon, ForkCondition::Timestamp(0));
         self
     }
 
@@ -114,7 +114,7 @@ impl WorldChainSpecBuilder {
             .with_fork(EthereumHardfork::Cancun, ForkCondition::Timestamp(0));
         self.inner = self
             .inner
-            .with_fork(WorldChainHardfork::Ecotone, ForkCondition::Timestamp(0));
+            .with_fork(MyChainHardfork::Ecotone, ForkCondition::Timestamp(0));
         self
     }
 
@@ -123,7 +123,7 @@ impl WorldChainSpecBuilder {
         self = self.ecotone_activated();
         self.inner = self
             .inner
-            .with_fork(WorldChainHardfork::Fjord, ForkCondition::Timestamp(0));
+            .with_fork(MyChainHardfork::Fjord, ForkCondition::Timestamp(0));
         self
     }
 
@@ -132,7 +132,7 @@ impl WorldChainSpecBuilder {
         self = self.fjord_activated();
         self.inner = self
             .inner
-            .with_fork(WorldChainHardfork::Granite, ForkCondition::Timestamp(0));
+            .with_fork(MyChainHardfork::Granite, ForkCondition::Timestamp(0));
         self
     }
 
@@ -141,7 +141,7 @@ impl WorldChainSpecBuilder {
         self = self.granite_activated();
         self.inner = self
             .inner
-            .with_fork(WorldChainHardfork::Holocene, ForkCondition::Timestamp(0));
+            .with_fork(MyChainHardfork::Holocene, ForkCondition::Timestamp(0));
         self
     }
 
@@ -153,7 +153,7 @@ impl WorldChainSpecBuilder {
             .with_fork(EthereumHardfork::Prague, ForkCondition::Timestamp(0));
         self.inner = self
             .inner
-            .with_fork(WorldChainHardfork::Isthmus, ForkCondition::Timestamp(0));
+            .with_fork(MyChainHardfork::Isthmus, ForkCondition::Timestamp(0));
         self
     }
 
@@ -162,7 +162,7 @@ impl WorldChainSpecBuilder {
         self = self.isthmus_activated();
         self.inner = self
             .inner
-            .with_fork(WorldChainHardfork::Jovian, ForkCondition::Timestamp(0));
+            .with_fork(MyChainHardfork::Jovian, ForkCondition::Timestamp(0));
         self
     }
 
@@ -174,7 +174,7 @@ impl WorldChainSpecBuilder {
             .with_fork(EthereumHardfork::Osaka, ForkCondition::Timestamp(0));
         self.inner = self
             .inner
-            .with_fork(WorldChainHardfork::Karst, ForkCondition::Timestamp(0));
+            .with_fork(MyChainHardfork::Karst, ForkCondition::Timestamp(0));
         self
     }
 
@@ -183,7 +183,7 @@ impl WorldChainSpecBuilder {
         self = self.karst_activated();
         self.inner = self
             .inner
-            .with_fork(WorldChainHardfork::Tropo, ForkCondition::Timestamp(0));
+            .with_fork(MyChainHardfork::Tropo, ForkCondition::Timestamp(0));
         self
     }
 
@@ -192,16 +192,16 @@ impl WorldChainSpecBuilder {
         self = self.tropo_activated();
         self.inner = self
             .inner
-            .with_fork(WorldChainHardfork::Strato, ForkCondition::Timestamp(0));
+            .with_fork(MyChainHardfork::Strato, ForkCondition::Timestamp(0));
         self
     }
 
-    /// Build the resulting [`WorldChainSpec`].
+    /// Build the resulting [`MyChainSpec`].
     ///
     /// # Panics
     ///
     /// Panics if chain ID or genesis is not set.
-    pub fn build(self) -> WorldChainSpec {
+    pub fn build(self) -> MyChainSpec {
         let mut inner = self.inner.build();
         inner.hardforks = convert_op_hardforks(&inner.hardforks);
         inner.genesis_header =
@@ -210,6 +210,6 @@ impl WorldChainSpecBuilder {
             .paris_block_and_final_difficulty
             .get_or_insert((0, U256::ZERO));
 
-        WorldChainSpec { inner }
+        MyChainSpec { inner }
     }
 }

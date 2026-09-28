@@ -1,4 +1,4 @@
-//! World Chain proposer primitives.
+//! My Chain proposer primitives.
 //!
 //! The proposer watches L2 output roots and creates WIP-1006 `MultiProofGame`
 //! contracts on L1 through the stock OP Stack `DisputeGameFactory`.
@@ -20,7 +20,7 @@ pub use config::{
     ProposerConfig,
 };
 pub use error::ProposerError;
-pub use proposer::WorldChainProposer;
+pub use proposer::MyChainProposer;
 pub use traits::{BondManagerClient, ProposerClient};
 pub use types::{
     CloseGameSubmission, NextProposalAction, Proposal, ProposalSubmission, ProposerScan,

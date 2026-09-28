@@ -14,4 +14,4 @@ pub mod version;
 pub use version::{init_version_metadata, version_metadata};
 
 // Re-export for ease of use
-pub use world_chain_rpc::op::{FlashblocksOpApi, OpApiExtServer};
+pub use my_chain_rpc::op::{FlashblocksOpApi, OpApiExtServer};

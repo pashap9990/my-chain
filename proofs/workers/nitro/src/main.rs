@@ -7,7 +7,7 @@ use clap::{Parser, Subcommand};
 use cmd::{get_attestation::GetAttestationArgs, register::RegisterArgs, run::WorkerArgs};
 #[cfg(target_os = "linux")]
 #[derive(Parser)]
-#[command(name = "nitro-worker", about = "World Chain Nitro TEE proving worker")]
+#[command(name = "nitro-worker", about = "My Chain Nitro TEE proving worker")]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -39,7 +39,7 @@ async fn main() -> anyhow::Result<()> {
         Command::Run(args) => {
             let _telemetry_guard = telemetry_batteries::init()
                 .map_err(|error| anyhow::anyhow!("failed to initialize telemetry: {error:#}"))?;
-            world_chain_proof_metrics::describe_metrics();
+            my_chain_proof_metrics::describe_metrics();
             cmd::run::run(*args).await?;
         }
         Command::GetAttestation(args) => cmd::get_attestation::get_attestation(args).await?,

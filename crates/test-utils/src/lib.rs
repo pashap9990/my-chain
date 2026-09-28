@@ -1,4 +1,4 @@
-//! Test utilities for PBH, World Chain devnet fixtures, and the e2e harness.
+//! Test utilities for PBH, My Chain devnet fixtures, and the e2e harness.
 //!
 //! Public constants in this crate are consumed by downstream integration tests.
 //! Internal harness constants stay `pub(crate)` so the chain-spec setup can share
@@ -11,7 +11,7 @@ use revm_primitives::{Address, address};
 ///
 /// The fixture stays in JSON form so the harness can start from the same
 /// baseline accounts and fork configuration as the devnet, then layer test-only
-/// accounts on top before sealing the `WorldChainSpec`.
+/// accounts on top before sealing the `MyChainSpec`.
 pub(crate) const GENESIS: &str = include_str!("../res/genesis.json");
 
 /// Optimism L1 block info predeploy.
@@ -32,7 +32,7 @@ pub(crate) const SYSTEM_DEPOSITOR: Address = address!("DeaDDEaDDeAdDeAdDEAdDEadd
 /// Function selector for the Optimism L1 attributes call.
 ///
 /// The selector matches the Ecotone-era L1 block attributes transaction used by
-/// World Chain nodes. The harness currently fills the payload with zero values
+/// My Chain nodes. The harness currently fills the payload with zero values
 /// because these tests only need a structurally valid system deposit. Keeping
 /// the selector named avoids burying protocol calldata in the transaction
 /// builder.
@@ -40,7 +40,7 @@ pub(crate) const SET_L1_BLOCK_SELECTOR: [u8; 4] = [0x44, 0x0a, 0x5e, 0x20];
 
 /// Test-harness address for the `WorldIDAccountManager` proxy.
 ///
-/// World Chain exposes account-manager behavior through the WIP-1001 precompile
+/// My Chain exposes account-manager behavior through the WIP-1001 precompile
 /// address `0x...001d`. Preloading a proxy at the same address lets e2e tests
 /// exercise calls through the production address without deploying contracts at
 /// runtime.
@@ -294,14 +294,14 @@ pub const TEST_MODULES: [Address; 6] = [
     address!("4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1"),
 ];
 
-/// World Chain Sepolia chain ID.
+/// My Chain Sepolia chain ID.
 ///
 /// This is used when signing or hashing user operations for tests and tooling
-/// that target the public World Chain Sepolia environment instead of the local
+/// that target the public My Chain Sepolia environment instead of the local
 /// dev chain.
 pub const WC_SEPOLIA_CHAIN_ID: u64 = 4801;
 
-/// Local World Chain devnet chain ID used by the e2e harness.
+/// Local My Chain devnet chain ID used by the e2e harness.
 ///
 /// User-operation hashes and transaction signatures in local tests must use
 /// this value to match the chain spec built from the bundled genesis fixture.

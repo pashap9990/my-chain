@@ -77,7 +77,7 @@ impl Default for OpContractDeploymentConfig {
     }
 }
 
-/// World Chain contract deployment scope for the native devnet.
+/// My Chain contract deployment scope for the native devnet.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WorldContractsDeploymentConfig {
     /// Deploy WIP-1006 proof-system contracts on the local L1.
@@ -152,7 +152,7 @@ pub struct HaSequencerConfig {
     pub images: OpStackImages,
     /// OP contract deployment configuration.
     pub op_contracts: OpContractDeploymentConfig,
-    /// World Chain contract deployment configuration.
+    /// My Chain contract deployment configuration.
     pub world_contracts: WorldContractsDeploymentConfig,
 }
 
@@ -223,7 +223,7 @@ impl OpConductorConfig {
             consensus_addr: "0.0.0.0".to_string(),
             consensus_advertised: format!("op-conductor-{index}:50050"),
             node_rpc: format!("http://op-node-{index}:8547"),
-            execution_rpc: format!("http://world-chain-el-{index}:8545"),
+            execution_rpc: format!("http://my-chain-el-{index}:8545"),
             raft_storage_dir: "/data/op-conductor".to_string(),
             raft_bootstrap: index == 0,
             paused: index != 0,
@@ -288,7 +288,7 @@ impl OpChallengerConfig {
         Self {
             l1_eth_rpc: "http://l1-dev-chain:8545".to_string(),
             l1_beacon: "http://l1-dev-chain:5052".to_string(),
-            l2_eth_rpc: "http://world-chain-el-0:8545".to_string(),
+            l2_eth_rpc: "http://my-chain-el-0:8545".to_string(),
             rollup_rpc: "http://op-node-0:8547".to_string(),
             game_factory_address: None,
             datadir: "/data/op-challenger".to_string(),
@@ -365,11 +365,11 @@ impl HaSequencerTopology {
         for index in 0..config.sequencer_count {
             components.push(
                 DevnetComponent::new(
-                    format!("world-chain-el-{index}"),
-                    DevnetComponentKind::WorldChainExecutionNode,
+                    format!("my-chain-el-{index}"),
+                    DevnetComponentKind::MyChainExecutionNode,
                     DevnetComponentStatus::Planned,
                 )
-                .with_note("native direct-sequencing World Chain execution/client process"),
+                .with_note("native direct-sequencing My Chain execution/client process"),
             );
             components.push(
                 DevnetComponent::new(
@@ -427,16 +427,16 @@ impl HaSequencerTopology {
             );
             components.push(
                 DevnetComponent::new(
-                    "world-chain-proposer",
-                    DevnetComponentKind::WorldChainProposer,
+                    "my-chain-proposer",
+                    DevnetComponentKind::MyChainProposer,
                     DevnetComponentStatus::Planned,
                 )
                 .with_note("native proposer posting OP output roots to the WIP-1006 proof system"),
             );
             components.push(
                 DevnetComponent::new(
-                    "world-chain-challenger",
-                    DevnetComponentKind::WorldChainChallenger,
+                    "my-chain-challenger",
+                    DevnetComponentKind::MyChainChallenger,
                     DevnetComponentStatus::Planned,
                 )
                 .with_note("native challenger disputing invalid WIP-1006 proof-system games"),
@@ -499,7 +499,7 @@ impl HaSequencerTopology {
                 DevnetComponentKind::RemovedLegacyService,
                 DevnetComponentStatus::Removed,
             )
-            .with_note("removed from the new default topology; World Chain sequences directly"),
+            .with_note("removed from the new default topology; My Chain sequences directly"),
             DevnetComponent::new(
                 "tx-proxy",
                 DevnetComponentKind::RemovedLegacyService,
@@ -542,7 +542,7 @@ mod tests {
 
         assert_eq!(count(DevnetComponentKind::L1DevChain), 1);
         assert_eq!(count(DevnetComponentKind::OpContractDeployer), 1);
-        assert_eq!(count(DevnetComponentKind::WorldChainExecutionNode), 3);
+        assert_eq!(count(DevnetComponentKind::MyChainExecutionNode), 3);
         assert_eq!(count(DevnetComponentKind::OpNode), 3);
         assert_eq!(count(DevnetComponentKind::OpConductor), 3);
         assert_eq!(count(DevnetComponentKind::OpBatcher), 1);
@@ -552,8 +552,8 @@ mod tests {
         assert_eq!(count(DevnetComponentKind::Grafana), 1);
         assert_eq!(count(DevnetComponentKind::WorldContractsDeployer), 1);
         assert_eq!(count(DevnetComponentKind::WorldProofSystem), 1);
-        assert_eq!(count(DevnetComponentKind::WorldChainProposer), 1);
-        assert_eq!(count(DevnetComponentKind::WorldChainChallenger), 1);
+        assert_eq!(count(DevnetComponentKind::MyChainProposer), 1);
+        assert_eq!(count(DevnetComponentKind::MyChainChallenger), 1);
         assert!(topology.components.iter().any(|component| component.kind
             == DevnetComponentKind::WorldContractsDeployer
             && component.status == DevnetComponentStatus::Planned));

@@ -18,7 +18,7 @@ use sp1_sdk::{
 };
 use tokio::time::MissedTickBehavior;
 use world_chain_proof_core::types::AggregationInputs;
-use world_chain_proof_sp1_types::{AggregationProofRequest, RangeProofRequest, Sp1ProofRequest};
+use my_chain_proof_sp1_types::{AggregationProofRequest, RangeProofRequest, Sp1ProofRequest};
 
 const LOCAL_LIMIT_ESTIMATION_HEARTBEAT_INTERVAL: Duration = Duration::from_secs(15 * 60);
 
@@ -143,7 +143,7 @@ impl NetworkCreditClient {
 
 impl NetworkSuccinctProver {
     /// Creates the prover using caller-supplied ELFs. Use this in production binaries with
-    /// ELFs embedded at compile time via `world_chain_proof_sp1_elfs`.
+    /// ELFs embedded at compile time via `my_chain_proof_sp1_elfs`.
     pub async fn new(
         agg_mode: SP1ProofMode,
         secret: &str,
@@ -179,8 +179,8 @@ impl NetworkSuccinctProver {
             auction_timeout,
             proof_timeout,
         } = request_config;
-        let range_elf = world_chain_proof_sp1_elfs::range_elf();
-        let agg_elf = world_chain_proof_sp1_elfs::aggregation_elf();
+        let range_elf = my_chain_proof_sp1_elfs::range_elf();
+        let agg_elf = my_chain_proof_sp1_elfs::aggregation_elf();
         let client =
             NetworkProver::new(connection.signer, &connection.rpc_url, connection.mode).await;
         let range_pk = client

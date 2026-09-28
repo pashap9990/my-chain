@@ -11,7 +11,7 @@
 //! Run with:
 //! ```sh
 //! WORLDCHAIN_PROVIDER=https://worldchain-mainnet.g.alchemy.com/v2/<KEY> \
-//!   cargo test -p world-chain-rpc --test fork_simulate -- --nocapture
+//!   cargo test -p my-chain-rpc --test fork_simulate -- --nocapture
 //! ```
 
 use alloy_op_evm::{OpEvmFactory, OpTx};
@@ -32,7 +32,7 @@ use revm_database::{AlloyDB, CacheDB, WrapDatabaseAsync};
 use revm_primitives::TxKind;
 use std::str::FromStr;
 
-use world_chain_rpc::simulate::{
+use my_chain_rpc::simulate::{
     AssetType, ContractManagementType, SimulationInspector, TraceKind, TraceOutcome,
     assemble_contract_management, decode_revert_reason, parse_asset_changes,
     parse_contract_management_events, parse_exposure_changes, relax_cfg_for_simulation,
@@ -168,7 +168,7 @@ fn ant_metadata_evm_env() -> reth_evm::EvmEnv<OpSpecId> {
     env
 }
 
-/// Create a forked CacheDB backed by an AlloyDB hitting the World Chain RPC.
+/// Create a forked CacheDB backed by an AlloyDB hitting the My Chain RPC.
 /// Uses `RootProvider` directly (which implements Debug, satisfying revm bounds).
 fn make_forked_db() -> Option<
     CacheDB<
@@ -981,7 +981,7 @@ async fn test_trace_detects_malicious_safe_call() {
     // forbidden selector. The inspector captures this as a depth-1 trace
     // if wrapped in an outer call.
 
-    // World Chain Safe Singleton (v1.3.0)
+    // My Chain Safe Singleton (v1.3.0)
     let safe_singleton = address!("d9Db270c1B5E3Bd161E8c8503c55cEABeE709552");
 
     // Build calldata: addOwnerWithThreshold(address owner, uint256 threshold)
@@ -1624,7 +1624,7 @@ async fn test_inspector_drops_create_on_parent_revert() {
 /// snake_case, and is omitted for non-CREATION actions.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn test_contract_management_action_serialization() {
-    use world_chain_rpc::simulate::ContractManagementAction;
+    use my_chain_rpc::simulate::ContractManagementAction;
 
     let creation = ContractManagementAction {
         action_type: ContractManagementType::ContractCreation,

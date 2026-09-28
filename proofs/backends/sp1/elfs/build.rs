@@ -1,4 +1,4 @@
-//! Build script: compile the World Chain SP1 guest programs and emit
+//! Build script: compile the My Chain SP1 guest programs and emit
 //! `SP1_ELF_<crate>` environment variables for `sp1_sdk::include_elf!()`.
 //!
 //! This is the OP Succinct upstream pattern (see `utils/build/` in

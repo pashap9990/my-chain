@@ -1,5 +1,5 @@
 use tracing::{info, warn};
-use world_chain_proof_protocol::{GameStatus, InvalidationReason};
+use my_chain_proof_protocol::{GameStatus, InvalidationReason};
 
 use crate::{ChallengerError, OwnedGames, ResolutionManagerClient, ResolutionManagerConfig};
 

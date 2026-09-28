@@ -53,20 +53,20 @@ use std::{
     time::Duration,
 };
 use tracing::{info, span};
-use world_chain_chainspec::{WorldChainSpec, WorldChainSpecBuilder};
-use world_chain_node::{
+use my_chain_chainspec::{MyChainSpec, MyChainSpecBuilder};
+use my_chain_node::{
     FlashblocksOpApi, OpApiExtServer,
-    node::{WorldChainNode, WorldChainNodeContext, WorldChainNodePrimitiveTypes},
+    node::{MyChainNode, MyChainNodeContext, MyChainNodePrimitiveTypes},
 };
-use world_chain_primitives::{
+use my_chain_primitives::{
     flashblocks::Flashblock, p2p::Authorization, payload_id::force_op_payload_id_v3,
 };
 
-use world_chain_pool::{
+use my_chain_pool::{
     root::LATEST_ROOT_SLOT,
     validator::{MAX_U16, PBH_GAS_LIMIT_SLOT, PBH_NONCE_LIMIT_SLOT},
 };
-use world_chain_rpc::{EthApiExtServer, SequencerClient, WorldChainEthApiExt};
+use my_chain_rpc::{EthApiExtServer, SequencerClient, MyChainEthApiExt};
 
 use super::spammer::{TxSpammer, TxType};
 
@@ -145,35 +145,35 @@ fn create_l1_attributes_deposit_tx() -> Bytes {
 /// need the transaction to satisfy block-shape rules.
 pub static TX_SET_L1_BLOCK: LazyLock<Bytes> = LazyLock::new(create_l1_attributes_deposit_tx);
 
-pub struct WorldChainTestingNodeContext<T: WorldChainTestContextBounds>
+pub struct MyChainTestingNodeContext<T: MyChainTestContextBounds>
 where
-    WorldChainNode<T>: WorldChainNodeTestBounds<T>,
+    MyChainNode<T>: MyChainNodeTestBounds<T>,
 {
-    pub node: WorldChainNodeTestContext<T>,
-    pub ext_context: WorldChainNodeExtContext<T>,
-    pub beacon_engine_handle: ConsensusEngineHandle<<WorldChainNode<T> as NodeTypes>::Payload>,
+    pub node: MyChainNodeTestContext<T>,
+    pub ext_context: MyChainNodeExtContext<T>,
+    pub beacon_engine_handle: ConsensusEngineHandle<<MyChainNode<T> as NodeTypes>::Payload>,
 }
 
-type WorldChainNodeExtContext<T> = <T as WorldChainNodeContext<
+type MyChainNodeExtContext<T> = <T as MyChainNodeContext<
     FullNodeTypesAdapter<
-        WorldChainNode<T>,
+        MyChainNode<T>,
         TmpDB,
-        BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<T>, TmpDB>>,
+        BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<T>, TmpDB>>,
     >,
 >>::ExtContext;
 
-type WorldChainNodeTestContext<T> = NodeHelperType<
-    WorldChainNode<T>,
-    BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<T>, TmpDB>>,
+type MyChainNodeTestContext<T> = NodeHelperType<
+    MyChainNode<T>,
+    BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<T>, TmpDB>>,
 >;
 
-/// Builder for in-process World Chain test swarms.
+/// Builder for in-process My Chain test swarms.
 ///
 /// The defaults match the historical `setup` helper: one node, default chain
 /// spec, transaction gossip enabled, flashblocks disabled, and no block-size
 /// override.
 #[derive(Clone, Debug, Builder)]
-pub struct WorldChainTestBuilder {
+pub struct MyChainTestBuilder {
     #[builder(default = 1)]
     nodes: u8,
     #[builder(default)]
@@ -189,25 +189,25 @@ pub struct WorldChainTestBuilder {
     admin_rpc: bool,
     block_uncompressed_size_limit: Option<u64>,
     #[builder(default = Arc::new(CHAIN_SPEC.clone()))]
-    chain_spec: Arc<WorldChainSpec>,
+    chain_spec: Arc<MyChainSpec>,
 }
 
-impl WorldChainTestBuilder {
+impl MyChainTestBuilder {
     pub async fn setup<T>(
         self,
     ) -> eyre::Result<(
         Range<u8>,
-        Vec<WorldChainTestingNodeContext<T>>,
+        Vec<MyChainTestingNodeContext<T>>,
         TaskExecutor,
-        Environment<<WorldChainNode<T> as NodeTypes>::Payload>,
-        TxSpammer<<WorldChainNode<T> as NodeTypes>::Payload>,
+        Environment<<MyChainNode<T> as NodeTypes>::Payload>,
+        TxSpammer<<MyChainNode<T> as NodeTypes>::Payload>,
     )>
     where
-        T: WorldChainTestContextBounds<ChainSpec = WorldChainSpec>,
-        <WorldChainNode<T> as NodeTypes>::Payload: PayloadTypes<PayloadAttributes = OpPayloadAttrs>,
-        WorldChainNode<T>: WorldChainNodeTestBounds<T>,
+        T: MyChainTestContextBounds<ChainSpec = MyChainSpec>,
+        <MyChainNode<T> as NodeTypes>::Payload: PayloadTypes<PayloadAttributes = OpPayloadAttrs>,
+        MyChainNode<T>: MyChainNodeTestBounds<T>,
     {
-        self.setup_with::<T, _>(world_chain_payload_attributes)
+        self.setup_with::<T, _>(my_chain_payload_attributes)
             .await
     }
 
@@ -216,18 +216,18 @@ impl WorldChainTestBuilder {
         attributes_generator: G,
     ) -> eyre::Result<(
         Range<u8>,
-        Vec<WorldChainTestingNodeContext<T>>,
+        Vec<MyChainTestingNodeContext<T>>,
         TaskExecutor,
-        Environment<<WorldChainNode<T> as NodeTypes>::Payload>,
-        TxSpammer<<WorldChainNode<T> as NodeTypes>::Payload>,
+        Environment<<MyChainNode<T> as NodeTypes>::Payload>,
+        TxSpammer<<MyChainNode<T> as NodeTypes>::Payload>,
     )>
     where
-        T: WorldChainTestContextBounds<ChainSpec = WorldChainSpec>,
-        WorldChainNode<T>: WorldChainNodeTestBounds<T>,
+        T: MyChainTestContextBounds<ChainSpec = MyChainSpec>,
+        MyChainNode<T>: MyChainNodeTestBounds<T>,
         G: Fn(
                 u64,
             )
-                -> <<WorldChainNode<T> as NodeTypes>::Payload as PayloadTypes>::PayloadAttributes
+                -> <<MyChainNode<T> as NodeTypes>::Payload as PayloadTypes>::PayloadAttributes
             + Send
             + Sync
             + Copy
@@ -250,20 +250,20 @@ impl WorldChainTestBuilder {
 
 pub async fn setup<T>(
     num_nodes: u8,
-    attributes_generator: impl Fn(u64) -> <<WorldChainNode<T> as NodeTypes>::Payload as PayloadTypes>::PayloadAttributes + Send + Sync + Copy + 'static,
+    attributes_generator: impl Fn(u64) -> <<MyChainNode<T> as NodeTypes>::Payload as PayloadTypes>::PayloadAttributes + Send + Sync + Copy + 'static,
     flashblocks_enabled: bool,
 ) -> eyre::Result<(
     Range<u8>,
-    Vec<WorldChainTestingNodeContext<T>>,
+    Vec<MyChainTestingNodeContext<T>>,
     TaskExecutor,
-    Environment<<WorldChainNode<T> as NodeTypes>::Payload>,
-    TxSpammer<<WorldChainNode<T> as NodeTypes>::Payload>,
+    Environment<<MyChainNode<T> as NodeTypes>::Payload>,
+    TxSpammer<<MyChainNode<T> as NodeTypes>::Payload>,
 )>
 where
-    T: WorldChainTestContextBounds<ChainSpec = WorldChainSpec>,
-    WorldChainNode<T>: WorldChainNodeTestBounds<T>,
+    T: MyChainTestContextBounds<ChainSpec = MyChainSpec>,
+    MyChainNode<T>: MyChainNodeTestBounds<T>,
 {
-    WorldChainTestBuilder::builder()
+    MyChainTestBuilder::builder()
         .nodes(num_nodes)
         .flashblocks(flashblocks_enabled)
         .build()
@@ -273,22 +273,22 @@ where
 
 pub async fn setup_with_block_uncompressed_size_limit<T>(
     num_nodes: u8,
-    attributes_generator: impl Fn(u64) -> <<WorldChainNode<T> as NodeTypes>::Payload as PayloadTypes>::PayloadAttributes + Send + Sync + Copy + 'static,
+    attributes_generator: impl Fn(u64) -> <<MyChainNode<T> as NodeTypes>::Payload as PayloadTypes>::PayloadAttributes + Send + Sync + Copy + 'static,
     flashblocks_enabled: bool,
     block_uncompressed_size_limit: Option<u64>,
-    chain_spec: Arc<WorldChainSpec>,
+    chain_spec: Arc<MyChainSpec>,
 ) -> eyre::Result<(
     Range<u8>,
-    Vec<WorldChainTestingNodeContext<T>>,
+    Vec<MyChainTestingNodeContext<T>>,
     TaskExecutor,
-    Environment<<WorldChainNode<T> as NodeTypes>::Payload>,
-    TxSpammer<<WorldChainNode<T> as NodeTypes>::Payload>,
+    Environment<<MyChainNode<T> as NodeTypes>::Payload>,
+    TxSpammer<<MyChainNode<T> as NodeTypes>::Payload>,
 )>
 where
-    T: WorldChainTestContextBounds<ChainSpec = WorldChainSpec>,
-    WorldChainNode<T>: WorldChainNodeTestBounds<T>,
+    T: MyChainTestContextBounds<ChainSpec = MyChainSpec>,
+    MyChainNode<T>: MyChainNodeTestBounds<T>,
 {
-    WorldChainTestBuilder::builder()
+    MyChainTestBuilder::builder()
         .nodes(num_nodes)
         .flashblocks(flashblocks_enabled)
         .maybe_block_uncompressed_size_limit(block_uncompressed_size_limit)
@@ -301,23 +301,23 @@ where
 /// Setup multiple nodes with optional transaction propagation peer configuration
 pub async fn setup_with_tx_peers<T>(
     num_nodes: u8,
-    attributes_generator: impl Fn(u64) -> <<WorldChainNode<T> as NodeTypes>::Payload as PayloadTypes>::PayloadAttributes + Send + Sync + Copy + 'static,
+    attributes_generator: impl Fn(u64) -> <<MyChainNode<T> as NodeTypes>::Payload as PayloadTypes>::PayloadAttributes + Send + Sync + Copy + 'static,
     enable_tx_peers: bool,
     disable_gossip: bool,
     flashblocks_enabled: bool,
-    chain_spec: Arc<WorldChainSpec>,
+    chain_spec: Arc<MyChainSpec>,
 ) -> eyre::Result<(
     Range<u8>,
-    Vec<WorldChainTestingNodeContext<T>>,
+    Vec<MyChainTestingNodeContext<T>>,
     TaskExecutor,
-    Environment<<WorldChainNode<T> as NodeTypes>::Payload>,
-    TxSpammer<<WorldChainNode<T> as NodeTypes>::Payload>,
+    Environment<<MyChainNode<T> as NodeTypes>::Payload>,
+    TxSpammer<<MyChainNode<T> as NodeTypes>::Payload>,
 )>
 where
-    T: WorldChainTestContextBounds<ChainSpec = WorldChainSpec>,
-    WorldChainNode<T>: WorldChainNodeTestBounds<T>,
+    T: MyChainTestContextBounds<ChainSpec = MyChainSpec>,
+    MyChainNode<T>: MyChainNodeTestBounds<T>,
 {
-    WorldChainTestBuilder::builder()
+    MyChainTestBuilder::builder()
         .nodes(num_nodes)
         .flashblocks(flashblocks_enabled)
         .tx_peers(enable_tx_peers)
@@ -337,18 +337,18 @@ async fn setup_inner<T, G>(
     access_list: bool,
     admin_rpc: bool,
     block_uncompressed_size_limit: Option<u64>,
-    chain_spec: Arc<WorldChainSpec>,
+    chain_spec: Arc<MyChainSpec>,
 ) -> eyre::Result<(
     Range<u8>,
-    Vec<WorldChainTestingNodeContext<T>>,
+    Vec<MyChainTestingNodeContext<T>>,
     TaskExecutor,
-    Environment<<WorldChainNode<T> as NodeTypes>::Payload>,
-    TxSpammer<<WorldChainNode<T> as NodeTypes>::Payload>,
+    Environment<<MyChainNode<T> as NodeTypes>::Payload>,
+    TxSpammer<<MyChainNode<T> as NodeTypes>::Payload>,
 )>
 where
-    T: WorldChainTestContextBounds<ChainSpec = WorldChainSpec>,
-    WorldChainNode<T>: WorldChainNodeTestBounds<T>,
-    G: Fn(u64) -> <<WorldChainNode<T> as NodeTypes>::Payload as PayloadTypes>::PayloadAttributes
+    T: MyChainTestContextBounds<ChainSpec = MyChainSpec>,
+    MyChainNode<T>: MyChainNodeTestBounds<T>,
+    G: Fn(u64) -> <<MyChainNode<T> as NodeTypes>::Payload as PayloadTypes>::PayloadAttributes
         + Send
         + Sync
         + Copy
@@ -371,7 +371,7 @@ where
         rpc_args = rpc_args.with_http_api(RpcModuleSelection::All);
     }
 
-    let mut node_config: NodeConfig<WorldChainSpec> = NodeConfig::new(chain_spec.clone())
+    let mut node_config: NodeConfig<MyChainSpec> = NodeConfig::new(chain_spec.clone())
         .with_chain(chain_spec)
         .with_rpc(rpc_args)
         .with_payload_builder(PayloadBuilderArgs {
@@ -390,13 +390,13 @@ where
     // is 0.0.0.0 by default
     node_config.network.addr = [127, 0, 0, 1].into();
 
-    let mut environment = Environment::<<WorldChainNode<T> as NodeTypes>::Payload>::default();
+    let mut environment = Environment::<<MyChainNode<T> as NodeTypes>::Payload>::default();
     environment.block_timestamp_increment = 12;
 
     let mut node_contexts =
-        Vec::<WorldChainTestingNodeContext<T>>::with_capacity(num_nodes as usize);
+        Vec::<MyChainTestingNodeContext<T>>::with_capacity(num_nodes as usize);
 
-    let mut spammer = TxSpammer::<<WorldChainNode<T> as NodeTypes>::Payload> {
+    let mut spammer = TxSpammer::<<MyChainNode<T> as NodeTypes>::Payload> {
         rpc: Vec::new(),
         sequence: vec![TxType::Sstore, TxType::Deploy, TxType::DeployAndDestruct],
     };
@@ -430,12 +430,12 @@ where
         let mut config = config;
         config.args.builder.block_uncompressed_size_limit = block_uncompressed_size_limit;
 
-        let node = WorldChainNode::<T>::new(config.args.clone().into_config(&mut node_config)?);
+        let node = MyChainNode::<T>::new(config.args.clone().into_config(&mut node_config)?);
 
         let ext_context = node.ext_context::<FullNodeTypesAdapter<
-            WorldChainNode<T>,
+            MyChainNode<T>,
             TmpDB,
-            BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<T>, TmpDB>>,
+            BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<T>, TmpDB>>,
         >>();
 
         let NodeHandle {
@@ -444,8 +444,8 @@ where
         } =
             NodeBuilder::new(node_config.clone())
                 .testing_node(exec.clone())
-                .with_types_and_provider::<WorldChainNode<T>, BlockchainProvider<
-                    NodeTypesWithDBAdapter<WorldChainNode<T>, TmpDB>,
+                .with_types_and_provider::<MyChainNode<T>, BlockchainProvider<
+                    NodeTypesWithDBAdapter<MyChainNode<T>, TmpDB>,
                 >>()
                 .with_components(node.components_builder())
                 .with_add_ons(node.add_ons())
@@ -453,7 +453,7 @@ where
                     let provider = ctx.provider().clone();
                     let pool = ctx.pool().clone();
                     let sequencer_client = config.args.rollup.sequencer.map(SequencerClient::new);
-                    let eth_api_ext = WorldChainEthApiExt::new(pool, provider, sequencer_client);
+                    let eth_api_ext = MyChainEthApiExt::new(pool, provider, sequencer_client);
                     ctx.modules.replace_configured(eth_api_ext.into_rpc())?;
                     ctx.modules
                         .replace_configured(FlashblocksOpApi.into_rpc())?;
@@ -470,7 +470,7 @@ where
                 .await?;
 
         let beacon_engine_handle = node.add_ons_handle.beacon_engine_handle.clone();
-        let mut node = WorldChainNodeTestContext::new(node, attributes_generator).await?;
+        let mut node = MyChainNodeTestContext::new(node, attributes_generator).await?;
         let genesis = node.inner.chain_spec().sealed_genesis_header();
 
         node.update_forkchoice(genesis.hash(), genesis.hash())
@@ -489,13 +489,13 @@ where
             node.connect(&mut first_node.node).await;
         }
 
-        let world_chain_test_node = WorldChainTestingNodeContext {
+        let my_chain_test_node = MyChainTestingNodeContext {
             node,
             ext_context,
             beacon_engine_handle,
         };
 
-        node_contexts.push(world_chain_test_node);
+        node_contexts.push(my_chain_test_node);
     }
 
     for n in &node_contexts {
@@ -506,7 +506,7 @@ where
 
         let auth = node.auth_server_handle();
         let url = node.rpc_url();
-        let client: NodeClient<<WorldChainNode<T> as NodeTypes>::Payload> =
+        let client: NodeClient<<MyChainNode<T> as NodeTypes>::Payload> =
             NodeClient::new_with_beacon_engine(rpc, auth, url, n.beacon_engine_handle.clone());
 
         environment.node_clients.push(client.clone());
@@ -526,9 +526,9 @@ where
     Ok((0..5, node_contexts, exec, environment, spammer))
 }
 
-pub static CHAIN_SPEC: LazyLock<WorldChainSpec> = LazyLock::new(|| {
+pub static CHAIN_SPEC: LazyLock<MyChainSpec> = LazyLock::new(|| {
     let spec: Genesis = serde_json::from_str(GENESIS).expect("genesis should parse");
-    WorldChainSpecBuilder::default()
+    MyChainSpecBuilder::default()
         .chain(spec.config.chain_id.into())
         .genesis(
             spec.extend_accounts(vec![(
@@ -629,8 +629,8 @@ pub fn build_payload_attributes(
     .into()
 }
 
-/// Build default World Chain payload attributes for e2e block production.
-pub fn world_chain_payload_attributes(timestamp: u64) -> OpPayloadAttrs {
+/// Build default My Chain payload attributes for e2e block production.
+pub fn my_chain_payload_attributes(timestamp: u64) -> OpPayloadAttrs {
     let eip1559_params =
         encode_eip1559_params(&*CHAIN_SPEC, timestamp).expect("eip1559 params should encode");
     build_payload_attributes(timestamp, eip1559_params, None)
@@ -674,7 +674,7 @@ pub async fn create_test_transaction(signer_index: u32, nonce: u64) -> (Bytes, B
 
 pub fn execution_data_from_from_reduced_flashblock(
     flashblock: Flashblock,
-    spec: Arc<WorldChainSpec>,
+    spec: Arc<MyChainSpec>,
 ) -> OpExecutionData {
     let base = flashblock.base().unwrap();
     let delta = flashblock.diff();
@@ -733,42 +733,42 @@ pub fn execution_data_from_from_reduced_flashblock(
     }
 }
 
-/// Consolidated trait bound for a World Chain testing context.
-pub trait WorldChainTestContextBounds:
-    WorldChainNodePrimitiveTypes<Payload: EngineTypes, ChainSpec: EthereumHardforks>
-    + WorldChainNodeContext<
+/// Consolidated trait bound for a My Chain testing context.
+pub trait MyChainTestContextBounds:
+    MyChainNodePrimitiveTypes<Payload: EngineTypes, ChainSpec: EthereumHardforks>
+    + MyChainNodeContext<
         FullNodeTypesAdapter<
-            WorldChainNode<Self>,
+            MyChainNode<Self>,
             TmpDB,
-            BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<Self>, TmpDB>>,
+            BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<Self>, TmpDB>>,
         >,
         AddOns: NodeAddOns<
             Adapter<
-                WorldChainNode<Self>,
-                BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<Self>, TmpDB>>,
+                MyChainNode<Self>,
+                BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<Self>, TmpDB>>,
             >,
         > + RethRpcAddOns<
             Adapter<
-                WorldChainNode<Self>,
-                BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<Self>, TmpDB>>,
+                MyChainNode<Self>,
+                BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<Self>, TmpDB>>,
             >,
         > + EngineValidatorAddOn<
             Adapter<
-                WorldChainNode<Self>,
-                BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<Self>, TmpDB>>,
+                MyChainNode<Self>,
+                BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<Self>, TmpDB>>,
             >,
         >,
         ComponentsBuilder: NodeComponentsBuilder<
             FullNodeTypesAdapter<
-                WorldChainNode<Self>,
+                MyChainNode<Self>,
                 TmpDB,
-                BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<Self>, TmpDB>>,
+                BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<Self>, TmpDB>>,
             >,
             Components: NodeComponents<
                 FullNodeTypesAdapter<
-                    WorldChainNode<Self>,
+                    MyChainNode<Self>,
                     TmpDB,
-                    BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<Self>, TmpDB>>,
+                    BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<Self>, TmpDB>>,
                 >,
                 Network: PeersHandleProvider,
             >,
@@ -777,35 +777,35 @@ pub trait WorldChainTestContextBounds:
     + Sync
     + 'static
 where
-    WorldChainNode<Self>: NodeTypes<
-            Primitives = <Self as WorldChainNodePrimitiveTypes>::Primitives,
-            ChainSpec = <Self as WorldChainNodePrimitiveTypes>::ChainSpec,
-            Payload = <Self as WorldChainNodePrimitiveTypes>::Payload,
-            Storage: ChainStorage<<Self as WorldChainNodePrimitiveTypes>::Primitives>,
+    MyChainNode<Self>: NodeTypes<
+            Primitives = <Self as MyChainNodePrimitiveTypes>::Primitives,
+            ChainSpec = <Self as MyChainNodePrimitiveTypes>::ChainSpec,
+            Payload = <Self as MyChainNodePrimitiveTypes>::Payload,
+            Storage: ChainStorage<<Self as MyChainNodePrimitiveTypes>::Primitives>,
         > + Node<
             FullNodeTypesAdapter<
-                WorldChainNode<Self>,
+                MyChainNode<Self>,
                 TmpDB,
-                BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<Self>, TmpDB>>,
+                BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<Self>, TmpDB>>,
             >,
-            AddOns = <Self as WorldChainNodeContext<
+            AddOns = <Self as MyChainNodeContext<
                 FullNodeTypesAdapter<
-                    WorldChainNode<Self>,
+                    MyChainNode<Self>,
                     TmpDB,
-                    BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<Self>, TmpDB>>,
+                    BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<Self>, TmpDB>>,
                 >,
             >>::AddOns,
             ComponentsBuilder: NodeComponentsBuilder<
                 FullNodeTypesAdapter<
-                    WorldChainNode<Self>,
+                    MyChainNode<Self>,
                     TmpDB,
-                    BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<Self>, TmpDB>>,
+                    BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<Self>, TmpDB>>,
                 >,
                 Components: NodeComponents<
                     FullNodeTypesAdapter<
-                        WorldChainNode<Self>,
+                        MyChainNode<Self>,
                         TmpDB,
-                        BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<Self>, TmpDB>>,
+                        BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<Self>, TmpDB>>,
                     >,
                     Network: PeersHandleProvider,
                 >,
@@ -814,76 +814,76 @@ where
 {
 }
 
-impl<T> WorldChainTestContextBounds for T
+impl<T> MyChainTestContextBounds for T
 where
-    T: WorldChainNodePrimitiveTypes<Payload: EngineTypes, ChainSpec: EthereumHardforks>
-        + WorldChainNodeContext<
+    T: MyChainNodePrimitiveTypes<Payload: EngineTypes, ChainSpec: EthereumHardforks>
+        + MyChainNodeContext<
             FullNodeTypesAdapter<
-                WorldChainNode<T>,
+                MyChainNode<T>,
                 TmpDB,
-                BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<T>, TmpDB>>,
+                BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<T>, TmpDB>>,
             >,
             AddOns: NodeAddOns<
                 Adapter<
-                    WorldChainNode<T>,
-                    BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<T>, TmpDB>>,
+                    MyChainNode<T>,
+                    BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<T>, TmpDB>>,
                 >,
             > + RethRpcAddOns<
                 Adapter<
-                    WorldChainNode<T>,
-                    BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<T>, TmpDB>>,
+                    MyChainNode<T>,
+                    BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<T>, TmpDB>>,
                 >,
             > + EngineValidatorAddOn<
                 Adapter<
-                    WorldChainNode<T>,
-                    BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<T>, TmpDB>>,
+                    MyChainNode<T>,
+                    BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<T>, TmpDB>>,
                 >,
             >,
             ComponentsBuilder: NodeComponentsBuilder<
                 FullNodeTypesAdapter<
-                    WorldChainNode<T>,
+                    MyChainNode<T>,
                     TmpDB,
-                    BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<T>, TmpDB>>,
+                    BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<T>, TmpDB>>,
                 >,
                 Components: NodeComponents<
                     FullNodeTypesAdapter<
-                        WorldChainNode<T>,
+                        MyChainNode<T>,
                         TmpDB,
-                        BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<T>, TmpDB>>,
+                        BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<T>, TmpDB>>,
                     >,
                     Network: PeersHandleProvider,
                 >,
             >,
         >,
-    WorldChainNode<T>: NodeTypes<
-            Primitives = <T as WorldChainNodePrimitiveTypes>::Primitives,
-            ChainSpec = <T as WorldChainNodePrimitiveTypes>::ChainSpec,
-            Payload = <T as WorldChainNodePrimitiveTypes>::Payload,
-            Storage: ChainStorage<<T as WorldChainNodePrimitiveTypes>::Primitives>,
+    MyChainNode<T>: NodeTypes<
+            Primitives = <T as MyChainNodePrimitiveTypes>::Primitives,
+            ChainSpec = <T as MyChainNodePrimitiveTypes>::ChainSpec,
+            Payload = <T as MyChainNodePrimitiveTypes>::Payload,
+            Storage: ChainStorage<<T as MyChainNodePrimitiveTypes>::Primitives>,
         > + Node<
             FullNodeTypesAdapter<
-                WorldChainNode<T>,
+                MyChainNode<T>,
                 TmpDB,
-                BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<T>, TmpDB>>,
+                BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<T>, TmpDB>>,
             >,
-            AddOns = <T as WorldChainNodeContext<
+            AddOns = <T as MyChainNodeContext<
                 FullNodeTypesAdapter<
-                    WorldChainNode<T>,
+                    MyChainNode<T>,
                     TmpDB,
-                    BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<T>, TmpDB>>,
+                    BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<T>, TmpDB>>,
                 >,
             >>::AddOns,
             ComponentsBuilder: NodeComponentsBuilder<
                 FullNodeTypesAdapter<
-                    WorldChainNode<T>,
+                    MyChainNode<T>,
                     TmpDB,
-                    BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<T>, TmpDB>>,
+                    BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<T>, TmpDB>>,
                 >,
                 Components: NodeComponents<
                     FullNodeTypesAdapter<
-                        WorldChainNode<T>,
+                        MyChainNode<T>,
                         TmpDB,
-                        BlockchainProvider<NodeTypesWithDBAdapter<WorldChainNode<T>, TmpDB>>,
+                        BlockchainProvider<NodeTypesWithDBAdapter<MyChainNode<T>, TmpDB>>,
                     >,
                     Network: PeersHandleProvider,
                 >,
@@ -892,35 +892,35 @@ where
 {
 }
 
-/// Wrapper trait that consolidates all trait bounds for `WorldChainNode<T>` in testing.
-pub trait WorldChainNodeTestBounds<T>:
+/// Wrapper trait that consolidates all trait bounds for `MyChainNode<T>` in testing.
+pub trait MyChainNodeTestBounds<T>:
     NodeTypes<
-        Primitives = <T as WorldChainNodePrimitiveTypes>::Primitives,
-        ChainSpec = <T as WorldChainNodePrimitiveTypes>::ChainSpec,
-        Payload = <T as WorldChainNodePrimitiveTypes>::Payload,
-        Storage: ChainStorage<<T as WorldChainNodePrimitiveTypes>::Primitives>,
+        Primitives = <T as MyChainNodePrimitiveTypes>::Primitives,
+        ChainSpec = <T as MyChainNodePrimitiveTypes>::ChainSpec,
+        Payload = <T as MyChainNodePrimitiveTypes>::Payload,
+        Storage: ChainStorage<<T as MyChainNodePrimitiveTypes>::Primitives>,
     > + Node<
         FullNodeTypesAdapter<Self, TmpDB, BlockchainProvider<NodeTypesWithDBAdapter<Self, TmpDB>>>,
         AddOns = T::AddOns,
         ComponentsBuilder = T::ComponentsBuilder,
     >
 where
-    T: WorldChainTestContextBounds,
+    T: MyChainTestContextBounds,
 {
 }
 
-impl<T, Ctx> WorldChainNodeTestBounds<Ctx> for T
+impl<T, Ctx> MyChainNodeTestBounds<Ctx> for T
 where
     T: NodeTypes<
-            Primitives = <Ctx as WorldChainNodePrimitiveTypes>::Primitives,
-            ChainSpec = <Ctx as WorldChainNodePrimitiveTypes>::ChainSpec,
-            Payload = <Ctx as WorldChainNodePrimitiveTypes>::Payload,
-            Storage: ChainStorage<<Ctx as WorldChainNodePrimitiveTypes>::Primitives>,
+            Primitives = <Ctx as MyChainNodePrimitiveTypes>::Primitives,
+            ChainSpec = <Ctx as MyChainNodePrimitiveTypes>::ChainSpec,
+            Payload = <Ctx as MyChainNodePrimitiveTypes>::Payload,
+            Storage: ChainStorage<<Ctx as MyChainNodePrimitiveTypes>::Primitives>,
         > + Node<
             FullNodeTypesAdapter<T, TmpDB, BlockchainProvider<NodeTypesWithDBAdapter<T, TmpDB>>>,
             AddOns = Ctx::AddOns,
             ComponentsBuilder = Ctx::ComponentsBuilder,
         >,
-    Ctx: WorldChainTestContextBounds,
+    Ctx: MyChainTestContextBounds,
 {
 }

@@ -2,12 +2,12 @@ use std::time::{Duration, Instant};
 
 use eyre::eyre::eyre;
 use tokio::sync::watch;
-use world_chain_chainspec::{WorldChainHardfork, WorldChainHardforks};
-use world_chain_devnet::{
+use my_chain_chainspec::{MyChainHardfork, MyChainHardforks};
+use my_chain_devnet::{
     DevnetComponentKind, DevnetComponentStatus, WorldDevnet, WorldDevnetBuilder,
     ensure_dev_chain_id,
 };
-use world_chain_test_utils::DEV_CHAIN_ID;
+use my_chain_test_utils::DEV_CHAIN_ID;
 
 use crate::it::utils::devnet::try_build_ha_devnet;
 
@@ -59,8 +59,8 @@ async fn direct_sequencer_devnet_smoke() -> eyre::Result<()> {
     assert!(chain_spec.is_jovian_active_at_timestamp(0));
     assert!(chain_spec.is_karst_active_at_timestamp(0));
     assert!(!chain_spec.is_tropo_active_at_timestamp(0));
-    assert!(devnet.hardforks().is_active(WorldChainHardfork::Karst));
-    assert!(!devnet.hardforks().is_active(WorldChainHardfork::Tropo));
+    assert!(devnet.hardforks().is_active(MyChainHardfork::Karst));
+    assert!(!devnet.hardforks().is_active(MyChainHardfork::Tropo));
 
     Ok(())
 }

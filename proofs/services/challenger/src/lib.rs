@@ -1,4 +1,4 @@
-//! World Chain Challenger.
+//! My Chain Challenger.
 
 mod alloy;
 mod bond_manager;
@@ -12,7 +12,7 @@ mod types;
 // re-exports
 pub use alloy::AlloyChallengerClient;
 pub use bond_manager::BondManager;
-pub use challenger::WorldChainChallenger;
+pub use challenger::MyChainChallenger;
 pub use config::{
     BondManagerConfig, ChallengerConfig, DEFAULT_BOND_MANAGER_INITIAL_SCAN_LIMIT,
     DEFAULT_BOND_MANAGER_POLL_INTERVAL, DEFAULT_GAME_SCAN_LOOKBACK, DEFAULT_L1_TX_CONFIRMATIONS,

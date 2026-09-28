@@ -1,6 +1,6 @@
-//! World Chain proof-system primitives and contract bindings.
+//! My Chain proof-system primitives and contract bindings.
 //!
-//! This crate duplicates the WIP-1006-specific pieces that the World Chain
+//! This crate duplicates the WIP-1006-specific pieces that the My Chain
 //! codebase needs directly: proof-domain hashing, root commitments, lane
 //! bitmaps, and lightweight ABI bindings for the local proof contracts.
 

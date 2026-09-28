@@ -2,15 +2,15 @@ use std::sync::Arc;
 
 use reth_cli::chainspec::{ChainSpecParser, parse_genesis};
 use reth_optimism_chainspec::SUPPORTED_CHAINS;
-use world_chain_chainspec::WorldChainSpec;
+use my_chain_chainspec::MyChainSpec;
 
-/// World Chain chain specification parser.
+/// My Chain chain specification parser.
 #[derive(Debug, Clone, Default)]
 #[non_exhaustive]
-pub struct WorldChainSpecParser;
+pub struct MyChainSpecParser;
 
-impl ChainSpecParser for WorldChainSpecParser {
-    type ChainSpec = WorldChainSpec;
+impl ChainSpecParser for MyChainSpecParser {
+    type ChainSpec = MyChainSpec;
 
     const SUPPORTED_CHAINS: &'static [&'static str] = SUPPORTED_CHAINS;
 
@@ -19,13 +19,13 @@ impl ChainSpecParser for WorldChainSpecParser {
     }
 }
 
-/// Clap value parser for [`WorldChainSpec`]s.
+/// Clap value parser for [`MyChainSpec`]s.
 ///
 /// Matches either a known OP stack chain, a path to a genesis JSON file, or an in-memory genesis
 /// JSON string.
-pub fn chain_value_parser(s: &str) -> eyre::Result<Arc<WorldChainSpec>> {
-    if let Some(world_chain_spec) = WorldChainSpec::parse_chain(s) {
-        Ok(world_chain_spec)
+pub fn chain_value_parser(s: &str) -> eyre::Result<Arc<MyChainSpec>> {
+    if let Some(my_chain_spec) = MyChainSpec::parse_chain(s) {
+        Ok(my_chain_spec)
     } else {
         Ok(Arc::new(parse_genesis(s)?.into()))
     }
@@ -37,9 +37,9 @@ mod tests {
 
     #[test]
     fn parse_known_chain_spec() {
-        for &chain in WorldChainSpecParser::SUPPORTED_CHAINS {
+        for &chain in MyChainSpecParser::SUPPORTED_CHAINS {
             assert!(
-                <WorldChainSpecParser as ChainSpecParser>::parse(chain).is_ok(),
+                <MyChainSpecParser as ChainSpecParser>::parse(chain).is_ok(),
                 "Failed to parse {chain}"
             );
         }

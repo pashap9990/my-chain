@@ -121,7 +121,7 @@ impl ProverServiceStore {
         if insert_result.rows_affected() > 0 {
             // no conflict
             tx.commit().await?;
-            world_chain_proof_metrics::increment_proof_requests_created(backend.as_str());
+            my_chain_proof_metrics::increment_proof_requests_created(backend.as_str());
             info!(
                 lifecycle_event = "proof_request_created",
                 proof_id = %id,

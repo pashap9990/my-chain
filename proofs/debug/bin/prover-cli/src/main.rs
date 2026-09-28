@@ -37,9 +37,9 @@ use alloy_provider::ProviderBuilder;
 use anyhow::{Context, Result, bail};
 use clap::Parser;
 use tracing::{info, warn};
-use world_chain_proof_kona_host::online::resolve_l1_head;
-use world_chain_proof_protocol::{ConsensusProvider, IMultiProofGame, OptimismConsensusClient};
-use world_chain_prover_service::{
+use my_chain_proof_kona_host::online::resolve_l1_head;
+use my_chain_proof_protocol::{ConsensusProvider, IMultiProofGame, OptimismConsensusClient};
+use my_chain_prover_service::{
     ProofBackend, ProofRequest, ProofRequester, ProofResponse, ProofStatus, RpcProverServiceClient,
 };
 
@@ -86,7 +86,7 @@ struct Cli {
     #[arg(long, default_value_t = 1)]
     block_interval: u64,
 
-    /// `WorldChainProofSystemGame` contract address whose Nitro image identity routes the job.
+    /// `MyChainProofSystemGame` contract address whose Nitro image identity routes the job.
     #[arg(long)]
     game_address: Address,
 

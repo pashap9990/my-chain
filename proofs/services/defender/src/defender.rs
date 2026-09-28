@@ -13,10 +13,10 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 use tracing::{error, info, warn};
-use world_chain_proof_protocol::{
+use my_chain_proof_protocol::{
     ConsensusProvider, InvalidationReason, ProofLane, proof_count, select_lineage,
 };
-use world_chain_prover_service::ProofRequester;
+use my_chain_prover_service::ProofRequester;
 
 /// An active proof-support workflow for a selected game.
 #[derive(Debug, Clone, Copy)]
@@ -58,7 +58,7 @@ fn effective_proof_bitmap(mut proof_bitmap: u8, lanes: &[LaneState; DEFENDED_LAN
 
 /// Supplies proof support for every valid game on the proposer-selected lineage.
 #[derive(Debug)]
-pub struct WorldChainDefender<E, C, P> {
+pub struct MyChainDefender<E, C, P> {
     config: DefenderConfig,
     execution_provider: E,
     consensus_provider: C,
@@ -68,7 +68,7 @@ pub struct WorldChainDefender<E, C, P> {
     abandoned_defenses: HashMap<Address, u64>,
 }
 
-impl<E, C, P> WorldChainDefender<E, C, P> {
+impl<E, C, P> MyChainDefender<E, C, P> {
     /// Creates a defender from execution, consensus and prover-requester clients.
     pub fn new(
         config: DefenderConfig,
@@ -103,7 +103,7 @@ impl<E, C, P> WorldChainDefender<E, C, P> {
     }
 }
 
-impl<E, C, P> WorldChainDefender<E, C, P>
+impl<E, C, P> MyChainDefender<E, C, P>
 where
     E: DefenderClient,
     C: ConsensusProvider,

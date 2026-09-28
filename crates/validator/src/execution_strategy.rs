@@ -24,7 +24,7 @@ use reth_trie_common::{HashedPostState, KeccakKeyHasher, updates::TrieUpdates};
 use revm::{database::states::bundle_state::BundleRetention, state::bal::Bal};
 use revm_database::State;
 use tracing::error;
-use world_chain_primitives::{
+use my_chain_primitives::{
     access_list::{FlashblockAccessList, FlashblockAccessListData, access_list_hash},
     primitives::ExecutionPayloadFlashblockDeltaV1,
 };
@@ -34,9 +34,9 @@ use crate::{
     state_root_strategy::{StateRootHandle, StateRootStrategy},
     validator::decode_transactions_with_indices,
 };
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_evm::{
-    PayloadBuildStage, WorldChainEvmConfig,
+use my_chain_chainspec::MyChainSpec;
+use my_chain_evm::{
+    PayloadBuildStage, MyChainEvmConfig,
     execution::{
         bal::{BalExecutorError, BalValidationError, CommittedState, record_op_l1_block_bal_reads},
         basic::FlashblocksBlockBuilder,
@@ -61,7 +61,7 @@ pub struct StateRootResult {
 pub struct ValidationCtx<'a, Evm: ConfigureEvm, S: StateRootStrategy> {
     pub parent: &'a SealedHeader<Header>,
     pub attempt_metrics: &'a mut FlashblockValidationAttemptMetrics,
-    pub chain_spec: Arc<WorldChainSpec>,
+    pub chain_spec: Arc<MyChainSpec>,
     pub evm_env: EvmEnvFor<Evm>,
     pub execution_context: OpBlockExecutionCtx,
     /// State root strategy for this flashblock execution.
@@ -86,12 +86,12 @@ pub trait ExecutionStrategy<Evm: ConfigureEvm, S: StateRootStrategy>: Send + Syn
 /// BAL execution strategy: parallel transaction execution with an external state root handle.
 pub struct FlashblocksBalExecutionStrategy;
 
-impl<S: StateRootStrategy> ExecutionStrategy<WorldChainEvmConfig, S>
+impl<S: StateRootStrategy> ExecutionStrategy<MyChainEvmConfig, S>
     for FlashblocksBalExecutionStrategy
 {
     fn execute(
         &self,
-        ctx: ValidationCtx<'_, WorldChainEvmConfig, S>,
+        ctx: ValidationCtx<'_, MyChainEvmConfig, S>,
         client: impl StateProviderFactory + Clone + Sync + 'static,
         diff: ExecutionPayloadFlashblockDeltaV1,
         committed_state: CommittedState<OpRethReceiptBuilder>,
@@ -103,17 +103,17 @@ impl<S: StateRootStrategy> ExecutionStrategy<WorldChainEvmConfig, S>
 
 /// Validator for BAL-backed flashblock execution.
 struct BalBlockValidator<'a, S: StateRootStrategy> {
-    ctx: ValidationCtx<'a, WorldChainEvmConfig, S>,
+    ctx: ValidationCtx<'a, MyChainEvmConfig, S>,
 }
 
 impl<'a, S: StateRootStrategy> BalBlockValidator<'a, S> {
-    fn new(ctx: ValidationCtx<'a, WorldChainEvmConfig, S>) -> Self {
+    fn new(ctx: ValidationCtx<'a, MyChainEvmConfig, S>) -> Self {
         Self { ctx }
     }
 
     fn executor_factory(
         &self,
-    ) -> OpBlockExecutorFactory<OpRethReceiptBuilder, Arc<WorldChainSpec>> {
+    ) -> OpBlockExecutorFactory<OpRethReceiptBuilder, Arc<MyChainSpec>> {
         OpBlockExecutorFactory::new(
             OpRethReceiptBuilder::default(),
             self.ctx.chain_spec.clone(),
@@ -178,7 +178,7 @@ impl<'a, S: StateRootStrategy> BalBlockValidator<'a, S> {
         received_bal: Arc<Bal>,
         committed_bundle: &revm_database::BundleState,
     ) -> Result<
-        Vec<BalWorkerOutput<OpBlockExecutorFactory<OpRethReceiptBuilder, Arc<WorldChainSpec>>>>,
+        Vec<BalWorkerOutput<OpBlockExecutorFactory<OpRethReceiptBuilder, Arc<MyChainSpec>>>>,
         BalExecutorError,
     >
     where
@@ -433,7 +433,7 @@ impl<'a, S: StateRootStrategy> BalBlockValidator<'a, S> {
         let block = assembler.assemble_block(BlockAssemblerInput::<
             '_,
             '_,
-            OpBlockExecutorFactory<OpRethReceiptBuilder, Arc<WorldChainSpec>>,
+            OpBlockExecutorFactory<OpRethReceiptBuilder, Arc<MyChainSpec>>,
         >::new(
             evm_env,
             self.ctx.execution_context,
@@ -529,12 +529,12 @@ impl<'a, S: StateRootStrategy> BalBlockValidator<'a, S> {
 
 pub struct FlashblocksLegacyExecutionStrategy;
 
-impl<S: StateRootStrategy> ExecutionStrategy<WorldChainEvmConfig, S>
+impl<S: StateRootStrategy> ExecutionStrategy<MyChainEvmConfig, S>
     for FlashblocksLegacyExecutionStrategy
 {
     fn execute(
         &self,
-        ctx: ValidationCtx<'_, WorldChainEvmConfig, S>,
+        ctx: ValidationCtx<'_, MyChainEvmConfig, S>,
         client: impl StateProviderFactory + Clone + Sync + 'static,
         diff: ExecutionPayloadFlashblockDeltaV1,
         committed_state: CommittedState<OpRethReceiptBuilder>,

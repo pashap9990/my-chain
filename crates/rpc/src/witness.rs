@@ -6,7 +6,7 @@ use jsonrpsee::{
     proc_macros::rpc,
     types::{ErrorObjectOwned, error::INVALID_PARAMS_CODE},
 };
-use world_chain_evm::ExecutionWitnessHandle;
+use my_chain_evm::ExecutionWitnessHandle;
 
 /// `debug` namespace extension serving the live pre-image witness oracle.
 #[derive(Clone, Debug)]

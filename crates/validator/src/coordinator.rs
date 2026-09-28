@@ -11,11 +11,11 @@ use reth_node_builder::BuilderContext;
 use reth_optimism_evm::OpNextBlockEnvAttributes;
 use reth_optimism_node::{OpBuiltPayload, OpEngineTypes};
 use reth_optimism_primitives::OpPrimitives;
-use world_chain_p2p::protocol::{
-    event::{ChainEvent, WorldChainEvent, WorldChainEventsStream},
+use my_chain_p2p::protocol::{
+    event::{ChainEvent, MyChainEvent, MyChainEventsStream},
     handler::FlashblocksHandle,
 };
-use world_chain_primitives::{p2p::AuthorizedPayload, primitives::FlashblocksPayloadV1};
+use my_chain_primitives::{p2p::AuthorizedPayload, primitives::FlashblocksPayloadV1};
 
 use reth_provider::{
     BlockNumReader, CanonStateSubscriptions, ChainSpecProvider, HeaderProvider,
@@ -42,9 +42,9 @@ use crate::{
     flashblock_validation_metrics::FlashblockValidationMetrics,
     validator::{FlashblocksBlockValidator, into_executed_payload},
 };
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_evm::WorldChainEvmConfig;
-use world_chain_primitives::flashblocks::{Flashblock, Flashblocks};
+use my_chain_chainspec::MyChainSpec;
+use my_chain_evm::MyChainEvmConfig;
+use my_chain_primitives::flashblocks::{Flashblock, Flashblocks};
 
 /// Task-level permit to ensure only one flashblock is processed at a time.
 static SEMAPHORE_TASK_PERMIT: LazyLock<Arc<Semaphore>> =
@@ -131,12 +131,12 @@ impl FlashblocksExecutionCoordinator {
         }
     }
 
-    /// Maps a closure over the [`WorldChainEventStream<T>`] from the P2P handle.
-    pub fn map_worldchain_event_stream<N, P, T, F>(
+    /// Maps a closure over the [`MyChainEventStream<T>`] from the P2P handle.
+    pub fn map_mychain_event_stream<N, P, T, F>(
         &self,
         provider: P,
         mut f: F,
-    ) -> WorldChainEventsStream<T>
+    ) -> MyChainEventsStream<T>
     where
         P: CanonStateSubscriptions<Primitives = N>
             + HeaderProvider
@@ -145,7 +145,7 @@ impl FlashblocksExecutionCoordinator {
             + Send
             + Sync
             + 'static,
-        F: FnMut(&WorldChainEvent<T>) -> Option<WorldChainEvent<T>> + Send + 'static,
+        F: FnMut(&MyChainEvent<T>) -> Option<MyChainEvent<T>> + Send + 'static,
         T: Send + Sync + 'static,
         N: NodePrimitives + 'static,
     {
@@ -154,10 +154,10 @@ impl FlashblocksExecutionCoordinator {
     }
 
     pub fn event_hook(
-        event: &WorldChainEvent<()>,
+        event: &MyChainEvent<()>,
         pending_block: &tokio::sync::watch::Sender<Option<ExecutedBlock<OpPrimitives>>>,
-    ) -> Option<WorldChainEvent<()>> {
-        if let WorldChainEvent::Chain(ChainEvent::Canon(tip)) = event {
+    ) -> Option<MyChainEvent<()>> {
+        if let MyChainEvent::Chain(ChainEvent::Canon(tip)) = event {
             pending_block.send_if_modified(|block| {
                 let should_clear = block.as_ref().is_some_and(|b| {
                     let pending = b.recovered_block();
@@ -176,19 +176,19 @@ impl FlashblocksExecutionCoordinator {
     ///
     /// Uses a canon-aware event stream that gates flashblock delivery on canonical
     /// tip matching, preventing stale flashblocks from being processed.
-    pub fn launch<Node>(self, ctx: &BuilderContext<Node>, evm_config: WorldChainEvmConfig)
+    pub fn launch<Node>(self, ctx: &BuilderContext<Node>, evm_config: MyChainEvmConfig)
     where
         Node: FullNodeTypes,
         Node::Provider: StateProviderFactory
             + HeaderProvider<Header = alloy_consensus::Header>
             + CanonStateSubscriptions,
-        Node::Types: NodeTypes<ChainSpec = WorldChainSpec>,
+        Node::Types: NodeTypes<ChainSpec = MyChainSpec>,
     {
         let provider = ctx.provider().clone();
         let pending_block = self.pending_block.clone();
         let pending_block_clone = pending_block.clone();
 
-        let stream = self.map_worldchain_event_stream(provider.clone(), move |event| {
+        let stream = self.map_mychain_event_stream(provider.clone(), move |event| {
             Self::event_hook(event, &pending_block)
         });
 
@@ -296,14 +296,14 @@ pub async fn run_flashblock_processor<T, S, Provider>(
     coordinator: Arc<FlashblocksExecutionCoordinator>,
     stream: S,
     provider: Provider,
-    evm_config: WorldChainEvmConfig,
-    chain_spec: Arc<WorldChainSpec>,
+    evm_config: MyChainEvmConfig,
+    chain_spec: Arc<MyChainSpec>,
     pending_block: tokio::sync::watch::Sender<Option<ExecutedBlock<OpPrimitives>>>,
 ) where
-    S: futures::Stream<Item = WorldChainEvent<T>> + Unpin,
+    S: futures::Stream<Item = MyChainEvent<T>> + Unpin,
     Provider: StateProviderFactory
         + HeaderProvider<Header = alloy_consensus::Header>
-        + ChainSpecProvider<ChainSpec = WorldChainSpec>
+        + ChainSpecProvider<ChainSpec = MyChainSpec>
         + Clone
         + Sync
         + 'static,
@@ -317,7 +317,7 @@ pub async fn run_flashblock_processor<T, S, Provider>(
         tokio::select! {
             maybe_event = stream.next(), if !stream_closed => {
                 match maybe_event {
-                    Some(WorldChainEvent::Chain(ChainEvent::Pending(flashblock))) => {
+                    Some(MyChainEvent::Chain(ChainEvent::Pending(flashblock))) => {
                         let flashblock = Arc::try_unwrap(flashblock).unwrap_or_else(|arc| (*arc).clone());
 
                         trace!(
@@ -379,9 +379,9 @@ pub async fn run_flashblock_processor<T, S, Provider>(
 
 pub fn process_flashblock<Provider>(
     provider: Provider,
-    evm_config: &WorldChainEvmConfig,
+    evm_config: &MyChainEvmConfig,
     coordinator: &FlashblocksExecutionCoordinator,
-    chain_spec: Arc<WorldChainSpec>,
+    chain_spec: Arc<MyChainSpec>,
     flashblock: FlashblocksPayloadV1,
     pending_block: tokio::sync::watch::Sender<Option<ExecutedBlock<OpPrimitives>>>,
     flashblock_validation_metrics: Arc<FlashblockValidationMetrics>,
@@ -389,7 +389,7 @@ pub fn process_flashblock<Provider>(
 where
     Provider: StateProviderFactory
         + HeaderProvider<Header = alloy_consensus::Header>
-        + ChainSpecProvider<ChainSpec = WorldChainSpec>
+        + ChainSpecProvider<ChainSpec = MyChainSpec>
         + Clone
         + Sync
         + 'static,
@@ -552,7 +552,7 @@ mod tests {
 
     use reth_optimism_primitives::OpTransactionSigned;
     use reth_primitives_traits::SealedBlock;
-    use world_chain_primitives::ed25519_dalek::SigningKey;
+    use my_chain_primitives::ed25519_dalek::SigningKey;
 
     fn test_coordinator() -> (
         FlashblocksExecutionCoordinator,

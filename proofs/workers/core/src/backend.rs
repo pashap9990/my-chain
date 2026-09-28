@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use alloy_primitives::B256;
 use async_trait::async_trait;
-use world_chain_prover_service::{
+use my_chain_prover_service::{
     BackendSession, BackendSessionStatus, GetProofSessionRequest, LockId, ProofBackend, ProofData,
     ProofJobQueue, ProofJobQueueError, ProofRequest, ProofRequestId, RecordProofSessionRequest,
     SessionType,

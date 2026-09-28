@@ -1,4 +1,4 @@
-//! The `sp1-worker` is the SP1 proving worker of the World Chain defender stack.
+//! The `sp1-worker` is the SP1 proving worker of the My Chain defender stack.
 //!
 //! It is the SP1 analogue of the `nitro-worker`: it leases SP1 proof jobs from the
 //! `prover-service`, builds the range witnesses over RPC, drives an SP1 prover (local CPU,
@@ -19,7 +19,7 @@ pub use backend::{Sp1Backend, Sp1BackendConfig};
 pub use planner::{PlannedRange, RangePlan, RangePlanConfig};
 
 // Re-exported so binaries and tests can build a worker without depending on
-// `world-chain-proof-worker` directly.
-pub use world_chain_proof_worker::{
+// `my-chain-proof-worker` directly.
+pub use my_chain_proof_worker::{
     ClaimedProofJobHandler, ProofWorker, ProofWorkerConfig, RetryConfig,
 };

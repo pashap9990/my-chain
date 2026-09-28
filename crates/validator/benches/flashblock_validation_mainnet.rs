@@ -14,15 +14,15 @@ use reth_provider::{
     providers::{BlockchainProvider, RocksDBProvider, StaticFileProviderBuilder},
 };
 use reth_tasks::Runtime as RethRuntime;
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_evm::{OpRethReceiptBuilder, WorldChainEvmConfig};
-use world_chain_node::{context::WorldChainDefaultContext, node::WorldChainNode};
-use world_chain_p2p::protocol::{
+use my_chain_chainspec::MyChainSpec;
+use my_chain_evm::{OpRethReceiptBuilder, MyChainEvmConfig};
+use my_chain_node::{context::MyChainDefaultContext, node::MyChainNode};
+use my_chain_p2p::protocol::{
     handler::FlashblocksHandle,
     recorder::{StoredFlashblockKey, StoredFlashblockPayload, tables},
 };
-use world_chain_primitives::{ed25519_dalek::SigningKey, primitives::FlashblocksPayloadV1};
-use world_chain_validator::{
+use my_chain_primitives::{ed25519_dalek::SigningKey, primitives::FlashblocksPayloadV1};
+use my_chain_validator::{
     coordinator::{FlashblocksExecutionCoordinator, process_flashblock},
     flashblock_validation_metrics::FlashblockValidationMetrics,
 };
@@ -69,7 +69,7 @@ fn bench_block_number() -> u64 {
     }
 }
 
-type MainnetNode = WorldChainNode<WorldChainDefaultContext>;
+type MainnetNode = MyChainNode<MyChainDefaultContext>;
 type MainnetProvider = BlockchainProvider<NodeTypesWithDBAdapter<MainnetNode, DatabaseEnv>>;
 
 #[derive(Debug)]
@@ -108,11 +108,11 @@ fn fresh_coordinator(
     (coordinator, handle, pending_tx)
 }
 
-fn world_chain_mainnet_spec() -> Arc<WorldChainSpec> {
-    WorldChainSpec::mainnet()
+fn my_chain_mainnet_spec() -> Arc<MyChainSpec> {
+    MyChainSpec::mainnet()
 }
 
-fn bench_paths(chain_spec: Arc<WorldChainSpec>) -> BenchPaths {
+fn bench_paths(chain_spec: Arc<MyChainSpec>) -> BenchPaths {
     if let Some(root) = std::env::var_os(DATADIR_ENV) {
         let root = PathBuf::from(root);
         return BenchPaths {
@@ -135,7 +135,7 @@ fn bench_paths(chain_spec: Arc<WorldChainSpec>) -> BenchPaths {
 }
 
 fn open_mainnet_provider(
-    chain_spec: Arc<WorldChainSpec>,
+    chain_spec: Arc<MyChainSpec>,
     paths: &BenchPaths,
 ) -> eyre::Result<MainnetProvider> {
     let db = open_db_read_only(
@@ -283,9 +283,9 @@ fn assert_node_is_unwound_to_bench_parent(
 
 fn bench_process_flashblock_mainnet_block(c: &mut Criterion) {
     let rt = tokio::runtime::Runtime::new().expect("failed to build tokio runtime");
-    let chain_spec = world_chain_mainnet_spec();
+    let chain_spec = my_chain_mainnet_spec();
     let paths = bench_paths(chain_spec.clone());
-    let evm_config = WorldChainEvmConfig::new(chain_spec.clone(), OpRethReceiptBuilder::default());
+    let evm_config = MyChainEvmConfig::new(chain_spec.clone(), OpRethReceiptBuilder::default());
     let provider = open_mainnet_provider(chain_spec.clone(), &paths)
         .expect("failed to open default World Chain mainnet node database");
     let block_number = bench_block_number();

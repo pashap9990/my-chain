@@ -21,9 +21,9 @@ use reth_revm::cached::CachedReads;
 use reth_tasks::Runtime;
 use tokio::runtime::Handle;
 use tracing::{debug, warn};
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_p2p::protocol::handler::FlashblocksHandle;
-use world_chain_primitives::{
+use my_chain_chainspec::MyChainSpec;
+use my_chain_p2p::protocol::handler::FlashblocksHandle;
+use my_chain_primitives::{
     access_list::FlashblockAccessList,
     ed25519_dalek::SigningKey,
     p2p::Authorization,
@@ -31,9 +31,9 @@ use world_chain_primitives::{
 };
 
 use crate::job::{CommittedPayloadState, FlashblocksPayloadJob};
-use world_chain_builder::traits::payload_builder::FlashblockPayloadBuilder;
-use world_chain_primitives::flashblocks::{Flashblock, Flashblocks};
-use world_chain_validator::coordinator::{CoordinatorSnapshot, FlashblocksExecutionCoordinator};
+use my_chain_builder::traits::payload_builder::FlashblockPayloadBuilder;
+use my_chain_primitives::flashblocks::{Flashblock, Flashblocks};
+use my_chain_validator::coordinator::{CoordinatorSnapshot, FlashblocksExecutionCoordinator};
 
 /// A type that initiates payload building jobs on the [`crate::builder::FlashblocksPayloadBuilder`].
 pub struct FlashblocksPayloadJobGenerator<Client, Builder> {
@@ -62,7 +62,7 @@ pub struct FlashblocksPayloadJobGenerator<Client, Builder> {
 }
 
 impl<Client, Builder> FlashblocksPayloadJobGenerator<Client, Builder> {
-    /// Creates a new [`WorldChainPayloadJobGenerator`] with the given config and custom
+    /// Creates a new [`MyChainPayloadJobGenerator`] with the given config and custom
     /// [`PayloadBuilder`]
     #[allow(clippy::too_many_arguments)]
     pub fn with_builder(
@@ -134,7 +134,7 @@ impl<Client, Builder> PayloadJobGenerator for FlashblocksPayloadJobGenerator<Cli
 where
     Client: StateProviderFactory
         + BlockReaderIdExt<Header = HeaderForPayload<Builder::BuiltPayload>>
-        + ChainSpecProvider<ChainSpec = WorldChainSpec>
+        + ChainSpecProvider<ChainSpec = MyChainSpec>
         + Clone
         + Unpin
         + 'static,

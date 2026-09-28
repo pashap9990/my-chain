@@ -1,4 +1,4 @@
-//! Deterministic e2e harness for the World Chain proof services.
+//! Deterministic e2e harness for the My Chain proof services.
 //!
 //! The harness keeps the services under test real and replaces the external world with small,
 //! stateful fakes: execution/contracts, consensus roots, and proof backends. This lets tests
@@ -12,25 +12,25 @@ use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
 };
-use world_chain_challenger::{
+use my_chain_challenger::{
     ChallengeSubmission, ChallengerClient, ChallengerError, GameMetadata as ChallengerGameMetadata,
 };
-use world_chain_defender::{
+use my_chain_defender::{
     DefenderClient, DefenderError, DefenderSubmission, GameMetadata as DefenderGameMetadata,
 };
 use world_chain_proof_core::boot::TransitionPublicValues;
-use world_chain_proof_protocol::{
+use my_chain_proof_protocol::{
     ClaimData, ConsensusError, ConsensusProvider, GameCreation, GameStatus, InvalidationReason,
     LineageAnchor, LineageError, LineageGame, LineageProvider, LineageTransition, MAX_ATTEMPT_SCAN,
     PROOF_SYSTEM_VERSION, PROOF_THRESHOLD, ProofDomain, ProofLane, ProposalCommitment,
     ProposalStatus, ResolutionStatus, RootCommitment, has_threshold,
 };
-use world_chain_proof_worker::{ClaimedProofJobHandler, ProofJob};
-use world_chain_proposer::{
+use my_chain_proof_worker::{ClaimedProofJobHandler, ProofJob};
+use my_chain_proposer::{
     CloseGameSubmission, Proposal, ProposalSubmission, ProposerClient, ProposerError,
     ResolveSubmission,
 };
-use world_chain_prover_service::{
+use my_chain_prover_service::{
     GetNextProofRequest, GetNextProofResponse, GetProofSessionRequest, GetProofSessionResponse,
     HeartbeatRequest, HeartbeatResponse, ProofBackend, ProofData, ProofJobQueue,
     ProofJobQueueError, ProofRequest, ProofRequestError, ProofRequestId, ProofRequester,
@@ -754,7 +754,7 @@ impl SharedProverService {
     pub async fn connect(
         database_url: &str,
         config: ProverServiceConfig,
-    ) -> Result<Self, world_chain_prover_service::ProverServiceInitError> {
+    ) -> Result<Self, my_chain_prover_service::ProverServiceInitError> {
         Ok(Self {
             service: Arc::new(ProverService::connect(database_url, config).await?),
         })

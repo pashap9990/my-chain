@@ -9,18 +9,18 @@ use alloy_primitives::B256;
 use alloy_sol_types::SolValue;
 use anyhow::Context;
 use world_chain_proof_core::artifacts::{AggregationProofArtifact, RangeProofArtifact};
-use world_chain_proof_kona_host::online::{
+use my_chain_proof_kona_host::online::{
     OnlineHostConfig, RangeWitnessRequest, build_range_input, fetch_l1_header_by_hash,
     is_witness_generation_timeout,
 };
-use world_chain_proof_protocol::ProofGameProvider;
-use world_chain_proof_sp1_host::{
+use my_chain_proof_protocol::ProofGameProvider;
+use my_chain_proof_sp1_host::{
     SuccinctProverError, WorldSuccinctProver, aggregation_artifact_from_sp1_proof,
     range_artifact_from_sp1_proof,
 };
-use world_chain_proof_sp1_types::{AggregationSessionRequest, RangeProofRequest, Sp1ProofRequest};
-use world_chain_proof_worker::{ClaimedProofJobHandler, ProofJob};
-use world_chain_prover_service::{
+use my_chain_proof_sp1_types::{AggregationSessionRequest, RangeProofRequest, Sp1ProofRequest};
+use my_chain_proof_worker::{ClaimedProofJobHandler, ProofJob};
+use my_chain_prover_service::{
     BackendSession, BackendSessionStatus, ProofBackend, ProofData, ProofRequest, SessionType,
 };
 
@@ -350,7 +350,7 @@ impl<P: WorldSuccinctProver + Send + Sync, G: ProofGameProvider> Sp1Backend<P, G
                 {
                     Ok(session_id) => {
                         let duration = submission_started_at.elapsed();
-                        world_chain_proof_metrics::record_proof_phase_duration(
+                        my_chain_proof_metrics::record_proof_phase_duration(
                             "sp1",
                             "range_submission",
                             "success",
@@ -369,7 +369,7 @@ impl<P: WorldSuccinctProver + Send + Sync, G: ProofGameProvider> Sp1Backend<P, G
                     }
                     Err(error) => {
                         let duration = submission_started_at.elapsed();
-                        world_chain_proof_metrics::record_proof_phase_duration(
+                        my_chain_proof_metrics::record_proof_phase_duration(
                             "sp1",
                             "range_submission",
                             "error",
@@ -419,7 +419,7 @@ impl<P: WorldSuccinctProver + Send + Sync, G: ProofGameProvider> Sp1Backend<P, G
             let error = match self.prover.wait(&session_id).await {
                 Ok(proof) => {
                     let duration = wait_started_at.elapsed();
-                    world_chain_proof_metrics::record_proof_phase_duration(
+                    my_chain_proof_metrics::record_proof_phase_duration(
                         "sp1",
                         "range_wait",
                         "success",
@@ -439,7 +439,7 @@ impl<P: WorldSuccinctProver + Send + Sync, G: ProofGameProvider> Sp1Backend<P, G
                 }
                 Err(error) => {
                     let duration = wait_started_at.elapsed();
-                    world_chain_proof_metrics::record_proof_phase_duration(
+                    my_chain_proof_metrics::record_proof_phase_duration(
                         "sp1",
                         "range_wait",
                         "error",
@@ -506,7 +506,7 @@ impl<P: WorldSuccinctProver + Send + Sync, G: ProofGameProvider> Sp1Backend<P, G
                             )
                         });
                     };
-                    world_chain_proof_metrics::increment_sp1_range_bisections();
+                    my_chain_proof_metrics::increment_sp1_range_bisections();
                     tracing::warn!(
                         proof_id = %request.id(),
                         start_block = range.start_block,
@@ -578,7 +578,7 @@ impl<P: WorldSuccinctProver + Send + Sync, G: ProofGameProvider> Sp1Backend<P, G
         match self.prover.wait(&session_id).await {
             Ok(proof) => {
                 let duration = wait_started_at.elapsed();
-                world_chain_proof_metrics::record_proof_phase_duration(
+                my_chain_proof_metrics::record_proof_phase_duration(
                     "sp1",
                     "aggregation_wait",
                     "success",
@@ -603,7 +603,7 @@ impl<P: WorldSuccinctProver + Send + Sync, G: ProofGameProvider> Sp1Backend<P, G
             }
             Err(error) => {
                 let duration = wait_started_at.elapsed();
-                world_chain_proof_metrics::record_proof_phase_duration(
+                my_chain_proof_metrics::record_proof_phase_duration(
                     "sp1",
                     "aggregation_wait",
                     "error",
@@ -689,7 +689,7 @@ impl<P: WorldSuccinctProver + Send + Sync, G: ProofGameProvider> Sp1Backend<P, G
             {
                 Ok(session_id) => {
                     let duration = submission_started_at.elapsed();
-                    world_chain_proof_metrics::record_proof_phase_duration(
+                    my_chain_proof_metrics::record_proof_phase_duration(
                         "sp1",
                         "aggregation_submission",
                         "success",
@@ -707,7 +707,7 @@ impl<P: WorldSuccinctProver + Send + Sync, G: ProofGameProvider> Sp1Backend<P, G
                 }
                 Err(error) => {
                     let duration = submission_started_at.elapsed();
-                    world_chain_proof_metrics::record_proof_phase_duration(
+                    my_chain_proof_metrics::record_proof_phase_duration(
                         "sp1",
                         "aggregation_submission",
                         "error",
@@ -792,7 +792,7 @@ impl<P: WorldSuccinctProver + Send + Sync, G: ProofGameProvider> Sp1Backend<P, G
         .await
         {
             Ok(input) => {
-                world_chain_proof_metrics::record_witness_collection(
+                my_chain_proof_metrics::record_witness_collection(
                     "sp1",
                     "success",
                     witness_collection_started_at.elapsed(),
@@ -805,7 +805,7 @@ impl<P: WorldSuccinctProver + Send + Sync, G: ProofGameProvider> Sp1Backend<P, G
                 } else {
                     "error"
                 };
-                world_chain_proof_metrics::record_witness_collection(
+                my_chain_proof_metrics::record_witness_collection(
                     "sp1",
                     outcome,
                     witness_collection_started_at.elapsed(),

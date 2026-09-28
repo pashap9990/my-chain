@@ -14,11 +14,11 @@
 //!   and [`collect_hints`].
 //! - [`register_enclave_key`] (Linux + `enclave` feature) — the full flow: fetch the
 //!   attestation from a running enclave over vsock, build the calldata, submit `registerKey`
-//!   to L1, and confirm registration. Used by both the `world-chain-prover-nitro register`
+//!   to L1, and confirm registration. Used by both the `my-chain-prover-nitro register`
 //!   subcommand and the worker's `--auto-register` startup hook.
 
 // Submitting `registerKey` means talking to a running enclave over AF_VSOCK, so the whole
-// crate is Linux-only — the same shape `world-chain-proof-nitro-worker` uses. Nothing here
+// crate is Linux-only — the same shape `my-chain-proof-nitro-worker` uses. Nothing here
 // runs inside the enclave; it exists as a separate crate so that alloy-provider, the tx
 // signer and their transitive graph stay out of the measured lockfile.
 #![cfg(target_os = "linux")]
@@ -34,7 +34,7 @@ use anyhow::{Context, Result, anyhow, bail};
 use sha2::{Digest, Sha384};
 use tracing::{info, warn};
 use url::Url;
-use world_chain_proof_tx_signer::{TransactionSigner, build_transaction_signer};
+use my_chain_proof_tx_signer::{TransactionSigner, build_transaction_signer};
 
 use world_chain_proof_nitro_enclave::{
     attestation::leaf_cert_pubkey_xy,
@@ -222,7 +222,7 @@ async fn prewarm_cert_bundle<P: Provider + Clone>(
         }
 
         info!(
-            target: "world_chain::nitro",
+            target: "my_chain::nitro",
             cert_manager = %cert_manager_address,
             cache_key = %entry.cache_key,
             parent = %entry.parent_hash,
@@ -261,7 +261,7 @@ async fn prewarm_cert_bundle<P: Provider + Clone>(
             Ok((tx_hash, true)) => {
                 submitted += 1;
                 info!(
-                    target: "world_chain::nitro",
+                    target: "my_chain::nitro",
                     %tx_hash,
                     cache_key = %entry.cache_key,
                     "certificate verified into the CertManager cache"
@@ -282,7 +282,7 @@ async fn prewarm_cert_bundle<P: Provider + Clone>(
                     );
                 }
                 warn!(
-                    target: "world_chain::nitro",
+                    target: "my_chain::nitro",
                     %tx_hash,
                     "cert verification reverted but the cert is now cached; treating as success"
                 );
@@ -299,7 +299,7 @@ async fn prewarm_cert_bundle<P: Provider + Clone>(
                         .with_context(|| format!("pre-warming CertManager for chain[{i}] failed"));
                 }
                 warn!(
-                    target: "world_chain::nitro",
+                    target: "my_chain::nitro",
                     error = %err,
                     "cert verification failed but the cert is now cached; treating as success"
                 );
@@ -393,7 +393,7 @@ pub async fn register_enclave_key(params: RegisterParams) -> Result<Registration
     // uncompressed secp256k1 public key (keccak256(pubkey[1..65])[12..]).
     let enclave_signer = enclave_signer_address(public_key.as_ref())?;
     info!(
-        target: "world_chain::nitro",
+        target: "my_chain::nitro",
         pubkey = %hex::encode(&public_key),
         signer = %enclave_signer,
         "fetched enclave public-key attestation"
@@ -451,7 +451,7 @@ pub async fn register_enclave_key(params: RegisterParams) -> Result<Registration
     let submitted =
         prewarm_cert_bundle(provider.clone(), cert_manager_address, &plan, now_secs).await?;
     info!(
-        target: "world_chain::nitro",
+        target: "my_chain::nitro",
         cert_manager = %cert_manager_address,
         chain_len = plan.len(),
         submitted,
@@ -473,7 +473,7 @@ pub async fn register_enclave_key(params: RegisterParams) -> Result<Registration
         match registry.isSignerRegistered(enclave_signer).call().await {
             Ok(true) => {
                 info!(
-                    target: "world_chain::nitro",
+                    target: "my_chain::nitro",
                     signer = %enclave_signer,
                     registry = %registry_address,
                     "enclave signer already registered on-chain; nothing to do"
@@ -483,7 +483,7 @@ pub async fn register_enclave_key(params: RegisterParams) -> Result<Registration
             Ok(false) => {}
             Err(err) => {
                 warn!(
-                    target: "world_chain::nitro",
+                    target: "my_chain::nitro",
                     error = %err,
                     "isSignerRegistered pre-check failed; attempting registration anyway"
                 );
@@ -491,7 +491,7 @@ pub async fn register_enclave_key(params: RegisterParams) -> Result<Registration
         }
 
         info!(
-            target: "world_chain::nitro",
+            target: "my_chain::nitro",
             registry = %registry_address,
             tx_signer = %signer_address,
             attempt,
@@ -543,7 +543,7 @@ pub async fn register_enclave_key(params: RegisterParams) -> Result<Registration
                     Ok(true) => {
                         if mined_ok {
                             info!(
-                                target: "world_chain::nitro",
+                                target: "my_chain::nitro",
                                 %tx_hash,
                                 pubkey = %hex::encode(&public_key),
                                 enclave_signer = %enclave_signer,
@@ -553,7 +553,7 @@ pub async fn register_enclave_key(params: RegisterParams) -> Result<Registration
                             return Ok(RegistrationOutcome::Registered { tx_hash });
                         }
                         warn!(
-                            target: "world_chain::nitro",
+                            target: "my_chain::nitro",
                             %tx_hash,
                             "registerKey tx reverted but the signer is already registered; treating as success"
                         );
@@ -593,7 +593,7 @@ pub async fn register_enclave_key(params: RegisterParams) -> Result<Registration
                     Ok(true)
                 ) {
                     warn!(
-                        target: "world_chain::nitro",
+                        target: "my_chain::nitro",
                         "registerKey reverted but the signer is already registered; treating as success"
                     );
                     return Ok(RegistrationOutcome::AlreadyRegistered);
@@ -612,7 +612,7 @@ pub async fn register_enclave_key(params: RegisterParams) -> Result<Registration
                     Ok(true)
                 ) {
                     warn!(
-                        target: "world_chain::nitro",
+                        target: "my_chain::nitro",
                         "registerKey failed but the signer is already registered; treating as success"
                     );
                     return Ok(RegistrationOutcome::AlreadyRegistered);
@@ -624,7 +624,7 @@ pub async fn register_enclave_key(params: RegisterParams) -> Result<Registration
         if attempt < REGISTER_MAX_ATTEMPTS {
             let delay = REGISTER_RETRY_BASE_DELAY * attempt;
             warn!(
-                target: "world_chain::nitro",
+                target: "my_chain::nitro",
                 attempt,
                 delay_secs = delay.as_secs(),
                 error = ?last_err,

@@ -8,7 +8,7 @@ use reth_provider::{BlockReaderIdExt, StateProviderFactory};
 
 use semaphore_rs::Field;
 
-use super::error::WorldChainTransactionPoolError;
+use super::error::MyChainTransactionPoolError;
 
 /// The slot of the `_latestRoot` in the
 ///
@@ -17,7 +17,7 @@ pub const LATEST_ROOT_SLOT: U256 = U256::from_limbs([1, 0, 0, 0]);
 /// Root Expiration Period
 pub const ROOT_EXPIRATION_WINDOW: u64 = 60 * 60 * 24 * 7; // 1 Week
 
-/// A provider for managing and validating World Chain roots.
+/// A provider for managing and validating My Chain roots.
 #[derive(Debug, Clone)]
 pub struct RootProvider<Client>
 where
@@ -43,7 +43,7 @@ where
     /// # Arguments
     ///
     /// * `client` - The client used to aquire account state from the database.
-    pub fn new(client: Client, world_id: Address) -> Result<Self, WorldChainTransactionPoolError> {
+    pub fn new(client: Client, world_id: Address) -> Result<Self, MyChainTransactionPoolError> {
         let mut this = Self {
             client,
             world_id,
@@ -74,17 +74,17 @@ where
     fn on_new_block<B>(
         &mut self,
         block: &SealedBlock<B>,
-    ) -> Result<(), WorldChainTransactionPoolError>
+    ) -> Result<(), MyChainTransactionPoolError>
     where
         B: reth_primitives_traits::Block,
     {
         let state = self
             .client
             .state_by_block_hash(block.hash())
-            .map_err(WorldChainTransactionPoolError::Provider)?;
+            .map_err(MyChainTransactionPoolError::Provider)?;
         let root = state
             .storage(self.world_id, LATEST_ROOT_SLOT.into())
-            .map_err(WorldChainTransactionPoolError::Provider)?;
+            .map_err(MyChainTransactionPoolError::Provider)?;
         self.latest_valid_timestamp = block.timestamp();
         if let Some(root) = root {
             self.valid_roots.insert(root, block.timestamp());
@@ -119,9 +119,9 @@ where
     }
 }
 
-/// A validator for World Chain roots.
+/// A validator for My Chain roots.
 #[derive(Debug, Clone)]
-pub struct WorldChainRootValidator<Client>
+pub struct MyChainRootValidator<Client>
 where
     Client: StateProviderFactory + BlockReaderIdExt,
 {
@@ -129,16 +129,16 @@ where
     cache: Arc<RwLock<RootProvider<Client>>>,
 }
 
-impl<Client> WorldChainRootValidator<Client>
+impl<Client> MyChainRootValidator<Client>
 where
     Client: StateProviderFactory + BlockReaderIdExt,
 {
-    /// Creates a new [`WorldChainRootValidator`] instance.
+    /// Creates a new [`MyChainRootValidator`] instance.
     ///
     /// # Arguments
     ///
     /// * `client` - The client used for state and block operations.
-    pub fn new(client: Client, world_id: Address) -> Result<Self, WorldChainTransactionPoolError> {
+    pub fn new(client: Client, world_id: Address) -> Result<Self, MyChainTransactionPoolError> {
         let cache = RootProvider::new(client, world_id)?;
 
         Ok(Self {
@@ -189,14 +189,14 @@ mod tests {
     use super::*;
     use alloy_consensus::{Block as AlloyBlock, Header};
 
-    pub fn world_chain_root_validator() -> eyre::Result<WorldChainRootValidator<MockEthProvider>> {
+    pub fn my_chain_root_validator() -> eyre::Result<MyChainRootValidator<MockEthProvider>> {
         let client = MockEthProvider::default();
-        let root_validator = WorldChainRootValidator::new(client, DEV_WORLD_ID)?;
+        let root_validator = MyChainRootValidator::new(client, DEV_WORLD_ID)?;
         Ok(root_validator)
     }
 
     fn add_block_with_root_with_timestamp(
-        validator: &WorldChainRootValidator<MockEthProvider>,
+        validator: &MyChainRootValidator<MockEthProvider>,
         timestamp: u64,
         root: Field,
     ) {
@@ -225,7 +225,7 @@ mod tests {
 
     #[test]
     fn test_validate_root() -> eyre::Result<()> {
-        let validator = world_chain_root_validator()?;
+        let validator = my_chain_root_validator()?;
         let root_1 = Field::from(1u64);
         let timestamp = 1000000000;
         add_block_with_root_with_timestamp(&validator, timestamp, root_1);
@@ -244,7 +244,7 @@ mod tests {
 
     #[test]
     fn test_repeated_root_is_stored_once_and_refreshes_expiration() -> eyre::Result<()> {
-        let validator = world_chain_root_validator()?;
+        let validator = my_chain_root_validator()?;
         let root_1 = Field::from(1u64);
         let root_2 = Field::from(2u64);
         let timestamp = 1000000000;
@@ -267,7 +267,7 @@ mod tests {
         Ok(())
     }
 
-    impl<Client> WorldChainRootValidator<Client>
+    impl<Client> MyChainRootValidator<Client>
     where
         Client: StateProviderFactory + BlockReaderIdExt,
     {

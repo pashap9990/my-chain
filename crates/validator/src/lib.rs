@@ -1,6 +1,6 @@
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
-//! World Chain flashblock validation and coordination.
+//! My Chain flashblock validation and coordination.
 
 /// Flashblocks execution coordinator.
 pub mod coordinator;

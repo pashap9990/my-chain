@@ -1,13 +1,13 @@
 use reth_chainspec::{EthereumHardforks, ForkCondition, hardfork};
 
 hardfork!(
-    /// The name of a World Chain hardfork.
+    /// The name of a My Chain hardfork.
     ///
-    /// World Chain follows the OP Stack upgrade sequence through Karst, then uses
-    /// World Chain specific upgrade names as the canonical schedule diverges.
+    /// My Chain follows the OP Stack upgrade sequence through Karst, then uses
+    /// My Chain specific upgrade names as the canonical schedule diverges.
     #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
     #[derive(Default)]
-    WorldChainHardfork {
+    MyChainHardfork {
         /// Bedrock: OP Stack Bedrock upgrade.
         Bedrock,
         /// Regolith: OP Stack Regolith upgrade.
@@ -24,101 +24,101 @@ hardfork!(
         Holocene,
         /// Isthmus: OP Stack Isthmus upgrade.
         Isthmus,
-        /// Jovian: OP Stack Jovian upgrade. World Chain is already on this hardfork.
+        /// Jovian: OP Stack Jovian upgrade. My Chain is already on this hardfork.
         #[default]
         Jovian,
         /// Karst: OP Stack Karst upgrade.
         Karst,
-        /// Tropo: the first World Chain specific hardfork after Karst.
+        /// Tropo: the first My Chain specific hardfork after Karst.
         Tropo,
-        /// Strato: the second World Chain specific hardfork after Karst.
+        /// Strato: the second My Chain specific hardfork after Karst.
         Strato,
     }
 );
 
-impl WorldChainHardfork {
-    /// Returns index of `self` in the canonical World Chain hardfork order.
+impl MyChainHardfork {
+    /// Returns index of `self` in the canonical My Chain hardfork order.
     pub const fn idx(&self) -> usize {
         *self as usize
     }
 }
 
-/// Extends [`EthereumHardforks`] with World Chain hardfork helper methods.
+/// Extends [`EthereumHardforks`] with My Chain hardfork helper methods.
 #[auto_impl::auto_impl(&, Arc)]
-pub trait WorldChainHardforks: EthereumHardforks {
-    /// Retrieves [`ForkCondition`] by a [`WorldChainHardfork`]. If `fork` is not present,
+pub trait MyChainHardforks: EthereumHardforks {
+    /// Retrieves [`ForkCondition`] by a [`MyChainHardfork`]. If `fork` is not present,
     /// returns [`ForkCondition::Never`].
-    fn world_chain_fork_activation(&self, fork: WorldChainHardfork) -> ForkCondition;
+    fn my_chain_fork_activation(&self, fork: MyChainHardfork) -> ForkCondition;
 
-    /// Returns `true` if [`Bedrock`](WorldChainHardfork::Bedrock) is active at the block number.
+    /// Returns `true` if [`Bedrock`](MyChainHardfork::Bedrock) is active at the block number.
     fn is_bedrock_active_at_block(&self, block_number: u64) -> bool {
-        self.world_chain_fork_activation(WorldChainHardfork::Bedrock)
+        self.my_chain_fork_activation(MyChainHardfork::Bedrock)
             .active_at_block(block_number)
     }
 
-    /// Returns `true` if [`Regolith`](WorldChainHardfork::Regolith) is active.
+    /// Returns `true` if [`Regolith`](MyChainHardfork::Regolith) is active.
     fn is_regolith_active_at_timestamp(&self, timestamp: u64) -> bool {
-        self.world_chain_fork_activation(WorldChainHardfork::Regolith)
+        self.my_chain_fork_activation(MyChainHardfork::Regolith)
             .active_at_timestamp(timestamp)
     }
 
-    /// Returns `true` if [`Canyon`](WorldChainHardfork::Canyon) is active.
+    /// Returns `true` if [`Canyon`](MyChainHardfork::Canyon) is active.
     fn is_canyon_active_at_timestamp(&self, timestamp: u64) -> bool {
-        self.world_chain_fork_activation(WorldChainHardfork::Canyon)
+        self.my_chain_fork_activation(MyChainHardfork::Canyon)
             .active_at_timestamp(timestamp)
     }
 
-    /// Returns `true` if [`Ecotone`](WorldChainHardfork::Ecotone) is active.
+    /// Returns `true` if [`Ecotone`](MyChainHardfork::Ecotone) is active.
     fn is_ecotone_active_at_timestamp(&self, timestamp: u64) -> bool {
-        self.world_chain_fork_activation(WorldChainHardfork::Ecotone)
+        self.my_chain_fork_activation(MyChainHardfork::Ecotone)
             .active_at_timestamp(timestamp)
     }
 
-    /// Returns `true` if [`Fjord`](WorldChainHardfork::Fjord) is active.
+    /// Returns `true` if [`Fjord`](MyChainHardfork::Fjord) is active.
     fn is_fjord_active_at_timestamp(&self, timestamp: u64) -> bool {
-        self.world_chain_fork_activation(WorldChainHardfork::Fjord)
+        self.my_chain_fork_activation(MyChainHardfork::Fjord)
             .active_at_timestamp(timestamp)
     }
 
-    /// Returns `true` if [`Granite`](WorldChainHardfork::Granite) is active.
+    /// Returns `true` if [`Granite`](MyChainHardfork::Granite) is active.
     fn is_granite_active_at_timestamp(&self, timestamp: u64) -> bool {
-        self.world_chain_fork_activation(WorldChainHardfork::Granite)
+        self.my_chain_fork_activation(MyChainHardfork::Granite)
             .active_at_timestamp(timestamp)
     }
 
-    /// Returns `true` if [`Holocene`](WorldChainHardfork::Holocene) is active.
+    /// Returns `true` if [`Holocene`](MyChainHardfork::Holocene) is active.
     fn is_holocene_active_at_timestamp(&self, timestamp: u64) -> bool {
-        self.world_chain_fork_activation(WorldChainHardfork::Holocene)
+        self.my_chain_fork_activation(MyChainHardfork::Holocene)
             .active_at_timestamp(timestamp)
     }
 
-    /// Returns `true` if [`Isthmus`](WorldChainHardfork::Isthmus) is active.
+    /// Returns `true` if [`Isthmus`](MyChainHardfork::Isthmus) is active.
     fn is_isthmus_active_at_timestamp(&self, timestamp: u64) -> bool {
-        self.world_chain_fork_activation(WorldChainHardfork::Isthmus)
+        self.my_chain_fork_activation(MyChainHardfork::Isthmus)
             .active_at_timestamp(timestamp)
     }
 
-    /// Returns `true` if [`Jovian`](WorldChainHardfork::Jovian) is active.
+    /// Returns `true` if [`Jovian`](MyChainHardfork::Jovian) is active.
     fn is_jovian_active_at_timestamp(&self, timestamp: u64) -> bool {
-        self.world_chain_fork_activation(WorldChainHardfork::Jovian)
+        self.my_chain_fork_activation(MyChainHardfork::Jovian)
             .active_at_timestamp(timestamp)
     }
 
-    /// Returns `true` if [`Karst`](WorldChainHardfork::Karst) is active.
+    /// Returns `true` if [`Karst`](MyChainHardfork::Karst) is active.
     fn is_karst_active_at_timestamp(&self, timestamp: u64) -> bool {
-        self.world_chain_fork_activation(WorldChainHardfork::Karst)
+        self.my_chain_fork_activation(MyChainHardfork::Karst)
             .active_at_timestamp(timestamp)
     }
 
-    /// Returns `true` if [`Tropo`](WorldChainHardfork::Tropo) is active.
+    /// Returns `true` if [`Tropo`](MyChainHardfork::Tropo) is active.
     fn is_tropo_active_at_timestamp(&self, timestamp: u64) -> bool {
-        self.world_chain_fork_activation(WorldChainHardfork::Tropo)
+        self.my_chain_fork_activation(MyChainHardfork::Tropo)
             .active_at_timestamp(timestamp)
     }
 
-    /// Returns `true` if [`Strato`](WorldChainHardfork::Strato) is active.
+    /// Returns `true` if [`Strato`](MyChainHardfork::Strato) is active.
     fn is_strato_active_at_timestamp(&self, timestamp: u64) -> bool {
-        self.world_chain_fork_activation(WorldChainHardfork::Strato)
+        self.my_chain_fork_activation(MyChainHardfork::Strato)
             .active_at_timestamp(timestamp)
     }
 }
@@ -132,16 +132,16 @@ mod tests {
     #[test]
     fn parses_case_insensitive_hardfork_names() {
         assert_eq!(
-            WorldChainHardfork::from_str("kArSt").unwrap(),
-            WorldChainHardfork::Karst
+            MyChainHardfork::from_str("kArSt").unwrap(),
+            MyChainHardfork::Karst
         );
         assert_eq!(
-            WorldChainHardfork::from_str("tRoPo").unwrap(),
-            WorldChainHardfork::Tropo
+            MyChainHardfork::from_str("tRoPo").unwrap(),
+            MyChainHardfork::Tropo
         );
         assert_eq!(
-            WorldChainHardfork::from_str("sTrAtO").unwrap(),
-            WorldChainHardfork::Strato
+            MyChainHardfork::from_str("sTrAtO").unwrap(),
+            MyChainHardfork::Strato
         );
     }
 }

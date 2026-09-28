@@ -1,4 +1,4 @@
-//! Generic proving worker for the World Chain defender stack.
+//! Generic proving worker for the My Chain defender stack.
 //!
 //! A [`ProofWorker`] polls the `prover-service` for claimed proof jobs on a single backend
 //! lane, hands each to a [`ClaimedProofJobHandler`], and submits the finished proofs back.

@@ -28,14 +28,14 @@ use crate::{
     BlockBuilderExt, FlashblockExecutionMetrics, OpBlockAssembler, OpRethReceiptBuilder,
     PayloadBuildStage,
 };
-use world_chain_chainspec::WorldChainSpec;
+use my_chain_chainspec::MyChainSpec;
 /// A wrapper around the [`BasicBlockBuilder`] for flashblocks.
 pub struct FlashblocksBlockBuilder<'a, N: NodePrimitives, Evm, R: OpReceiptBuilder<Transaction = OpTransactionSigned, Receipt = OpReceipt>  + 'static = OpRethReceiptBuilder> {
     pub inner: BasicBlockBuilder<
         'a,
         OpBlockExecutorFactory<R>,
-        OpBlockExecutor<Evm, R, WorldChainSpec>,
-        OpBlockAssembler<WorldChainSpec>,
+        OpBlockExecutor<Evm, R, MyChainSpec>,
+        OpBlockAssembler<MyChainSpec>,
         N,
     >,
     pub committed_bundle: BundleState,
@@ -46,9 +46,9 @@ impl<'a, N: NodePrimitives, Evm> FlashblocksBlockBuilder<'a, N, Evm> {
     pub fn new(
         ctx: OpBlockExecutionCtx,
         parent: &'a SealedHeader<N::BlockHeader>,
-        executor: OpBlockExecutor<Evm, OpRethReceiptBuilder, WorldChainSpec>,
+        executor: OpBlockExecutor<Evm, OpRethReceiptBuilder, MyChainSpec>,
         transactions: Vec<Recovered<N::SignedTx>>,
-        chain_spec: Arc<WorldChainSpec>,
+        chain_spec: Arc<MyChainSpec>,
         committed_bundle: BundleState,
     ) -> Self {
         Self {
@@ -84,11 +84,11 @@ where
             BlockEnv = BlockEnv,
         >,
     E: PostExecEvm,
-    OpBlockExecutor<E, R, WorldChainSpec>:
+    OpBlockExecutor<E, R, MyChainSpec>:
         BlockExecutor<Evm = E, Transaction = OpTransactionSigned, Receipt = OpReceipt>,
 {
     type Primitives = N;
-    type Executor = OpBlockExecutor<E, R, WorldChainSpec>;
+    type Executor = OpBlockExecutor<E, R, MyChainSpec>;
 
     fn apply_pre_execution_changes(&mut self) -> Result<(), BlockExecutionError> {
         self.inner.executor.apply_pre_execution_changes()
@@ -155,7 +155,7 @@ where
             BlockEnv = BlockEnv,
         >,
     E: PostExecEvm,
-    OpBlockExecutor<E, R, WorldChainSpec>:
+    OpBlockExecutor<E, R, MyChainSpec>:
         BlockExecutor<Evm = E, Transaction = OpTransactionSigned, Receipt = OpReceipt>,
 {
     fn finish_with_bundle(

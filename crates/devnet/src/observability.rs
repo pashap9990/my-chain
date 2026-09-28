@@ -18,7 +18,7 @@ use crate::{
 const PROMETHEUS_PORT: u16 = 9090;
 const GRAFANA_PORT: u16 = 3000;
 const GRAFANA_PROMETHEUS_UID: &str = "devnet-prometheus";
-const GRAFANA_DASHBOARD_DIR: &str = "/var/lib/grafana/dashboards/world-chain";
+const GRAFANA_DASHBOARD_DIR: &str = "/var/lib/grafana/dashboards/my-chain";
 const RETH_DASHBOARD_URL: &str =
     "https://raw.githubusercontent.com/paradigmxyz/reth/main/etc/grafana/dashboards/overview.json";
 const RETH_DASHBOARD_FETCH_TIMEOUT: Duration = Duration::from_secs(5);
@@ -28,7 +28,7 @@ const FLASHBLOCKS_VALIDATION_PIPELINE_DASHBOARD: &str =
     include_str!("../../../pkg/devnet/grafana/dashboards/flashblocks-validation-pipeline.json");
 const FLASHBLOCKS_P2P_DASHBOARD: &str =
     include_str!("../../../pkg/devnet/grafana/dashboards/flashblocks-p2p.json");
-const WORLD_CHAIN_DASHBOARDS: [(&str, &str); 3] = [
+const MY_CHAIN_DASHBOARDS: [(&str, &str); 3] = [
     (
         "flashblocks-payload-builder.json",
         FLASHBLOCKS_PAYLOAD_BUILDER_DASHBOARD,
@@ -197,21 +197,21 @@ impl ObservabilityStack {
         .with_env_var("GF_AUTH_ANONYMOUS_ORG_ROLE", "Admin")
         .with_env_var("GF_AUTH_DISABLE_LOGIN_FORM", "true")
         .with_copy_to(
-            "/etc/grafana/provisioning/datasources/world-chain-devnet.yml",
+            "/etc/grafana/provisioning/datasources/my-chain-devnet.yml",
             render_grafana_datasource(&grafana_prometheus_url).into_bytes(),
         )
         .with_copy_to(
-            "/etc/grafana/provisioning/dashboards/world-chain-devnet.yml",
+            "/etc/grafana/provisioning/dashboards/my-chain-devnet.yml",
             render_grafana_dashboard_provider().into_bytes(),
         );
 
         let mut grafana_image = grafana_image;
-        for (filename, dashboard) in WORLD_CHAIN_DASHBOARDS {
+        for (filename, dashboard) in MY_CHAIN_DASHBOARDS {
             let dashboard = provision_grafana_dashboard(dashboard)?;
             grafana_image = grafana_image
                 .with_copy_to(format!("{GRAFANA_DASHBOARD_DIR}/{filename}"), dashboard);
         }
-        let mut dashboard_count = WORLD_CHAIN_DASHBOARDS.len();
+        let mut dashboard_count = MY_CHAIN_DASHBOARDS.len();
         if let Some(dashboard) = fetch_reth_dashboard().await {
             match provision_grafana_dashboard(&dashboard) {
                 Ok(dashboard) => {
@@ -387,7 +387,7 @@ fn render_prometheus_config(scrape_interval_secs: u64, targets: &[MetricsTarget]
 }
 
 fn dashboard_instance_label(job: &str) -> String {
-    if job.starts_with("world-chain-el-") {
+    if job.starts_with("my-chain-el-") {
         format!("{job}:9001")
     } else {
         job.to_string()
@@ -417,10 +417,10 @@ fn render_grafana_dashboard_provider() -> String {
     format!(
         r#"apiVersion: 1
 providers:
-  - name: "World Chain Devnet"
+  - name: "My Chain Devnet"
     orgId: 1
-    folder: "World Chain Devnet"
-    folderUid: "world-chain-devnet"
+    folder: "My Chain Devnet"
+    folderUid: "my-chain-devnet"
     type: "file"
     disableDeletion: false
     allowUiUpdates: true
@@ -477,7 +477,7 @@ mod tests {
         let config = render_prometheus_config(
             7,
             &[MetricsTarget::new(
-                "world-chain-el-0",
+                "my-chain-el-0",
                 "host.docker.internal:9001",
             )],
         );
@@ -485,9 +485,9 @@ mod tests {
         assert!(config.contains("scrape_interval: 7s"));
         assert!(config.contains("job_name: prometheus"));
         assert!(config.contains("127.0.0.1:9090"));
-        assert!(config.contains("job_name: 'world-chain-el-0'"));
+        assert!(config.contains("job_name: 'my-chain-el-0'"));
         assert!(config.contains("host.docker.internal:9001"));
-        assert!(config.contains("instance: 'world-chain-el-0:9001'"));
+        assert!(config.contains("instance: 'my-chain-el-0:9001'"));
     }
 
     #[test]
@@ -503,7 +503,7 @@ mod tests {
     fn grafana_provider_uses_quoted_dashboard_path() {
         let config = render_grafana_dashboard_provider();
 
-        assert!(config.contains("folder: \"World Chain Devnet\""));
+        assert!(config.contains("folder: \"My Chain Devnet\""));
         assert!(config.contains(&format!("path: \"{GRAFANA_DASHBOARD_DIR}\"")));
         assert!(config.contains("allowUiUpdates: true"));
     }

@@ -1,8 +1,8 @@
-//! `world-chain-defender` binary: supplies proof support for the valid WIP-1006 games selected
+//! `my-chain-defender` binary: supplies proof support for the valid WIP-1006 games selected
 //! from the current anchor and escalates challenged games to the proof threshold.
 //!
 //! Mirrors the in-process defender wired by the devnet harness
-//! (`crates/devnet/src/full_stack.rs::start_world_chain_defender`), reading its
+//! (`crates/devnet/src/full_stack.rs::start_my_chain_defender`), reading its
 //! configuration from flags/environment so it can run as a standalone service.
 
 use std::time::Duration;
@@ -14,21 +14,21 @@ use anyhow::{Context, Result};
 use clap::{ArgGroup, Parser};
 use tracing::{info, warn};
 use url::Url;
-use world_chain_defender::{
-    AlloyDefenderClient, DEFAULT_L1_TX_CONFIRMATIONS, DefenderConfig, WorldChainDefender,
+use my_chain_defender::{
+    AlloyDefenderClient, DEFAULT_L1_TX_CONFIRMATIONS, DefenderConfig, MyChainDefender,
 };
-use world_chain_proof_metrics::RPC_ENDPOINT_VERIFYING;
-use world_chain_proof_protocol::{
+use my_chain_proof_metrics::RPC_ENDPOINT_VERIFYING;
+use my_chain_proof_protocol::{
     IDisputeGameFactory, IERC20StakingVault, OptimismConsensusClient, VerifyingConsensusProvider,
     read_registered_bond_vault,
 };
-use world_chain_proof_tx_signer::build_transaction_signer;
-use world_chain_prover_service::RpcProverServiceClient;
+use my_chain_proof_tx_signer::build_transaction_signer;
+use my_chain_prover_service::RpcProverServiceClient;
 
 #[derive(Debug, Parser)]
 #[command(
-    name = "world-chain-defender",
-    about = "World Chain proof-system defender: proves the lineage selected from the anchor",
+    name = "my-chain-defender",
+    about = "My Chain proof-system defender: proves the lineage selected from the anchor",
     group = ArgGroup::new("transaction_signer")
         .required(true)
         .multiple(false)
@@ -97,7 +97,7 @@ struct Cli {
     #[arg(
         long,
         env = "L1_TX_RECEIPT_TIMEOUT_SECONDS",
-        default_value_t = world_chain_proof_protocol::DEFAULT_L1_TX_RECEIPT_TIMEOUT_SECONDS,
+        default_value_t = my_chain_proof_protocol::DEFAULT_L1_TX_RECEIPT_TIMEOUT_SECONDS,
         value_parser = clap::value_parser!(u64).range(1..)
     )]
     l1_tx_receipt_timeout_seconds: u64,
@@ -106,7 +106,7 @@ struct Cli {
     #[arg(
         long,
         env = "L1_RPC_TIMEOUT_SECONDS",
-        default_value_t = world_chain_proof_metrics::DEFAULT_RPC_REQUEST_TIMEOUT_SECONDS,
+        default_value_t = my_chain_proof_metrics::DEFAULT_RPC_REQUEST_TIMEOUT_SECONDS,
         value_parser = clap::value_parser!(u64).range(1..)
     )]
     l1_rpc_timeout_seconds: u64,
@@ -117,7 +117,7 @@ async fn main() -> Result<()> {
     dotenvy::dotenv().ok();
     let _telemetry_guard = telemetry_batteries::init()
         .map_err(|error| anyhow::anyhow!("failed to initialize telemetry: {error:#}"))?;
-    world_chain_proof_metrics::describe_metrics();
+    my_chain_proof_metrics::describe_metrics();
 
     let cli = Cli::parse();
 
@@ -134,10 +134,10 @@ async fn main() -> Result<()> {
         .map(Url::parse)
         .transpose()
         .context("invalid L1 fallback RPC URL")?;
-    let l1_rpc_client = world_chain_proof_metrics::metered_http_client(
+    let l1_rpc_client = my_chain_proof_metrics::metered_http_client(
         l1_rpc_url,
         l1_fallback_rpc_url,
-        world_chain_proof_metrics::RPC_TARGET_L1_EXECUTION,
+        my_chain_proof_metrics::RPC_TARGET_L1_EXECUTION,
         Duration::from_secs(cli.l1_rpc_timeout_seconds),
     )
     .context("failed to build the L1 RPC client")?;
@@ -153,7 +153,7 @@ async fn main() -> Result<()> {
     };
     let provider = build_provider(l1_rpc_client);
     let submission_provider = if let Some(url) = &cli.l1_submission_rpc {
-        let rpc_client = world_chain_proof_metrics::metered_http_client(
+        let rpc_client = my_chain_proof_metrics::metered_http_client(
             url.clone(),
             None,
             "l1_submission",
@@ -170,7 +170,7 @@ async fn main() -> Result<()> {
         warn!("L1_SUBMISSION_RPC_URL is unset; proofs use the normal L1 RPC and its fallback");
         provider.clone()
     };
-    world_chain_proof_metrics::refresh_wallet_balance(&provider, defender_address).await;
+    my_chain_proof_metrics::refresh_wallet_balance(&provider, defender_address).await;
     let factory = IDisputeGameFactory::IDisputeGameFactoryInstance::new(
         cli.factory_address,
         provider.clone(),
@@ -180,7 +180,7 @@ async fn main() -> Result<()> {
             let vault =
                 IERC20StakingVault::IERC20StakingVaultInstance::new(bond_vault, provider.clone());
             match vault.availableBalance(reward_recipient).call().await {
-                Ok(balance) => world_chain_proof_metrics::record_vault_balance(
+                Ok(balance) => my_chain_proof_metrics::record_vault_balance(
                     bond_vault,
                     reward_recipient,
                     "defender",
@@ -216,13 +216,13 @@ async fn main() -> Result<()> {
         poll_interval: Duration::from_secs(cli.poll_interval_seconds),
         max_game_concurrency: cli.max_game_concurrency,
     };
-    let mut defender = WorldChainDefender::new(config, client, output_roots, proof_requester);
+    let mut defender = MyChainDefender::new(config, client, output_roots, proof_requester);
 
     info!(
-        l1_rpc_url = world_chain_proof_metrics::redact_endpoint(&cli.l1_rpc),
+        l1_rpc_url = my_chain_proof_metrics::redact_endpoint(&cli.l1_rpc),
         l1_fallback_rpc_configured = cli.l1_fallback_rpc.is_some(),
         private_submission_configured = cli.l1_submission_rpc.is_some(),
-        output_root_rpc_url = world_chain_proof_metrics::redact_endpoint(&cli.output_root_rpc),
+        output_root_rpc_url = my_chain_proof_metrics::redact_endpoint(&cli.output_root_rpc),
         verifying_output_root_rpc_configured = cli.verifying_output_root_rpc.is_some(),
         prover_service = %cli.prover_service_url,
         dispute_game_factory = %cli.factory_address,
@@ -231,7 +231,7 @@ async fn main() -> Result<()> {
         l1_tx_confirmations = cli.l1_tx_confirmations,
         l1_tx_receipt_timeout_seconds = cli.l1_tx_receipt_timeout_seconds,
         l1_rpc_timeout_seconds = cli.l1_rpc_timeout_seconds,
-        "starting World Chain proof-system defender"
+        "starting My Chain proof-system defender"
     );
 
     tokio::select! {

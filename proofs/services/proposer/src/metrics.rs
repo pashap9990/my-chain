@@ -1,4 +1,4 @@
-//! Metrics definitions and helpers for the World Chain proposer.
+//! Metrics definitions and helpers for the My Chain proposer.
 
 use telemetry_batteries::reexports::metrics;
 
@@ -9,11 +9,11 @@ pub const METRICS_SELECTED_LINEAGE_L2_BLOCK_NUMBER: &str =
     "proposer.selected_lineage_l2_block_number";
 /// Registers proposer metric metadata with the active recorder.
 pub fn describe_metrics() {
-    world_chain_proof_metrics::describe_metrics();
+    my_chain_proof_metrics::describe_metrics();
     metrics::describe_counter!(
         METRICS_PROPOSALS_SUBMITTED,
         metrics::Unit::Count,
-        "Number of World Chain proof-system proposals successfully confirmed on L1 by kind."
+        "Number of My Chain proof-system proposals successfully confirmed on L1 by kind."
     );
     metrics::describe_gauge!(
         METRICS_SELECTED_LINEAGE_L2_BLOCK_NUMBER,

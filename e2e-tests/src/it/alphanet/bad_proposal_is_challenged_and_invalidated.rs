@@ -8,12 +8,12 @@ use alloy_provider::{Provider, ProviderBuilder};
 use alloy_signer_local::PrivateKeySigner;
 use revm_primitives::B256;
 use std::{str::FromStr, time::Duration};
-use world_chain_proof_protocol::{
+use my_chain_proof_protocol::{
     IDisputeGameFactory::IDisputeGameFactoryInstance,
     IERC20StakingVault::IERC20StakingVaultInstance, IMultiProofGame::IMultiProofGameInstance,
     LineageProvider, read_registered_bond_vault,
 };
-use world_chain_proposer::{Proposal, ProposalSubmission, ProposerClient};
+use my_chain_proposer::{Proposal, ProposalSubmission, ProposerClient};
 
 /// Mock bond tokens deposited for each throwaway proof-system participant (100 tokens).
 const THROWAWAY_ACCOUNT_BOND_TOKEN_BALANCE: u128 = 100_000_000_000_000_000_000;

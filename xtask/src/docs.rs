@@ -21,15 +21,15 @@ pub fn run(args: Args) -> Result<()> {
     let out = &args.output;
     std::fs::create_dir_all(out)?;
 
-    // Generate the world-chain node help
-    let node_help = WorldChainCli::command().render_long_help().to_string();
+    // Generate the my-chain node help
+    let node_help = MyChainCli::command().render_long_help().to_string();
 
     // Write the main CLI reference page
     let mut content = String::from(
         "# CLI Reference\n\n\
          > **Auto-generated** — run `cargo xtask docs` to regenerate.\n\n\
-         ## `world-chain`\n\n\
-         The World Chain node binary. All flags below are passed to `world-chain`.\n\n\
+         ## `my-chain`\n\n\
+         The My Chain node binary. All flags below are passed to `my-chain`.\n\n\
          ```text\n",
     );
     content.push_str(&node_help);
@@ -55,11 +55,11 @@ pub fn run(args: Args) -> Result<()> {
     Ok(())
 }
 
-/// Top-level CLI for `world-chain` — mirrors the binary's arg structure
+/// Top-level CLI for `my-chain` — mirrors the binary's arg structure
 /// so we can call `CommandFactory::command()` without running the node.
 #[derive(Parser)]
-#[command(name = "world-chain", about = "World Chain Node")]
-struct WorldChainCli {
+#[command(name = "my-chain", about = "My Chain Node")]
+struct MyChainCli {
     #[command(flatten)]
-    world_chain: world_chain_cli::WorldChainArgs,
+    my_chain: my_chain_cli::MyChainArgs,
 }

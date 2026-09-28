@@ -1,6 +1,6 @@
-//! World Chain node launcher with proof-history support.
+//! My Chain node launcher with proof-history support.
 
-use crate::{context::WorldChainDefaultContext, node::WorldChainNode};
+use crate::{context::MyChainDefaultContext, node::MyChainNode};
 use eyre::eyre::eyre;
 use futures_util::FutureExt;
 use reth_db::DatabaseEnv;
@@ -20,18 +20,18 @@ use reth_tasks::TaskExecutor;
 use std::{sync::Arc, time::Duration};
 use tokio::time::sleep;
 use tracing::info;
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_cli::WorldChainNodeConfig;
+use my_chain_chainspec::MyChainSpec;
+use my_chain_cli::MyChainNodeConfig;
 
-/// Launches a World Chain node, enabling proof history when requested by
+/// Launches a My Chain node, enabling proof history when requested by
 /// `--proofs-history`.
 pub async fn launch_node(
-    builder: WithLaunchContext<NodeBuilder<DatabaseEnv, WorldChainSpec>>,
-    config: WorldChainNodeConfig,
+    builder: WithLaunchContext<NodeBuilder<DatabaseEnv, MyChainSpec>>,
+    config: MyChainNodeConfig,
 ) -> eyre::Result<()> {
     if !config.args.rollup.proofs_history {
         let handle = builder
-            .node(WorldChainNode::<WorldChainDefaultContext>::new(config))
+            .node(MyChainNode::<MyChainDefaultContext>::new(config))
             .launch()
             .await?;
         return handle.node_exit_future.await;
@@ -66,8 +66,8 @@ pub async fn launch_node(
 
 /// Installs the proof-history ExEx, RPC overrides, and storage metrics before launching the node.
 pub async fn launch_with_proof_history<S>(
-    builder: WithLaunchContext<NodeBuilder<DatabaseEnv, WorldChainSpec>>,
-    config: WorldChainNodeConfig,
+    builder: WithLaunchContext<NodeBuilder<DatabaseEnv, MyChainSpec>>,
+    config: MyChainNodeConfig,
     storage: Arc<S>,
 ) -> eyre::Result<()>
 where
@@ -81,7 +81,7 @@ where
         config.args.rollup.proofs_history_verification_interval;
 
     let handle = builder
-        .node(WorldChainNode::<WorldChainDefaultContext>::new(config))
+        .node(MyChainNode::<MyChainDefaultContext>::new(config))
         .on_node_started(move |node| {
             spawn_proofs_db_metrics(
                 node.task_executor,

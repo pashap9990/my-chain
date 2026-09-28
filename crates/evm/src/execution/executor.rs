@@ -11,7 +11,7 @@ use crate::BlockExecutionWitness;
 
 /// A [`BlockExecutor`] that delegates to an inner executor and, on
 #[derive(Debug)]
-pub struct WorldChainBlockExecutor<E> {
+pub struct MyChainBlockExecutor<E> {
     /// The wrapped block executor.
     pub(crate) inner: E,
     /// Optional channel that receives the captured block on `finish`.
@@ -39,7 +39,7 @@ impl<DB> MaybeWitness for &mut State<DB> {
     }
 }
 
-impl<E> BlockExecutor for WorldChainBlockExecutor<E>
+impl<E> BlockExecutor for MyChainBlockExecutor<E>
 where
     E: BlockExecutor,
 {
@@ -77,7 +77,7 @@ where
             };
 
             let _ = sender.try_send(captured).inspect_err(|e| {
-                error!(target: "world_chain::witness", %block_number, %e, "failed to send captured witness");
+                error!(target: "my_chain::witness", %block_number, %e, "failed to send captured witness");
             });
         }
 

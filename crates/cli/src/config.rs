@@ -1,7 +1,7 @@
 use reth_optimism_payload_builder::config::OpBuilderConfig;
 use std::path::PathBuf;
 
-use crate::cli::WorldChainArgs;
+use crate::cli::MyChainArgs;
 
 /// Configuration for the flashblocks payload builder.
 #[derive(Default, Debug, Clone)]
@@ -24,10 +24,10 @@ pub struct FlashblocksStoreConfig {
 }
 
 #[derive(Debug, Clone)]
-pub struct WorldChainNodeConfig {
-    /// World Chain Specific CLI arguments
-    pub args: WorldChainArgs,
-    /// World Chain Payload Builder Configuration
+pub struct MyChainNodeConfig {
+    /// My Chain Specific CLI arguments
+    pub args: MyChainArgs,
+    /// My Chain Payload Builder Configuration
     pub builder_config: FlashblocksPayloadBuilderConfig,
     /// Optional flashblocks recorder configuration.
     pub flashblocks_store: Option<FlashblocksStoreConfig>,

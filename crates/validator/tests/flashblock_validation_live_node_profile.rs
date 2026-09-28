@@ -4,18 +4,18 @@ use reth_chain_state::ExecutedBlock;
 use reth_optimism_node::utils::optimism_payload_attributes;
 use reth_optimism_primitives::OpPrimitives;
 use reth_provider::{StateProvider, StateProviderFactory};
-use world_chain_node::context::WorldChainDefaultContext;
-use world_chain_p2p::protocol::handler::FlashblocksHandle;
-use world_chain_primitives::{ed25519_dalek::SigningKey, primitives::FlashblocksPayloadV1};
-use world_chain_test_utils::{
+use my_chain_node::context::MyChainDefaultContext;
+use my_chain_p2p::protocol::handler::FlashblocksHandle;
+use my_chain_primitives::{ed25519_dalek::SigningKey, primitives::FlashblocksPayloadV1};
+use my_chain_test_utils::{
     builder::{
         CHAIN_SPEC, EVM_CONFIG, build_flashblock_fixture_eth_transfers_with_provider,
         build_flashblock_fixture_fib_with_provider,
         build_flashblock_fixture_world_id_like_bn254_with_provider,
     },
-    e2e_harness::setup::WorldChainTestBuilder,
+    e2e_harness::setup::MyChainTestBuilder,
 };
-use world_chain_validator::{
+use my_chain_validator::{
     coordinator::{FlashblocksExecutionCoordinator, process_flashblock},
     flashblock_validation_metrics::FlashblockValidationMetrics,
 };
@@ -103,11 +103,11 @@ where
     let rt = tokio::runtime::Runtime::new().expect("failed to build tokio runtime");
     let (_, nodes, _, _, _) = rt
         .block_on(
-            WorldChainTestBuilder::builder()
+            MyChainTestBuilder::builder()
                 .nodes(1)
                 .flashblocks(true)
                 .build()
-                .setup_with::<WorldChainDefaultContext, _>(optimism_payload_attributes),
+                .setup_with::<MyChainDefaultContext, _>(optimism_payload_attributes),
         )
         .expect("failed to set up live node");
     let node = &nodes[0];

@@ -10,7 +10,7 @@ use cmd::{deposit::DepositArgs, run::WorkerArgs, vkeys::VkeysArgs};
 #[derive(Debug, Parser)]
 #[command(
     name = "sp1-worker",
-    about = "World Chain SP1 proving worker and funding utility"
+    about = "My Chain SP1 proving worker and funding utility"
 )]
 struct Cli {
     #[command(subcommand)]
@@ -34,7 +34,7 @@ async fn main() -> Result<()> {
         Command::Run(args) => {
             let _telemetry_guard = telemetry_batteries::init()
                 .map_err(|error| anyhow::anyhow!("failed to initialize telemetry: {error:#}"))?;
-            world_chain_proof_metrics::describe_metrics();
+            my_chain_proof_metrics::describe_metrics();
             cmd::run::run(*args).await
         }
         Command::Deposit(args) => cmd::deposit::deposit(args).await,

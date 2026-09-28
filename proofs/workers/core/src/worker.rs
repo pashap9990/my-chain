@@ -14,7 +14,7 @@ use tokio::{
 };
 use tokio_util::sync::CancellationToken;
 use tracing::{Instrument, info, info_span, warn};
-use world_chain_prover_service::{
+use my_chain_prover_service::{
     GetNextProofRequest, LockedProofRequest, ProofJobQueue, ProofJobQueueError, SubmitProofRequest,
     SucceededProofResponse,
 };
@@ -242,7 +242,7 @@ fn spawn_job<Q, B>(
     let LockedProofRequest { request, lock_id } = locked;
     let proof_id = request.id();
     let backend_kind = request.backend;
-    world_chain_proof_metrics::increment_proof_jobs_claimed(backend_kind.as_str());
+    my_chain_proof_metrics::increment_proof_jobs_claimed(backend_kind.as_str());
     let span = info_span!(
         "proof_job",
         proof_id = %proof_id,
@@ -295,7 +295,7 @@ fn spawn_job<Q, B>(
                         %lease_lost,
                         "heartbeat failed, cancelling proof job"
                     );
-                    world_chain_proof_metrics::record_proof_job_completed(
+                    my_chain_proof_metrics::record_proof_job_completed(
                         backend_kind.as_str(),
                         "lease_lost",
                         started_at.elapsed(),
@@ -314,7 +314,7 @@ fn spawn_job<Q, B>(
                         reason = %format!("{error:#}"),
                         "proving failed, lease will expire and re-queue"
                     );
-                    world_chain_proof_metrics::record_proof_job_completed(
+                    my_chain_proof_metrics::record_proof_job_completed(
                         backend_kind.as_str(),
                         "proving_error",
                         started_at.elapsed(),
@@ -378,7 +378,7 @@ fn spawn_job<Q, B>(
                             %lease_lost,
                             "heartbeat failed, cancelling proof job"
                         );
-                        world_chain_proof_metrics::record_proof_job_completed(
+                        my_chain_proof_metrics::record_proof_job_completed(
                             backend_kind.as_str(),
                             "lease_lost",
                             started_at.elapsed(),
@@ -390,7 +390,7 @@ fn spawn_job<Q, B>(
 
             match submit_result {
                 Ok(_) => {
-                    world_chain_proof_metrics::record_proof_job_completed(
+                    my_chain_proof_metrics::record_proof_job_completed(
                         backend_kind.as_str(),
                         "success",
                         started_at.elapsed(),
@@ -402,7 +402,7 @@ fn spawn_job<Q, B>(
                     );
                 }
                 Err(error) => {
-                    world_chain_proof_metrics::record_proof_job_completed(
+                    my_chain_proof_metrics::record_proof_job_completed(
                         backend_kind.as_str(),
                         "submission_error",
                         started_at.elapsed(),

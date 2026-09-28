@@ -1,7 +1,7 @@
 use crate::protocol::{
     connection::{FlashblocksConnection, FlashblocksPeerState, ReceiveStatus, Score},
     error::FlashblocksP2PError,
-    event::{ChainEvent, WorldChainEvent, WorldChainEventsStream, world_chain_events_stream},
+    event::{ChainEvent, MyChainEvent, MyChainEventsStream, my_chain_events_stream},
     metrics::FlashblocksP2PMetrics,
     recorder::{FlashblocksRecorder, FlashblocksRecorderConfig},
 };
@@ -27,8 +27,8 @@ use std::{
 };
 use tokio::sync::{broadcast, mpsc, watch};
 use tokio_stream::wrappers::BroadcastStream;
-use world_chain_cli::cli::FanoutArgs;
-use world_chain_primitives::{
+use my_chain_cli::cli::FanoutArgs;
+use my_chain_primitives::{
     p2p::{
         Authorization, Authorized, AuthorizedMsg, AuthorizedPayload, FlashblocksP2PMsg,
         StartPublish, StopPublish,
@@ -867,12 +867,12 @@ impl FlashblocksHandle {
         state.handle_cancel(peer_id)
     }
 
-    /// Returns a [`WorldChainEventsStream`] merging flashblocks from the P2P
+    /// Returns a [`MyChainEventsStream`] merging flashblocks from the P2P
     /// broadcast channel with canonical chain notifications from `provider`.
     ///
     /// The caller's `hook` is invoked on each yielded event before it is
     /// delivered to the consumer.
-    pub fn event_stream<T, P, N, F>(&self, provider: P, hook: F) -> WorldChainEventsStream<T>
+    pub fn event_stream<T, P, N, F>(&self, provider: P, hook: F) -> MyChainEventsStream<T>
     where
         T: Send + Sync + 'static,
         P: CanonStateSubscriptions<Primitives = N>
@@ -883,7 +883,7 @@ impl FlashblocksHandle {
             + Sync
             + 'static,
         N: NodePrimitives,
-        F: FnMut(&WorldChainEvent<T>) -> Option<WorldChainEvent<T>> + Send + 'static,
+        F: FnMut(&MyChainEvent<T>) -> Option<MyChainEvent<T>> + Send + 'static,
     {
         // Seed the canon stream with the provider's current best block so
         // BufferedFlashblocks has a valid canon_tip from the first poll.
@@ -908,7 +908,7 @@ impl FlashblocksHandle {
             )
             .boxed();
 
-        world_chain_events_stream(
+        my_chain_events_stream(
             BroadcastStream::new(self.ctx.flashblock_tx.subscribe())
                 .filter_map(|x| {
                     futures::future::ready(match x {

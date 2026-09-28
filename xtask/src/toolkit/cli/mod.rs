@@ -3,7 +3,7 @@ use chrono::NaiveDate;
 use clap::Parser;
 use identity_source::IdentitySource;
 use inclusion_proof_source::InclusionProofSource;
-use world_chain_pbh::external_nullifier::Prefix;
+use my_chain_pbh::external_nullifier::Prefix;
 
 pub mod identity_source;
 pub mod inclusion_proof_source;
@@ -19,7 +19,7 @@ pub struct Opt {
 
 #[derive(Debug, Clone, Parser)]
 pub enum Cmd {
-    /// Proves a transaction and returns a hex encoded payload ready to be sent to a World Chain Builder
+    /// Proves a transaction and returns a hex encoded payload ready to be sent to a My Chain Builder
     ///
     /// Note that it's necessary to provide the identity and inclusion proof
     /// and there exist multiple ways to provide them

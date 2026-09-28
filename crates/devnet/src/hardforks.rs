@@ -2,44 +2,44 @@ use std::collections::BTreeSet;
 
 use eyre::eyre::{Result, bail};
 use reth_chainspec::{EthereumHardfork, ForkCondition};
-use world_chain_chainspec::{WorldChainHardfork, WorldChainSpec};
+use my_chain_chainspec::{MyChainHardfork, MyChainSpec};
 
-/// Canonical hardfork order for local World Chain devnets.
-pub const WORLD_CHAIN_DEVNET_HARDFORK_ORDER: [WorldChainHardfork; 12] = [
-    WorldChainHardfork::Bedrock,
-    WorldChainHardfork::Regolith,
-    WorldChainHardfork::Canyon,
-    WorldChainHardfork::Ecotone,
-    WorldChainHardfork::Fjord,
-    WorldChainHardfork::Granite,
-    WorldChainHardfork::Holocene,
-    WorldChainHardfork::Isthmus,
-    WorldChainHardfork::Jovian,
-    WorldChainHardfork::Karst,
-    WorldChainHardfork::Tropo,
-    WorldChainHardfork::Strato,
+/// Canonical hardfork order for local My Chain devnets.
+pub const MY_CHAIN_DEVNET_HARDFORK_ORDER: [MyChainHardfork; 12] = [
+    MyChainHardfork::Bedrock,
+    MyChainHardfork::Regolith,
+    MyChainHardfork::Canyon,
+    MyChainHardfork::Ecotone,
+    MyChainHardfork::Fjord,
+    MyChainHardfork::Granite,
+    MyChainHardfork::Holocene,
+    MyChainHardfork::Isthmus,
+    MyChainHardfork::Jovian,
+    MyChainHardfork::Karst,
+    MyChainHardfork::Tropo,
+    MyChainHardfork::Strato,
 ];
 
-/// Typed World Chain hardfork selection for local devnets.
+/// Typed My Chain hardfork selection for local devnets.
 ///
 /// Defaults match the post-Karst local-dev baseline: all OP/World hardforks
 /// through Karst are active at genesis, while the World-specific Tropo and
 /// Strato forks are disabled until explicitly selected.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct WorldChainHardforkConfig {
-    active: BTreeSet<WorldChainHardfork>,
+pub struct MyChainHardforkConfig {
+    active: BTreeSet<MyChainHardfork>,
 }
 
-impl Default for WorldChainHardforkConfig {
+impl Default for MyChainHardforkConfig {
     fn default() -> Self {
-        Self::through(WorldChainHardfork::Karst)
+        Self::through(MyChainHardfork::Karst)
     }
 }
 
-impl WorldChainHardforkConfig {
+impl MyChainHardforkConfig {
     /// Enable all forks up to and including `latest`.
-    pub fn through(latest: WorldChainHardfork) -> Self {
-        let active = WORLD_CHAIN_DEVNET_HARDFORK_ORDER
+    pub fn through(latest: MyChainHardfork) -> Self {
+        let active = MY_CHAIN_DEVNET_HARDFORK_ORDER
             .into_iter()
             .take_while(|fork| fork.idx() <= latest.idx())
             .collect();
@@ -47,25 +47,25 @@ impl WorldChainHardforkConfig {
     }
 
     /// Return true if `fork` is active at genesis.
-    pub fn is_active(&self, fork: WorldChainHardfork) -> bool {
+    pub fn is_active(&self, fork: MyChainHardfork) -> bool {
         self.active.contains(&fork)
     }
 
     /// Enable an individual hardfork.
-    pub fn enable(mut self, fork: WorldChainHardfork) -> Self {
+    pub fn enable(mut self, fork: MyChainHardfork) -> Self {
         self.active.insert(fork);
         self
     }
 
     /// Disable an individual hardfork.
-    pub fn disable(mut self, fork: WorldChainHardfork) -> Self {
+    pub fn disable(mut self, fork: MyChainHardfork) -> Self {
         self.active.remove(&fork);
         self
     }
 
     /// Active hardforks in canonical order.
-    pub fn active(&self) -> impl Iterator<Item = WorldChainHardfork> + '_ {
-        WORLD_CHAIN_DEVNET_HARDFORK_ORDER
+    pub fn active(&self) -> impl Iterator<Item = MyChainHardfork> + '_ {
+        MY_CHAIN_DEVNET_HARDFORK_ORDER
             .into_iter()
             .filter(|fork| self.active.contains(fork))
     }
@@ -73,11 +73,11 @@ impl WorldChainHardforkConfig {
     /// Validate that the selected hardforks form a prefix of the canonical order.
     pub fn validate(&self) -> Result<()> {
         let mut seen_inactive = false;
-        for fork in WORLD_CHAIN_DEVNET_HARDFORK_ORDER {
+        for fork in MY_CHAIN_DEVNET_HARDFORK_ORDER {
             if self.active.contains(&fork) {
                 if seen_inactive {
                     bail!(
-                        "invalid World Chain hardfork selection: {} is active after an earlier fork was disabled",
+                        "invalid My Chain hardfork selection: {} is active after an earlier fork was disabled",
                         fork.name()
                     );
                 }
@@ -89,11 +89,11 @@ impl WorldChainHardforkConfig {
     }
 
     /// Apply this selection to a chain spec.
-    pub fn apply_to(&self, mut spec: WorldChainSpec) -> WorldChainSpec {
-        for fork in WORLD_CHAIN_DEVNET_HARDFORK_ORDER {
+    pub fn apply_to(&self, mut spec: MyChainSpec) -> MyChainSpec {
+        for fork in MY_CHAIN_DEVNET_HARDFORK_ORDER {
             let condition = if self.active.contains(&fork) {
                 match fork {
-                    WorldChainHardfork::Bedrock => ForkCondition::Block(0),
+                    MyChainHardfork::Bedrock => ForkCondition::Block(0),
                     _ => ForkCondition::Timestamp(0),
                 }
             } else {
@@ -104,7 +104,7 @@ impl WorldChainHardforkConfig {
 
         spec.set_fork(
             EthereumHardfork::Shanghai,
-            if self.active.contains(&WorldChainHardfork::Canyon) {
+            if self.active.contains(&MyChainHardfork::Canyon) {
                 ForkCondition::Timestamp(0)
             } else {
                 ForkCondition::Never
@@ -112,7 +112,7 @@ impl WorldChainHardforkConfig {
         );
         spec.set_fork(
             EthereumHardfork::Cancun,
-            if self.active.contains(&WorldChainHardfork::Ecotone) {
+            if self.active.contains(&MyChainHardfork::Ecotone) {
                 ForkCondition::Timestamp(0)
             } else {
                 ForkCondition::Never
@@ -120,7 +120,7 @@ impl WorldChainHardforkConfig {
         );
         spec.set_fork(
             EthereumHardfork::Prague,
-            if self.active.contains(&WorldChainHardfork::Isthmus) {
+            if self.active.contains(&MyChainHardfork::Isthmus) {
                 ForkCondition::Timestamp(0)
             } else {
                 ForkCondition::Never
@@ -128,7 +128,7 @@ impl WorldChainHardforkConfig {
         );
         spec.set_fork(
             EthereumHardfork::Osaka,
-            if self.active.contains(&WorldChainHardfork::Karst) {
+            if self.active.contains(&MyChainHardfork::Karst) {
                 ForkCondition::Timestamp(0)
             } else {
                 ForkCondition::Never
@@ -146,23 +146,23 @@ mod tests {
 
     #[test]
     fn default_local_devnet_hardforks_stop_at_karst() {
-        let hardforks = WorldChainHardforkConfig::default();
+        let hardforks = MyChainHardforkConfig::default();
 
-        assert!(hardforks.is_active(WorldChainHardfork::Jovian));
-        assert!(hardforks.is_active(WorldChainHardfork::Karst));
-        assert!(!hardforks.is_active(WorldChainHardfork::Tropo));
-        assert!(!hardforks.is_active(WorldChainHardfork::Strato));
+        assert!(hardforks.is_active(MyChainHardfork::Jovian));
+        assert!(hardforks.is_active(MyChainHardfork::Karst));
+        assert!(!hardforks.is_active(MyChainHardfork::Tropo));
+        assert!(!hardforks.is_active(MyChainHardfork::Strato));
     }
 
     #[test]
     fn karst_local_devnet_activates_osaka_without_world_specific_forks() {
-        let hardforks = WorldChainHardforkConfig::through(WorldChainHardfork::Karst);
-        let spec = hardforks.apply_to(WorldChainSpec::dev().as_ref().clone());
+        let hardforks = MyChainHardforkConfig::through(MyChainHardfork::Karst);
+        let spec = hardforks.apply_to(MyChainSpec::dev().as_ref().clone());
 
-        assert!(hardforks.is_active(WorldChainHardfork::Karst));
-        assert!(!hardforks.is_active(WorldChainHardfork::Tropo));
+        assert!(hardforks.is_active(MyChainHardfork::Karst));
+        assert!(!hardforks.is_active(MyChainHardfork::Tropo));
         assert_eq!(
-            spec.fork(WorldChainHardfork::Karst),
+            spec.fork(MyChainHardfork::Karst),
             ForkCondition::Timestamp(0)
         );
         assert_eq!(
@@ -173,10 +173,10 @@ mod tests {
 
     #[test]
     fn validates_prefix_only_hardfork_selection() {
-        let valid = WorldChainHardforkConfig::through(WorldChainHardfork::Ecotone);
+        let valid = MyChainHardforkConfig::through(MyChainHardfork::Ecotone);
         assert!(valid.validate().is_ok());
 
-        let invalid = valid.enable(WorldChainHardfork::Jovian);
+        let invalid = valid.enable(MyChainHardfork::Jovian);
         assert!(invalid.validate().is_err());
     }
 }

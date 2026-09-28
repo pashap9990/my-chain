@@ -23,11 +23,11 @@ mod swarm;
 mod toolkit;
 
 #[derive(Parser)]
-#[command(name = "xtask", about = "World Chain development tasks")]
+#[command(name = "xtask", about = "My Chain development tasks")]
 enum Command {
     /// Generate CLI reference documentation for the mdbook
     Docs(docs::Args),
-    /// Manage the native Rust World Chain devnet
+    /// Manage the native Rust My Chain devnet
     Devnet(devnet::Args),
     /// Run preflight checks (auto-fix + verify)
     Preflight(preflight::Args),
@@ -72,8 +72,8 @@ async fn main() -> eyre::Result<()> {
 }
 
 /// Tracing targets used for the auxiliary devnet services, i.e. everything that
-/// is not a World Chain execution node. These are suppressed on stdout so the
-/// main terminal only shows the World Chain nodes (and the devnet harness's own
+/// is not a My Chain execution node. These are suppressed on stdout so the
+/// main terminal only shows the My Chain nodes (and the devnet harness's own
 /// lifecycle), but they are still written to the devnet log file for debugging.
 ///
 /// Set `DEVNET_LOG_ALL=1` to keep these on stdout as well.
@@ -149,7 +149,7 @@ fn init_devnet_tracing(
 }
 
 fn devnet_log_path() -> PathBuf {
-    std::env::var_os("WORLD_CHAIN_DEVNET_LOG_FILE")
+    std::env::var_os("MY_CHAIN_DEVNET_LOG_FILE")
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from("target/devnet/logs/devnet.log"))
 }
@@ -170,7 +170,7 @@ where
         let mut fields = DevnetEventFields::default();
         event.record(&mut fields);
 
-        // In-process subsystems (e.g. the World Chain proposer/challenger) carry
+        // In-process subsystems (e.g. the My Chain proposer/challenger) carry
         // their component label on an enclosing span instead of every event, so
         // fall back to the nearest span's `process` value.
         let process = fields.process.clone().or_else(|| process_from_spans(ctx));

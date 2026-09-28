@@ -1,4 +1,4 @@
-//! Host-side helpers for preparing World Chain OP Succinct Lite proof requests.
+//! Host-side helpers for preparing My Chain OP Succinct Lite proof requests.
 
 use std::fmt;
 
@@ -84,7 +84,7 @@ pub trait WorldSuccinctProver {
 
     async fn submit(
         &self,
-        request: world_chain_proof_sp1_types::Sp1ProofRequest,
+        request: my_chain_proof_sp1_types::Sp1ProofRequest,
     ) -> anyhow::Result<String>;
 
     /// Waits for a submitted session and returns its proof.

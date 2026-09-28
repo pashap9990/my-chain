@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use std::{sync::Arc, time::Duration};
 use tokio::sync::Semaphore;
 use tracing::warn;
-use world_chain_proof_protocol::{
+use my_chain_proof_protocol::{
     IAnchorStateRegistry, IDisputeGameFactory, IERC20StakingVault, IMultiProofGame, LineageAnchor,
     LineageError, LineageGame, LineageProvider, LineageTransition, MULTI_PROOF_GAME_TYPE,
     RegisteredLineageConfig, ResolutionStatus, read_game_for_transition, read_game_has_retry,
@@ -111,7 +111,7 @@ where
 
     async fn refresh_vault_balance_for(&self, account: Address) {
         match self.vault.availableBalance(account).call().await {
-            Ok(balance) => world_chain_proof_metrics::record_vault_balance(
+            Ok(balance) => my_chain_proof_metrics::record_vault_balance(
                 self.bond_vault_address(),
                 account,
                 "proposer",
@@ -167,7 +167,7 @@ where
             .with_timeout(Some(self.receipt_timeout))
             .get_receipt()
             .await?;
-        world_chain_proof_metrics::refresh_wallet_balance(&self.provider, receipt.from).await;
+        my_chain_proof_metrics::refresh_wallet_balance(&self.provider, receipt.from).await;
         if !receipt.status() {
             return Err(ProposerError::Revert(tx_hash));
         }
@@ -184,7 +184,7 @@ where
             .with_timeout(Some(self.receipt_timeout))
             .get_receipt()
             .await?;
-        world_chain_proof_metrics::refresh_wallet_balance(&self.provider, receipt.from).await;
+        my_chain_proof_metrics::refresh_wallet_balance(&self.provider, receipt.from).await;
         if !receipt.status() {
             return Err(ProposerError::Revert(tx_hash));
         }
@@ -324,7 +324,7 @@ where
             .with_timeout(Some(self.receipt_timeout))
             .get_receipt()
             .await?;
-        world_chain_proof_metrics::refresh_wallet_balance(&self.provider, receipt.from).await;
+        my_chain_proof_metrics::refresh_wallet_balance(&self.provider, receipt.from).await;
         if !receipt.status() {
             return Err(ProposerError::Revert(tx_hash));
         }
@@ -338,7 +338,7 @@ where
                     .map(|decoded| decoded.inner.data.amount)
             })
             .ok_or(ProposerError::MissingProposerBondLockedEvent(tx_hash))?;
-        world_chain_proof_metrics::record_bond_locked("proposer", locked);
+        my_chain_proof_metrics::record_bond_locked("proposer", locked);
         self.refresh_vault_balance_for(self.proposer_address())
             .await;
 

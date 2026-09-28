@@ -6,19 +6,19 @@ use reth_transaction_pool::{
     blobstore::InMemoryBlobStore, validate::EthTransactionValidatorBuilder,
 };
 use revm_primitives::U256;
-use world_chain_evm::WorldChainEvmConfig;
+use my_chain_evm::MyChainEvmConfig;
 
 use crate::mock::{ExtendedAccount, MockEthProvider};
-use world_chain_pool::{
-    root::WorldChainRootValidator,
-    tx::WorldChainPooledTransaction,
+use my_chain_pool::{
+    root::MyChainRootValidator,
+    tx::MyChainPooledTransaction,
     validator::{
-        MAX_U16, PBH_GAS_LIMIT_SLOT, PBH_NONCE_LIMIT_SLOT, WorldChainTransactionValidator,
+        MAX_U16, PBH_GAS_LIMIT_SLOT, PBH_NONCE_LIMIT_SLOT, MyChainTransactionValidator,
     },
 };
 
-pub fn world_chain_validator()
--> WorldChainTransactionValidator<MockEthProvider, WorldChainPooledTransaction, WorldChainEvmConfig>
+pub fn my_chain_validator()
+-> MyChainTransactionValidator<MockEthProvider, MyChainPooledTransaction, MyChainEvmConfig>
 {
     let client = MockEthProvider::default();
     let header = Header::default();
@@ -31,13 +31,13 @@ pub fn world_chain_validator()
         },
     );
 
-    let evm_config = WorldChainEvmConfig::optimism(client.chain_spec.clone());
+    let evm_config = MyChainEvmConfig::optimism(client.chain_spec.clone());
     let validator = EthTransactionValidatorBuilder::new(client.clone(), evm_config)
         .no_shanghai()
         .no_cancun()
         .build(InMemoryBlobStore::default());
     let validator = OpTransactionValidator::new(validator).require_l1_data_gas_fee(false);
-    let root_validator = WorldChainRootValidator::new(client, DEV_WORLD_ID).unwrap();
+    let root_validator = MyChainRootValidator::new(client, DEV_WORLD_ID).unwrap();
     validator.client().add_account(
         PBH_DEV_ENTRYPOINT,
         ExtendedAccount::new(0, alloy_primitives::U256::ZERO).extend_storage(vec![
@@ -48,7 +48,7 @@ pub fn world_chain_validator()
             ),
         ]),
     );
-    WorldChainTransactionValidator::new(
+    MyChainTransactionValidator::new(
         validator,
         root_validator,
         PBH_DEV_ENTRYPOINT,

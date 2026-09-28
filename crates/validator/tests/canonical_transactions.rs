@@ -2,12 +2,12 @@ use alloy_consensus::{SignableTransaction, TxEip1559, TxEip2930, TxEip7702, TxLe
 use alloy_eips::Encodable2718;
 use alloy_primitives::{Bytes, Signature};
 use op_alloy_consensus::{OpTxEnvelope, TxDeposit, build_post_exec_tx};
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_primitives::{
+use my_chain_chainspec::MyChainSpec;
+use my_chain_primitives::{
     flashblocks::{Flashblock, recovered_block_from_flashblocks},
     primitives::{ExecutionPayloadBaseV1, ExecutionPayloadFlashblockDeltaV1, FlashblocksPayloadV1},
 };
-use world_chain_validator::validator::decode_transactions_with_indices;
+use my_chain_validator::validator::decode_transactions_with_indices;
 
 fn transactions() -> Vec<Bytes> {
     let signature = Signature::test_signature();
@@ -48,7 +48,7 @@ fn accepts_canonical_transactions() {
         assert_eq!(tx.encoded_2718(), transactions[i]);
     }
     let block = recovered_block_from_flashblocks(
-        WorldChainSpec::mainnet(),
+        MyChainSpec::mainnet(),
         flashblock(transactions.clone()),
     )
     .expect("valid flashblock");
@@ -80,7 +80,7 @@ fn rejects_non_canonical_transactions() {
             "accepted {tx}"
         );
         assert!(
-            recovered_block_from_flashblocks(WorldChainSpec::mainnet(), flashblock(input)).is_err(),
+            recovered_block_from_flashblocks(MyChainSpec::mainnet(), flashblock(input)).is_err(),
             "accepted {tx}"
         );
     }

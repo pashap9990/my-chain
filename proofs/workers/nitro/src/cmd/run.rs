@@ -8,19 +8,19 @@ use anyhow::{Context, Result};
 use backon::{ExponentialBuilder, Retryable};
 use clap::Parser;
 use tracing::{error, info};
-use world_chain_chainspec::WorldChainSpec;
-use world_chain_proof_kona_host::online::{build_online_config, hardfork_config_from_chain_spec};
+use my_chain_chainspec::MyChainSpec;
+use my_chain_proof_kona_host::online::{build_online_config, hardfork_config_from_chain_spec};
 use world_chain_proof_nitro_enclave::{
     ExpectedPcrs,
     host::{EnclaveEndpoint, NitroProver},
 };
-use world_chain_proof_nitro_register::{RegisterParams, RegistrationOutcome, register_enclave_key};
-use world_chain_proof_nitro_worker::{NitroBackend, NitroBackendConfig};
-use world_chain_proof_protocol::AlloyProofGameProvider;
-use world_chain_proof_worker::{
+use my_chain_proof_nitro_register::{RegisterParams, RegistrationOutcome, register_enclave_key};
+use my_chain_proof_nitro_worker::{NitroBackend, NitroBackendConfig};
+use my_chain_proof_protocol::AlloyProofGameProvider;
+use my_chain_proof_worker::{
     ProofWorker, ProofWorkerConfig, RetryConfig, WorkerHeartbeatConfig,
 };
-use world_chain_prover_service::RpcProverServiceClient;
+use my_chain_prover_service::RpcProverServiceClient;
 
 use super::select_registration_signer;
 
@@ -63,7 +63,7 @@ async fn register_with_retry(params: RegisterParams) -> bool {
     let registration = attempt
         .retry(registration_backoff())
         .notify(|error, delay| {
-            world_chain_proof_metrics::increment_enclave_registration_attempts("failed");
+            my_chain_proof_metrics::increment_enclave_registration_attempts("failed");
             error!(
                 ?error,
                 retry_in_secs = delay.as_secs(),
@@ -87,8 +87,8 @@ async fn register_with_retry(params: RegisterParams) -> bool {
                         "registered"
                     }
                 };
-                world_chain_proof_metrics::increment_enclave_registration_attempts(label);
-                world_chain_proof_metrics::set_enclave_key_registered(true);
+                my_chain_proof_metrics::increment_enclave_registration_attempts(label);
+                my_chain_proof_metrics::set_enclave_key_registered(true);
                 true
             }
             // Unreachable while the backoff is unbounded, but treat it the same as shutdown
@@ -108,30 +108,30 @@ async fn register_with_retry(params: RegisterParams) -> bool {
 #[derive(Debug, Clone, Copy, clap::ValueEnum)]
 enum Network {
     #[value(name = "worldchain")]
-    WorldChain,
+    MyChain,
     #[value(name = "worldchain-sepolia")]
-    WorldChainSepolia,
+    MyChainSepolia,
 }
 
 impl Network {
     fn chain_id(self) -> u64 {
         match self {
-            Self::WorldChain => 480,
-            Self::WorldChainSepolia => 4801,
+            Self::MyChain => 480,
+            Self::MyChainSepolia => 4801,
         }
     }
 
-    fn chain_spec(self) -> Arc<WorldChainSpec> {
+    fn chain_spec(self) -> Arc<MyChainSpec> {
         match self {
-            Self::WorldChain => WorldChainSpec::mainnet(),
-            Self::WorldChainSepolia => WorldChainSpec::sepolia(),
+            Self::MyChain => MyChainSpec::mainnet(),
+            Self::MyChainSepolia => MyChainSpec::sepolia(),
         }
     }
 }
 
 #[derive(Debug, Parser)]
 #[command(
-    about = "World Chain Nitro TEE proving worker: leases jobs from the prover-service, \
+    about = "My Chain Nitro TEE proving worker: leases jobs from the prover-service, \
              proves them in a Nitro Enclave, and submits the signed attestations back."
 )]
 pub struct WorkerArgs {
@@ -297,7 +297,7 @@ pub async fn run(args: WorkerArgs) -> Result<()> {
 
         // Publish the gauge before the first attempt so "never registered" is a visible zero
         // rather than an absent series a threshold monitor would silently ignore.
-        world_chain_proof_metrics::set_enclave_key_registered(false);
+        my_chain_proof_metrics::set_enclave_key_registered(false);
         info!(
             registry = %registry,
             enclave_cid = args.enclave_cid,
