@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-evm"
+name = "my-chain-evm"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -8,8 +8,8 @@ homepage.workspace = true
 repository.workspace = true
 
 [dependencies]
-world-chain-chainspec.workspace = true
-world-chain-primitives.workspace = true
+my-chain-chainspec.workspace = true
+my-chain-primitives.workspace = true
 
 alloy-consensus.workspace = true
 alloy-eip7928.workspace = true

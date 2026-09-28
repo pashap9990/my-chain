@@ -2,15 +2,15 @@
 xtask = "run --package xtask --"
 docs = "doc --workspace --all-features --no-deps"
 b = "bench --workspace --all-targets"
-bs = "bench --package world-chain-validator --bench flashblock_validation_synthetic -- --save-baseline"
-bc = "bench --package world-chain-validator --bench flashblock_validation_synthetic -- --baseline main --save-baseline pr"
-bb = "bench --package world-chain-builder --bench flashblock_building_live_node --"
-bv = "bench --package world-chain-validator --bench flashblock_validation_synthetic --"
-bvl = "bench --package world-chain-validator --bench flashblock_validation_live_node --"
+bs = "bench --package my-chain-validator --bench flashblock_validation_synthetic -- --save-baseline"
+bc = "bench --package my-chain-validator --bench flashblock_validation_synthetic -- --baseline main --save-baseline pr"
+bb = "bench --package my-chain-builder --bench flashblock_building_live_node --"
+bv = "bench --package my-chain-validator --bench flashblock_validation_synthetic --"
+bvl = "bench --package my-chain-validator --bench flashblock_validation_live_node --"
 
 [env]
-DEBUG = "info,flashblocks=debug,world_chain=info"
-TRACE = "info,flashblocks=trace,world_chain=trace,engine::tree=trace"
+DEBUG = "info,flashblocks=debug,my_chain=info"
+TRACE = "info,flashblocks=trace,my_chain=trace,engine::tree=trace"
 
 RUSTFLAGS="-W unused-crate-dependencies"
 RUST_BACKTRACE = { value = "full", force = false }

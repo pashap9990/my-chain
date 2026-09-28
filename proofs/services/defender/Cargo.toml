@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-defender"
+name = "my-chain-defender"
 version = "1.0.0-rc.4"
 edition.workspace = true
 rust-version.workspace = true
@@ -8,7 +8,7 @@ homepage.workspace = true
 repository.workspace = true
 
 [[bin]]
-name = "world-chain-defender"
+name = "my-chain-defender"
 path = "src/main.rs"
 
 [lints]
@@ -16,11 +16,11 @@ workspace = true
 
 [dependencies]
 # workspace
-world-chain-proof-protocol.workspace = true
+my-chain-proof-protocol.workspace = true
 world-chain-proof-core.workspace = true
-world-chain-proof-metrics.workspace = true
-world-chain-proof-tx-signer.workspace = true
-world-chain-prover-service.workspace = true
+my-chain-proof-metrics.workspace = true
+my-chain-proof-tx-signer.workspace = true
+my-chain-prover-service.workspace = true
 
 # alloy
 alloy-contract.workspace = true

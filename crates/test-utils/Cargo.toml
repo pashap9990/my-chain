@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-test-utils"
+name = "my-chain-test-utils"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -11,17 +11,17 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
-world-chain-pbh.workspace = true
-world-chain-pool.workspace = true
-world-chain-node.workspace = true
-world-chain-p2p = { workspace = true, features = ["test-utils"] }
+my-chain-pbh.workspace = true
+my-chain-pool.workspace = true
+my-chain-node.workspace = true
+my-chain-p2p = { workspace = true, features = ["test-utils"] }
 
-world-chain-primitives.workspace = true
-world-chain-builder.workspace = true
-world-chain-chainspec.workspace = true
-world-chain-cli.workspace = true
-world-chain-evm.workspace = true
-world-chain-rpc.workspace = true
+my-chain-primitives.workspace = true
+my-chain-builder.workspace = true
+my-chain-chainspec.workspace = true
+my-chain-cli.workspace = true
+my-chain-evm.workspace = true
+my-chain-rpc.workspace = true
 
 reth-optimism-node.workspace = true
 reth-optimism-primitives.workspace = true

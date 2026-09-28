@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-p2p"
+name = "my-chain-p2p"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -8,8 +8,8 @@ license.workspace = true
 test-utils = []
 
 [dependencies]
-world-chain-cli.workspace = true
-world-chain-primitives.workspace = true
+my-chain-cli.workspace = true
+my-chain-primitives.workspace = true
 
 reth-ethereum.workspace = true
 reth-eth-wire.workspace = true

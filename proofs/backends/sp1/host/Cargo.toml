@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-proof-sp1-host"
+name = "my-chain-proof-sp1-host"
 version = "1.0.0-rc.4"
 edition.workspace = true
 rust-version.workspace = true
@@ -15,7 +15,7 @@ sp1 = [
     "dep:hex",
     "dep:sha2",
     "dep:alloy-sol-types",
-    "dep:world-chain-proof-sp1-elfs",
+    "dep:my-chain-proof-sp1-elfs",
 ]
 
 [dependencies]
@@ -29,9 +29,9 @@ strum.workspace = true
 tokio.workspace = true
 tracing.workspace = true
 world-chain-proof-core.workspace = true
-world-chain-proof-kona-host.workspace = true
-world-chain-proof-sp1-elfs = { workspace = true, optional = true }
-world-chain-proof-sp1-types.workspace = true
+my-chain-proof-kona-host.workspace = true
+my-chain-proof-sp1-elfs = { workspace = true, optional = true }
+my-chain-proof-sp1-types.workspace = true
 alloy-sol-types = { workspace = true, optional = true }
 bincode = { version = "1", optional = true }
 hex = { workspace = true, optional = true }

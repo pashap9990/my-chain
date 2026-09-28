@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-prover-cli"
+name = "my-chain-prover-cli"
 version = "1.0.0-rc.4"
 edition.workspace = true
 rust-version.workspace = true
@@ -17,9 +17,9 @@ workspace = true
 
 [dependencies]
 # workspace
-world-chain-proof-protocol.workspace = true
-world-chain-prover-service.workspace = true
-world-chain-proof-kona-host.workspace = true
+my-chain-proof-protocol.workspace = true
+my-chain-prover-service.workspace = true
+my-chain-proof-kona-host.workspace = true
 
 # alloy
 alloy-primitives = { workspace = true, features = ["serde"] }

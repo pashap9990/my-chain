@@ -1,5 +1,5 @@
 [package]
-name = "world-chain"
+name = "my-chain"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -11,12 +11,12 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
-# world-chain
-world-chain-cli.workspace = true
-world-chain-chainspec.workspace = true
-world-chain-evm.workspace = true
-world-chain-node.workspace = true
-world-chain-rpc.workspace = true
+# my-chain
+my-chain-cli.workspace = true
+my-chain-chainspec.workspace = true
+my-chain-evm.workspace = true
+my-chain-node.workspace = true
+my-chain-rpc.workspace = true
 
 # reth
 reth-cli-util.workspace = true

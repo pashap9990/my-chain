@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-tests"
+name = "my-chain-tests"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -12,17 +12,17 @@ workspace = true
 
 [dev-dependencies]
 # World Chain
-world-chain-node.workspace = true
-world-chain-devnet.workspace = true
-world-chain-proof-protocol.workspace = true
-world-chain-proposer.workspace = true
-world-chain-test-utils = { workspace = true}
-world-chain-primitives.workspace = true
-world-chain-validator.workspace = true
-world-chain-evm.workspace = true
-world-chain-p2p = { workspace = true, features = ["test-utils"] }
-world-chain-cli.workspace = true
-world-chain-chainspec.workspace = true
+my-chain-node.workspace = true
+my-chain-devnet.workspace = true
+my-chain-proof-protocol.workspace = true
+my-chain-proposer.workspace = true
+my-chain-test-utils = { workspace = true}
+my-chain-primitives.workspace = true
+my-chain-validator.workspace = true
+my-chain-evm.workspace = true
+my-chain-p2p = { workspace = true, features = ["test-utils"] }
+my-chain-cli.workspace = true
+my-chain-chainspec.workspace = true
 
 # reth
 reth-e2e-test-utils.workspace = true

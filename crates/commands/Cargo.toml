@@ -1,12 +1,12 @@
 [package]
-name = "world-chain-commands"
+name = "my-chain-commands"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
 [dependencies]
 # workspace
-world-chain-chainspec.workspace = true
+my-chain-chainspec.workspace = true
 
 # reth
 reth-cli.workspace = true

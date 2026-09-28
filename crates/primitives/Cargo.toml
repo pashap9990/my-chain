@@ -1,11 +1,11 @@
 [package]
-name = "world-chain-primitives"
+name = "my-chain-primitives"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
 [dependencies]
-world-chain-chainspec.workspace = true
+my-chain-chainspec.workspace = true
 
 thiserror.workspace = true
 serde.workspace = true

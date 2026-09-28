@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-proof-it"
+name = "my-chain-proof-it"
 version = "1.0.0-rc.4"
 edition.workspace = true
 rust-version.workspace = true
@@ -12,13 +12,13 @@ publish = false
 workspace = true
 
 [dependencies]
-world-chain-challenger.workspace = true
-world-chain-defender.workspace = true
+my-chain-challenger.workspace = true
+my-chain-defender.workspace = true
 world-chain-proof-core.workspace = true
-world-chain-proof-worker.workspace = true
-world-chain-proof-protocol.workspace = true
-world-chain-proposer.workspace = true
-world-chain-prover-service.workspace = true
+my-chain-proof-worker.workspace = true
+my-chain-proof-protocol.workspace = true
+my-chain-proposer.workspace = true
+my-chain-prover-service.workspace = true
 
 alloy-primitives.workspace = true
 alloy-sol-types.workspace = true

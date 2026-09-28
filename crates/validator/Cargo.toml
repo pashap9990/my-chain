@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-validator"
+name = "my-chain-validator"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -7,10 +7,10 @@ license.workspace = true
 
 [dependencies]
 # internal
-world-chain-primitives.workspace = true
-world-chain-p2p.workspace = true
-world-chain-chainspec.workspace = true
-world-chain-evm.workspace = true
+my-chain-primitives.workspace = true
+my-chain-p2p.workspace = true
+my-chain-chainspec.workspace = true
+my-chain-evm.workspace = true
 
 # reth
 reth-chain-state.workspace = true
@@ -55,10 +55,10 @@ metrics-derive.workspace = true
 
 [dev-dependencies]
 alloy-eips.workspace = true
-world-chain-test-utils.workspace = true
-world-chain-p2p = { workspace = true, features = ["test-utils"] }
-world-chain-node.workspace = true
-world-chain-validator.workspace = true
+my-chain-test-utils.workspace = true
+my-chain-p2p = { workspace = true, features = ["test-utils"] }
+my-chain-node.workspace = true
+my-chain-validator.workspace = true
 reth-optimism-node = { workspace = true, features = ["test-utils"] }
 reth-tasks.workspace = true
 eyre.workspace = true

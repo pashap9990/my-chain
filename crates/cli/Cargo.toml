@@ -1,13 +1,13 @@
 [package]
-name = "world-chain-cli"
+name = "my-chain-cli"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
 [dependencies]
-world-chain-chainspec.workspace = true
-world-chain-primitives.workspace = true
-world-chain-commands.workspace = true
+my-chain-chainspec.workspace = true
+my-chain-primitives.workspace = true
+my-chain-commands.workspace = true
 reth-node-builder.workspace = true
 reth-chainspec.workspace = true
 reth-cli.workspace = true

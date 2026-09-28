@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-proof-nitro-register"
+name = "my-chain-proof-nitro-register"
 description = "Host-side on-chain registration of a Nitro enclave's ephemeral signing key"
 version = "1.0.0-rc.4"
 edition.workspace = true
@@ -26,7 +26,7 @@ tokio = { workspace = true, features = ["full"] }
 tracing.workspace = true
 url.workspace = true
 world-chain-proof-nitro-enclave = { workspace = true, features = ["enclave"] }
-world-chain-proof-tx-signer.workspace = true
+my-chain-proof-tx-signer.workspace = true
 
 [lints]
 workspace = true

@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-prover-service"
+name = "my-chain-prover-service"
 version = "1.0.0-rc.4"
 edition.workspace = true
 rust-version.workspace = true
@@ -8,7 +8,7 @@ homepage.workspace = true
 repository.workspace = true
 
 [[bin]]
-name = "world-chain-prover-service"
+name = "my-chain-prover-service"
 path = "src/main.rs"
 
 [lints]
@@ -16,8 +16,8 @@ workspace = true
 
 [dependencies]
 # workspace
-world-chain-proof-metrics.workspace = true
-world-chain-proof-protocol.workspace = true
+my-chain-proof-metrics.workspace = true
+my-chain-proof-protocol.workspace = true
 
 # alloy
 alloy-primitives = { workspace = true, features = ["serde"] }

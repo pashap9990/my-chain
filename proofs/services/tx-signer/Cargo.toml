@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-proof-tx-signer"
+name = "my-chain-proof-tx-signer"
 version = "1.0.0-rc.4"
 edition.workspace = true
 rust-version.workspace = true

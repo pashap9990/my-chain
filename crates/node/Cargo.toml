@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-node"
+name = "my-chain-node"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -11,16 +11,16 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
-world-chain-pool.workspace = true
-world-chain-p2p.workspace = true
-world-chain-primitives.workspace = true
-world-chain-rpc.workspace = true
-world-chain-builder.workspace = true
-world-chain-validator.workspace = true
-world-chain-cli.workspace = true
-world-chain-payload.workspace = true
-world-chain-chainspec.workspace = true
-world-chain-evm.workspace = true
+my-chain-pool.workspace = true
+my-chain-p2p.workspace = true
+my-chain-primitives.workspace = true
+my-chain-rpc.workspace = true
+my-chain-builder.workspace = true
+my-chain-validator.workspace = true
+my-chain-cli.workspace = true
+my-chain-payload.workspace = true
+my-chain-chainspec.workspace = true
+my-chain-evm.workspace = true
 
 reth-node-builder.workspace = true
 reth-db = { workspace = true, features = ["mdbx"] }
@@ -76,7 +76,7 @@ vergen = { workspace = true, features = ["build", "cargo", "emit_and_set"] }
 vergen-git2.workspace = true
 
 [dev-dependencies]
-world-chain-test-utils.workspace = true
+my-chain-test-utils.workspace = true
 reth-eth-wire.workspace = true
 reth-provider.workspace = true
 reth-node-api.workspace = true

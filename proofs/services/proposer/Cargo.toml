@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-proposer"
+name = "my-chain-proposer"
 version = "1.0.0-rc.4"
 edition.workspace = true
 rust-version.workspace = true
@@ -8,7 +8,7 @@ homepage.workspace = true
 repository.workspace = true
 
 [[bin]]
-name = "world-chain-proposer"
+name = "my-chain-proposer"
 path = "src/main.rs"
 
 [lints]
@@ -16,9 +16,9 @@ workspace = true
 
 [dependencies]
 # workspace
-world-chain-proof-protocol.workspace = true
-world-chain-proof-metrics.workspace = true
-world-chain-proof-tx-signer.workspace = true
+my-chain-proof-protocol.workspace = true
+my-chain-proof-metrics.workspace = true
+my-chain-proof-tx-signer.workspace = true
 
 # alloy
 alloy-consensus.workspace = true

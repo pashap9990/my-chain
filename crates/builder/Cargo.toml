@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-builder"
+name = "my-chain-builder"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -7,10 +7,10 @@ license.workspace = true
 
 [dependencies]
 # internal 
-world-chain-primitives.workspace = true
-world-chain-pool.workspace = true
-world-chain-chainspec.workspace = true
-world-chain-evm.workspace = true
+my-chain-primitives.workspace = true
+my-chain-pool.workspace = true
+my-chain-chainspec.workspace = true
+my-chain-evm.workspace = true
 
 # reth
 reth-basic-payload-builder.workspace = true
@@ -58,9 +58,9 @@ metrics.workspace = true
 metrics-derive.workspace = true
 
 [dev-dependencies]
-world-chain-test-utils.workspace = true
-world-chain-builder.workspace = true
-world-chain-node.workspace = true
+my-chain-test-utils.workspace = true
+my-chain-builder.workspace = true
+my-chain-node.workspace = true
 reth-optimism-node = { workspace = true, features = ["test-utils"] }
 reth-tasks.workspace = true
 serde.workspace = true

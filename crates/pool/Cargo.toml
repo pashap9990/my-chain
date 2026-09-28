@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-pool"
+name = "my-chain-pool"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -8,8 +8,8 @@ homepage.workspace = true
 repository.workspace = true
 
 [dependencies]
-world-chain-evm.workspace = true
-world-chain-pbh.workspace = true
+my-chain-evm.workspace = true
+my-chain-pbh.workspace = true
 
 reth-db.workspace = true
 reth-optimism-node.workspace = true
@@ -42,7 +42,7 @@ serde.workspace = true
 
 [dev-dependencies]
 reth-transaction-pool.workspace = true
-world-chain-test-utils.workspace = true
+my-chain-test-utils.workspace = true
 test-case.workspace = true
 chrono.workspace = true
 eyre.workspace = true

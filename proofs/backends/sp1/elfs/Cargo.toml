@@ -1,5 +1,5 @@
 [package]
-name = "world-chain-proof-sp1-elfs"
+name = "my-chain-proof-sp1-elfs"
 version = "1.0.0-rc.4"
 edition.workspace = true
 rust-version.workspace = true
