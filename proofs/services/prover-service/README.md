@@ -1,4 +1,4 @@
-# World Chain Prover Service
+# My Chain Prover Service
 
 The prover-service persists proof requests and worker leases in Postgres. Workers claim jobs
 over JSON-RPC and heartbeat while proving. The defender requests proofs and submits them on-chain.

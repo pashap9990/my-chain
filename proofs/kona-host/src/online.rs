@@ -124,7 +124,7 @@ impl OnlineHostConfig {
     }
 }
 
-/// Builds the range guest's hardfork schedule from a World chain spec.
+/// Builds the range guest's hardfork schedule from a My Chain spec.
 pub fn hardfork_config_from_chain_spec<S>(chain_spec: &S) -> WorldRangeHardforkConfig
 where
     S: MyChainHardforks + ?Sized,

@@ -36,7 +36,7 @@ contract SP1ValidityVerifierTest is Test {
     SP1ValidityVerifier internal verifier;
 
     bytes32 internal constant AGGREGATION_VKEY = bytes32(uint256(0xA66));
-    bytes32 internal constant ROLLUP_CONFIG_HASH = keccak256("world-chain-rollup-config");
+    bytes32 internal constant ROLLUP_CONFIG_HASH = keccak256("my-chain-rollup-config");
     bytes32 internal constant RANGE_VKEY_COMMITMENT = keccak256("range-vkey");
 
     bytes32 internal constant ROOT_ID = keccak256("root-id");

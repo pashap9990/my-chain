@@ -11,7 +11,7 @@ import {
 } from "./lib/LibProof.sol";
 import {GameTypes} from "./lib/GameTypes.sol";
 import {IMultiProofGame} from "./interfaces/IMultiProofGame.sol";
-import {IWorldChainProofVerifier} from "./interfaces/IWorldChainProofVerifier.sol";
+import {IMyChainProofVerifier} from "./interfaces/IMyChainProofVerifier.sol";
 import {IERC20StakingVault} from "./interfaces/IERC20StakingVault.sol";
 
 import {Clone} from "@solady/utils/Clone.sol";
@@ -132,9 +132,9 @@ contract MultiProofGame is Clone, ISemver, IMultiProofGame {
     bytes32 public immutable teeImageId;
 
     /// @notice Verifiers backing the proof lanes, indexed by `ProofLane`.
-    IWorldChainProofVerifier public immutable validityProofVerifier;
-    IWorldChainProofVerifier public immutable teeVerifier;
-    IWorldChainProofVerifier public immutable securityCouncil;
+    IMyChainProofVerifier public immutable validityProofVerifier;
+    IMyChainProofVerifier public immutable teeVerifier;
+    IMyChainProofVerifier public immutable securityCouncil;
 
     /// @notice Factory that created this clone and the only permitted initializer.
     IDisputeGameFactory public immutable disputeGameFactory;
@@ -525,7 +525,7 @@ contract MultiProofGame is Clone, ISemver, IMultiProofGame {
             revert DuplicateProofLane(lane, rootId_, claimData.proofBitmap);
         }
 
-        (IWorldChainProofVerifier verifier, bytes32 verifierId, bytes memory publicValues) =
+        (IMyChainProofVerifier verifier, bytes32 verifierId, bytes memory publicValues) =
             _verificationCallFor(lane, rootId_, _transition());
         if (!verifier.verify(compact.proof, verifierId, publicValues)) {
             revert InvalidProof(lane, rootId_);
@@ -841,7 +841,7 @@ contract MultiProofGame is Clone, ISemver, IMultiProofGame {
     function _verificationCallFor(ProofLane lane, bytes32 rootId_, TransitionPublicValues memory transition)
         internal
         view
-        returns (IWorldChainProofVerifier verifier, bytes32 verifierId, bytes memory publicValues)
+        returns (IMyChainProofVerifier verifier, bytes32 verifierId, bytes memory publicValues)
     {
         if (lane == ProofLane.VALIDITY_PROOF) {
             return (validityProofVerifier, aggregationVKey, abi.encode(transition, rangeVKeyCommitment));

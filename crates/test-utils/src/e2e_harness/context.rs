@@ -1,4 +1,4 @@
-//! Example on how to build a custom context for the world chain node.
+//! Example on how to build a custom context for the my chain node.
 
 use alloy_consensus::{Eip658Value, Header, Receipt};
 use alloy_evm::{Evm, eth::receipt_builder::ReceiptBuilderCtx};
@@ -38,7 +38,7 @@ use my_chain_node::{
 };
 use my_chain_pool::BasicMyChainPool;
 
-/// Node primitives for world chain.
+/// Node primitives for my chain.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct WorldPrimitives;
 
@@ -50,7 +50,7 @@ impl NodePrimitives for WorldPrimitives {
     type Receipt = OpReceipt;
 }
 
-/// Engine payload type set for world chain.
+/// Engine payload type set for my chain.
 #[derive(Debug, Default, Clone, serde::Deserialize, serde::Serialize)]
 pub struct WorldEngineTypes;
 
@@ -80,7 +80,7 @@ impl EngineTypes for WorldEngineTypes {
     type ExecutionPayloadEnvelopeV6 = OpExecutionPayloadEnvelopeV4;
 }
 
-/// Receipt builder for world chain.
+/// Receipt builder for my chain.
 #[derive(Debug, Default, Clone, Copy)]
 pub struct WorldReceiptBuilder;
 
@@ -124,7 +124,7 @@ impl OpReceiptBuilder for WorldReceiptBuilder {
     }
 }
 
-/// Executor builder for world chain.
+/// Executor builder for my chain.
 #[derive(Debug, Default, Clone, Copy)]
 pub struct WorldExecutorBuilder;
 
@@ -139,7 +139,7 @@ where
     }
 }
 
-/// RPC type adapter for world chain.
+/// RPC type adapter for my chain.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct WorldRpcTypes;
 
@@ -150,7 +150,7 @@ impl RpcTypes for WorldRpcTypes {
     type TransactionResponse = op_alloy_rpc_types::Transaction<OpTxEnvelope>;
 }
 
-/// My Chain e2e context that launches a world chain node.
+/// My Chain e2e context that launches a my chain node.
 #[derive(Clone, Debug)]
 pub struct WorldNodeContext {
     config: MyChainNodeConfig,

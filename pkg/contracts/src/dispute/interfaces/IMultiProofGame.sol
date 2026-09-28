@@ -2,7 +2,7 @@
 pragma solidity 0.8.28;
 
 import {LibProof, InvalidationReason, Bitmap, ProofLane} from "../lib/LibProof.sol";
-import {IWorldChainProofVerifier} from "./IWorldChainProofVerifier.sol";
+import {IMyChainProofVerifier} from "./IMyChainProofVerifier.sol";
 import {IERC20StakingVault} from "./IERC20StakingVault.sol";
 
 import {BondDistributionMode, Duration, GameStatus, Hash, Timestamp} from "@optimism-bedrock/src/dispute/lib/Types.sol";
@@ -60,9 +60,9 @@ interface IMultiProofGame is IDisputeGame {
         bytes32 aggregationVKey;
         bytes32 rangeVKeyCommitment;
         bytes32 teeImageId;
-        IWorldChainProofVerifier validityProofVerifier;
-        IWorldChainProofVerifier teeVerifier;
-        IWorldChainProofVerifier securityCouncil;
+        IMyChainProofVerifier validityProofVerifier;
+        IMyChainProofVerifier teeVerifier;
+        IMyChainProofVerifier securityCouncil;
         IAnchorStateRegistry anchorStateRegistry;
         IERC20StakingVault bondVault;
     }
@@ -146,13 +146,13 @@ interface IMultiProofGame is IDisputeGame {
     function teeImageId() external view returns (bytes32);
 
     /// @notice Verifier backing the validity-proof lane.
-    function validityProofVerifier() external view returns (IWorldChainProofVerifier);
+    function validityProofVerifier() external view returns (IMyChainProofVerifier);
 
     /// @notice Verifier backing the TEE-attestation lane.
-    function teeVerifier() external view returns (IWorldChainProofVerifier);
+    function teeVerifier() external view returns (IMyChainProofVerifier);
 
     /// @notice Verifier backing the security-council lane.
-    function securityCouncil() external view returns (IWorldChainProofVerifier);
+    function securityCouncil() external view returns (IMyChainProofVerifier);
 
     /// @notice Factory that created this clone and the only permitted initializer.
     function disputeGameFactory() external view returns (IDisputeGameFactory);

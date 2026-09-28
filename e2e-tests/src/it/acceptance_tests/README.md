@@ -72,7 +72,7 @@ Example:
 ```sh
 ACCEPTANCE_RPC_URL=https://example.invalid \
 ACCEPTANCE_CHAIN_ID=4801 \
-cargo nextest run --profile ci -p world-chain-tests \
+cargo nextest run --profile ci -p my-chain-tests \
   -E 'test(/acceptance_tests::test_network/)'
 ```
 
@@ -82,7 +82,7 @@ Example with Rundler checks enabled against chain `69420`:
 ACCEPTANCE_RPC_URL=https://tx-proxy-devnet-eu-central-2.worldcoin.dev \
 ACCEPTANCE_BUNDLER_RPC_URL=https://rundler-devnet-eu-central-2.worldcoin.dev \
 ACCEPTANCE_CHAIN_ID=69420 \
-cargo nextest run --profile ci -p world-chain-tests \
+cargo nextest run --profile ci -p my-chain-tests \
   -E 'test(/acceptance_tests::test_network/)'
 ```
 
@@ -93,7 +93,7 @@ ACCEPTANCE_RPC_URL="$(jq -r .primary.l2_rpc_url target/devnet/endpoints.json)" \
 ACCEPTANCE_CHAIN_ID="$(jq -r .chain_id target/devnet/endpoints.json)" \
 ACCEPTANCE_KARST_ENABLED=true \
 ACCEPTANCE_L2_KEY=0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d \
-cargo nextest run --profile ci -p world-chain-tests \
+cargo nextest run --profile ci -p my-chain-tests \
   -E 'test(/acceptance_tests::test_network/)'
 ```
 
@@ -108,6 +108,6 @@ ACCEPTANCE_KARST_DEPOSIT_ENABLED=true \
 ACCEPTANCE_L1_RPC_URL="$(jq -r .primary.l1_rpc_url target/devnet/endpoints.json)" \
 ACCEPTANCE_L1_KEY=0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d \
 ACCEPTANCE_OPTIMISM_PORTAL="$(jq -r .primary.optimism_portal target/devnet/endpoints.json)" \
-cargo nextest run --profile ci -p world-chain-tests \
+cargo nextest run --profile ci -p my-chain-tests \
   -E 'test(/acceptance_tests::test_network/)'
 ```

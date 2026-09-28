@@ -54,5 +54,5 @@ pub fn my_chain_validator()
         PBH_DEV_ENTRYPOINT,
         PBH_DEV_SIGNATURE_AGGREGATOR,
     )
-    .expect("failed to create world chain validator")
+    .expect("failed to create my chain validator")
 }

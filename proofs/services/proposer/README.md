@@ -1,6 +1,6 @@
-# World Chain Proposer
+# My Chain Proposer
 
-This crate contains the world chain proposer.
+This crate contains the my chain proposer.
 
 ## Goal
 

@@ -11,7 +11,7 @@ repository.workspace = true
 workspace = true
 
 [dev-dependencies]
-# World Chain
+# My Chain
 my-chain-node.workspace = true
 my-chain-devnet.workspace = true
 my-chain-proof-protocol.workspace = true

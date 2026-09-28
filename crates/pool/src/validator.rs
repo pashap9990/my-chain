@@ -405,7 +405,7 @@ pub mod tests {
             PBH_DEV_ENTRYPOINT,
             PBH_DEV_SIGNATURE_AGGREGATOR,
         )
-        .expect("failed to create world chain validator")
+        .expect("failed to create my chain validator")
     }
 
     async fn setup()

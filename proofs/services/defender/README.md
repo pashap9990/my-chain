@@ -1,4 +1,4 @@
-# World Chain Defender
+# My Chain Defender
 
 The defender reconstructs the same selected game lineage as the proposer from the current
 `AnchorStateRegistry` checkpoint. For each finalized L2 interval it computes the expected output

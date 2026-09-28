@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import {IWorldChainProofVerifier} from "../interfaces/IWorldChainProofVerifier.sol";
+import {IMyChainProofVerifier} from "../interfaces/IMyChainProofVerifier.sol";
 import {ISP1Verifier} from "@sp1-contracts/src/ISP1Verifier.sol";
 
 /// @title SP1ValidityVerifier
 /// @author World Contributors
 /// @custom:security-contact security@toolsforhumanity.com
-contract SP1ValidityVerifier is IWorldChainProofVerifier {
+contract SP1ValidityVerifier is IMyChainProofVerifier {
     /// @notice Thrown when the SP1 verifier gateway address is zero.
     error ZeroSP1Verifier();
 
@@ -19,7 +19,7 @@ contract SP1ValidityVerifier is IWorldChainProofVerifier {
         sp1Verifier = sp1Verifier_;
     }
 
-    /// @inheritdoc IWorldChainProofVerifier
+    /// @inheritdoc IMyChainProofVerifier
     /// @dev `proof` is the SP1 on-chain proof payload; for gateway deployments its first four
     ///      bytes select the concrete verifier route. Invalid or malformed proofs revert inside
     ///      the gateway and surface as `false`.

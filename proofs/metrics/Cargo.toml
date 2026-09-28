@@ -6,7 +6,7 @@ rust-version.workspace = true
 license.workspace = true
 homepage.workspace = true
 repository.workspace = true
-description = "Shared metrics for World Chain proof services."
+description = "Shared metrics for My Chain proof services."
 
 [lints]
 workspace = true

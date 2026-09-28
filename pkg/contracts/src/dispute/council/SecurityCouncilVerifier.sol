@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import {IWorldChainProofVerifier} from "../interfaces/IWorldChainProofVerifier.sol";
+import {IMyChainProofVerifier} from "../interfaces/IMyChainProofVerifier.sol";
 
 interface IERC1271 {
     function isValidSignature(bytes32 hash, bytes calldata signature) external view returns (bytes4);
@@ -10,12 +10,12 @@ interface IERC1271 {
 /// @title SecurityCouncilVerifier
 /// @author World Contributors
 /// @custom:security-contact security@toolsforhumanity.com
-contract SecurityCouncilVerifier is IWorldChainProofVerifier {
+contract SecurityCouncilVerifier is IMyChainProofVerifier {
     /// @notice `bytes4(keccak256("isValidSignature(bytes32,bytes)"))`
     bytes4 internal constant ERC1271_MAGIC_VALUE = 0x1626ba7e;
 
     /// @notice Domain tag for council attestations over a proposal root.
-    bytes32 public constant ATTESTATION_TYPEHASH = keccak256("WorldChainCouncilAttestation(bytes32 rootId)");
+    bytes32 public constant ATTESTATION_TYPEHASH = keccak256("MyChainCouncilAttestation(bytes32 rootId)");
 
     /// @notice The council Safe.
     address public immutable council;
@@ -35,7 +35,7 @@ contract SecurityCouncilVerifier is IWorldChainProofVerifier {
         return keccak256(abi.encode(ATTESTATION_TYPEHASH, block.chainid, address(this), rootId));
     }
 
-    /// @inheritdoc IWorldChainProofVerifier
+    /// @inheritdoc IMyChainProofVerifier
     /// @dev The council public values are the ABI encoding of the proposal's `rootId`.
     function verify(bytes calldata proof, bytes32 verifierId, bytes calldata publicValues)
         external

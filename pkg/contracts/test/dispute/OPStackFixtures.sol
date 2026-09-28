@@ -9,7 +9,7 @@ import {IMultiProofGame} from "../../src/dispute/interfaces/IMultiProofGame.sol"
 import {IERC20StakingVault} from "../../src/dispute/interfaces/IERC20StakingVault.sol";
 import {GameTypes} from "../../src/dispute/lib/GameTypes.sol";
 import {LibProof, ProofLane} from "../../src/dispute/lib/LibProof.sol";
-import {IWorldChainProofVerifier} from "../../src/dispute/interfaces/IWorldChainProofVerifier.sol";
+import {IMyChainProofVerifier} from "../../src/dispute/interfaces/IMyChainProofVerifier.sol";
 import {MockRootIdVerifier} from "../mocks/MockRootIdVerifier.sol";
 import {MockSystemConfig} from "../mocks/MockSystemConfig.sol";
 import {MockBondToken} from "../mocks/MockBondToken.sol";
@@ -37,7 +37,7 @@ abstract contract OPStackFixtures is Test {
     uint8 internal constant PROOF_THRESHOLD = 2;
 
     uint256 internal constant CHAIN_ID = 480;
-    bytes32 internal constant ROLLUP_CONFIG_HASH = keccak256("world-chain-rollup-config");
+    bytes32 internal constant ROLLUP_CONFIG_HASH = keccak256("my-chain-rollup-config");
     bytes32 internal constant AGGREGATION_VKEY = keccak256("aggregation-vkey");
     bytes32 internal constant RANGE_VKEY_COMMITMENT = keccak256("range-vkey-commitment");
     bytes32 internal constant TEE_IMAGE_ID = keccak256("tee-image-id");
@@ -102,7 +102,7 @@ abstract contract OPStackFixtures is Test {
             abi.encodeCall(IERC20StakingVault.initialize, (bondToken, ISystemConfig(address(systemConfig)), dgf))
         );
 
-        // World Chain proof-system periphery + game implementation.
+        // My Chain proof-system periphery + game implementation.
         validityVerifier = new MockRootIdVerifier(false);
         teeVerifier = new MockRootIdVerifier(false);
         councilVerifier = new MockRootIdVerifier(false);
@@ -141,9 +141,9 @@ abstract contract OPStackFixtures is Test {
             aggregationVKey: AGGREGATION_VKEY,
             rangeVKeyCommitment: RANGE_VKEY_COMMITMENT,
             teeImageId: TEE_IMAGE_ID,
-            validityProofVerifier: IWorldChainProofVerifier(address(validityVerifier)),
-            teeVerifier: IWorldChainProofVerifier(address(teeVerifier)),
-            securityCouncil: IWorldChainProofVerifier(address(councilVerifier)),
+            validityProofVerifier: IMyChainProofVerifier(address(validityVerifier)),
+            teeVerifier: IMyChainProofVerifier(address(teeVerifier)),
+            securityCouncil: IMyChainProofVerifier(address(councilVerifier)),
             anchorStateRegistry: asr,
             bondVault: bondVault
         });

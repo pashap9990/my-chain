@@ -1296,7 +1296,7 @@
   "refresh": "10s",
   "schemaVersion": 42,
   "tags": [
-    "world-chain",
+    "my-chain",
     "flashblocks",
     "p2p"
   ],

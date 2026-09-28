@@ -122,7 +122,7 @@ a fresh log.
 Detached runs write to the same file only. Override the path with:
 
 ```bash
-WORLD_CHAIN_DEVNET_LOG_FILE=/tmp/world-devnet.log just devnet up
+MY_CHAIN_DEVNET_LOG_FILE=/tmp/world-devnet.log just devnet up
 ```
 
 The background PID file defaults to:
@@ -131,7 +131,7 @@ The background PID file defaults to:
 target/devnet/devnet.pid
 ```
 
-Override it with `WORLD_CHAIN_DEVNET_PID_FILE`.
+Override it with `MY_CHAIN_DEVNET_PID_FILE`.
 
 ## Endpoint File
 
@@ -144,7 +144,7 @@ target/devnet/endpoints.json
 Override it with:
 
 ```bash
-WORLD_CHAIN_DEVNET_ENDPOINTS_FILE=/tmp/world-devnet-endpoints.json just devnet up
+MY_CHAIN_DEVNET_ENDPOINTS_FILE=/tmp/world-devnet-endpoints.json just devnet up
 ```
 
 The file includes primary URLs such as `sequencer_rpc_url`, `flashblocks_url`, `prometheus_url`,

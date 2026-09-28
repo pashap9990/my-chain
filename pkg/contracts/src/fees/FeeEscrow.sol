@@ -30,7 +30,7 @@ interface IChainLinkPriceFeed {
 
 /// @title FeeEscrow
 /// @author Worldcoin
-/// @notice Concrete implementation of BuybackExecutor for World Chain fee burns
+/// @notice Concrete implementation of BuybackExecutor for My Chain fee burns
 /// @dev Provides all config specifics: token addresses, recipient, interval, owner
 contract FeeEscrow is ReentrancyGuardTransient, Ownable {
     using SafeERC20 for IERC20;

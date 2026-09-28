@@ -10,7 +10,7 @@ import {MultiProofGame} from "../../src/dispute/MultiProofGame.sol";
 import {ERC20StakingVault} from "../../src/dispute/ERC20StakingVault.sol";
 import {IMultiProofGame} from "../../src/dispute/interfaces/IMultiProofGame.sol";
 import {IERC20StakingVault} from "../../src/dispute/interfaces/IERC20StakingVault.sol";
-import {IWorldChainProofVerifier} from "../../src/dispute/interfaces/IWorldChainProofVerifier.sol";
+import {IMyChainProofVerifier} from "../../src/dispute/interfaces/IMyChainProofVerifier.sol";
 
 import {GameType} from "@optimism-bedrock/src/dispute/lib/Types.sol";
 import {IDisputeGame} from "@optimism-bedrock/interfaces/dispute/IDisputeGame.sol";
@@ -20,7 +20,7 @@ import {IProxyAdmin} from "@optimism-bedrock/interfaces/universal/IProxyAdmin.so
 import {ISystemConfig} from "@optimism-bedrock/interfaces/L1/ISystemConfig.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-/// @notice Deploys the World Chain proof-system game implementation for the stock OP Stack dispute
+/// @notice Deploys the My Chain proof-system game implementation for the stock OP Stack dispute
 ///         infrastructure deployed by op-deployer.
 ///
 /// Deploys the WIP-1006 singleton ERC-20 staking-vault proxy, or reuses the existing vault during
@@ -73,9 +73,9 @@ contract DeployProofSystem is Script {
         bytes32 aggregationVKey;
         bytes32 rangeVKeyCommitment;
         bytes32 teeImageId;
-        IWorldChainProofVerifier validityProofVerifier;
-        IWorldChainProofVerifier teeVerifier;
-        IWorldChainProofVerifier securityCouncil;
+        IMyChainProofVerifier validityProofVerifier;
+        IMyChainProofVerifier teeVerifier;
+        IMyChainProofVerifier securityCouncil;
         IDisputeGameFactory disputeGameFactory;
         IAnchorStateRegistry anchorStateRegistry;
         ISystemConfig systemConfig;
@@ -136,7 +136,7 @@ contract DeployProofSystem is Script {
 
     function _readConfig() internal view returns (Config memory config) {
         config.privateKey = vm.envUint("PRIVATE_KEY");
-        config.l2ChainId = vm.envUint("WORLD_CHAIN_L2_CHAIN_ID");
+        config.l2ChainId = vm.envUint("MY_CHAIN_L2_CHAIN_ID");
         config.rollupConfigHash = vm.envBytes32("ROLLUP_CONFIG_HASH");
         config.blockInterval = vm.envOr("PROOF_SYSTEM_BLOCK_INTERVAL", DEFAULT_BLOCK_INTERVAL);
         config.challengePeriod = vm.envOr("CHALLENGE_PERIOD", uint256(DEFAULT_CHALLENGE_PERIOD)).toUint64();
@@ -151,9 +151,9 @@ contract DeployProofSystem is Script {
         config.teeImageId = vm.envBytes32("TEE_IMAGE_ID");
         // Proof lanes are required inputs, never deployed here. The SP1 address remains stable
         // when a new game implementation pins different vkeys.
-        config.validityProofVerifier = IWorldChainProofVerifier(vm.envAddress("VALIDITY_PROOF_VERIFIER"));
-        config.teeVerifier = IWorldChainProofVerifier(vm.envAddress("TEE_VERIFIER"));
-        config.securityCouncil = IWorldChainProofVerifier(vm.envAddress("SECURITY_COUNCIL_VERIFIER"));
+        config.validityProofVerifier = IMyChainProofVerifier(vm.envAddress("VALIDITY_PROOF_VERIFIER"));
+        config.teeVerifier = IMyChainProofVerifier(vm.envAddress("TEE_VERIFIER"));
+        config.securityCouncil = IMyChainProofVerifier(vm.envAddress("SECURITY_COUNCIL_VERIFIER"));
         config.disputeGameFactory = IDisputeGameFactory(vm.envAddress("DISPUTE_GAME_FACTORY"));
         config.anchorStateRegistry = IAnchorStateRegistry(vm.envAddress("ANCHOR_STATE_REGISTRY"));
         config.systemConfig = ISystemConfig(vm.envAddress("SYSTEM_CONFIG"));

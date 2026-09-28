@@ -114,7 +114,7 @@ where
                         pbh_entrypoint,
                         pbh_signature_aggregator,
                     )
-                    .expect("failed to create world chain validator")
+                    .expect("failed to create my chain validator")
                 });
 
         let transaction_pool = reth_transaction_pool::Pool::new(

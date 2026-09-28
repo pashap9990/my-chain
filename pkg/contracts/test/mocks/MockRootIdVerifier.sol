@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import {IWorldChainProofVerifier} from "../../src/dispute/interfaces/IWorldChainProofVerifier.sol";
+import {IMyChainProofVerifier} from "../../src/dispute/interfaces/IMyChainProofVerifier.sol";
 
 interface IRootIdSource {
     function rootId() external view returns (bytes32);
@@ -10,7 +10,7 @@ interface IRootIdSource {
 /// @title MockRootIdVerifier
 /// @author World Contributors
 /// @custom:security-contact security@toolsforhumanity.com
-contract MockRootIdVerifier is IWorldChainProofVerifier {
+contract MockRootIdVerifier is IMyChainProofVerifier {
     mapping(bytes32 rootId => bool accepted) public acceptedRoots;
     bool public acceptAny;
     bool public enforceParameters;

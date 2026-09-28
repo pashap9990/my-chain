@@ -12,7 +12,7 @@ import {SafeModuleSignatures} from "../lib/SafeModuleSignatures.sol";
 /// @title PBH Signature Aggregator
 /// @author Worldcoin
 /// @dev This contract does not implement signature verification.
-///         It is instead used as an identifier for Priority User Operations on World Chain.
+///         It is instead used as an identifier for Priority User Operations on My Chain.
 ///         Smart Accounts that return the `PBHSignatureAggregator` as the authorizer in `validationData`
 ///         will be considered as Priority User Operations, and will need to pack a World ID proof in the signature field.
 /// @custom:security-contact security@toolsforhumanity.com
