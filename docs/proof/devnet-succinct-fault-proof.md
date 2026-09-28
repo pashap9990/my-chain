@@ -1,6 +1,6 @@
 # World OP Succinct Lite devnet rollout
 
-This is the shipping plan for the World Chain zk fault proof devnet deployment. It follows OP
+This is the shipping plan for the My Chain zk fault proof devnet deployment. It follows OP
 Succinct Lite's architecture: existing OP Stack services keep producing the chain, while separate
 Succinct proposer and challenger services participate in a new fault dispute game type.
 
@@ -54,18 +54,18 @@ and included in the rollup config hash used by both the contracts and proposer.
 
 Use separate apps instead of replacing the existing Cannon challenger first:
 
-1. Add `world-chain-zk-proposer` in `../crypto-apps`.
+1. Add `my-chain-zk-proposer` in `../crypto-apps`.
    - Image: custom World OP Succinct proposer image.
    - Required env: `L1_RPC`, `L2_RPC`, `ANCHOR_STATE_REGISTRY_ADDRESS`, `FACTORY_ADDRESS`,
      `GAME_TYPE`, `PROPOSAL_INTERVAL_IN_BLOCKS`, `FETCH_INTERVAL`, `SAFE_DB_FALLBACK`,
      `RANGE_SPLIT_COUNT`, proof provider env, and metrics port.
    - Secret: proposer private key, or KMS requester env if using KMS.
-2. Add `world-chain-zk-challenger` in `../crypto-apps`.
+2. Add `my-chain-zk-challenger` in `../crypto-apps`.
    - Image: vanilla OP Succinct Lite challenger is acceptable if we keep the upstream game ABI.
    - Required env: `L1_RPC`, `L2_RPC`, `ANCHOR_STATE_REGISTRY_ADDRESS`, `FACTORY_ADDRESS`,
      `GAME_TYPE`, `FETCH_INTERVAL`, and metrics port.
    - Secret: challenger private key, or KMS requester env if using KMS.
-3. Keep existing `world-chain-challenger` and `op-proposer` running until the zk game type is
+3. Keep existing `my-chain-challenger` and `op-proposer` running until the zk game type is
    deployed, funded, and producing valid games.
 4. Enable the zk apps only after contract deployment writes the final ASR/factory addresses into
    `values-dev-crypto-dev-us-east-1.yaml`.
@@ -81,7 +81,7 @@ Use separate apps instead of replacing the existing Cannon challenger first:
 Copy OP Succinct's fault-proof proposer implementation rather than writing a new lifecycle from
 scratch. Keep the patch narrow:
 
-- Replace embedded ELF imports with `world-chain-proof-sp1-elfs`.
+- Replace embedded ELF imports with `my-chain-proof-sp1-elfs`.
 - Replace upstream `hash_rollup_config(fetcher.rollup_config)` with the World hash helper that
   includes `tropo_time` and `strato_time`.
 - Replace upstream ETH witness generation with the World ETH witness data that carries the schedule.

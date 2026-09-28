@@ -2,7 +2,7 @@
 
 ## Overview
 
-The nitro worker is World Chain's TEE-based proving backend. Instead of generating a
+The nitro worker is My Chain's TEE-based proving backend. Instead of generating a
 zero-knowledge proof (which is computationally expensive and slow), it re-executes the
 L2 state transition inside an **AWS Nitro Enclave** — a hardware-isolated VM whose
 identity and outputs are cryptographically attested by Amazon's Nitro Security Module
@@ -14,13 +14,13 @@ without a ZK proof.
 The system spans two binaries, three Kubernetes containers, and four smart contracts.
 This document explains every layer.
 
-> **Comparison with Base:** World Chain's Nitro implementation is directly inspired by
+> **Comparison with Base:** My Chain's Nitro implementation is directly inspired by
 > Base's [`op-enclave`](https://github.com/base/op-enclave) project and reuses Base's
 > [`nitro-validator`](https://github.com/base/nitro-validator) Solidity library. The
 > core on-chain attestation verification (COSE_Sign1 parsing, hinted P-384, cert chain,
-> `ecrecover`) is shared. The key differences are: (1) World Chain integrates as an OP
+> `ecrecover`) is shared. The key differences are: (1) My Chain integrates as an OP
 > Stack dispute game lane, while Base's op-enclave replaces the proposer outright; (2)
-> World Chain checks PCR0+PCR1+PCR2 triples, Base checks only PCR0; (3) World Chain
+> My Chain checks PCR0+PCR1+PCR2 triples, Base checks only PCR0; (3) My Chain
 > has a 3-state key lifecycle with permanent revocation, Base uses a simple
 > add/delete map. Details are compared throughout this document.
 
@@ -65,14 +65,14 @@ The `nitro-worker` Kubernetes pod contains two containers:
 ### On-Chain Contract Stack
 
 ```
-NitroProofVerifier           ← World Chain addition: dispute game lane hook
+NitroProofVerifier           ← My Chain addition: dispute game lane hook
   │  ecrecover signature → check signer is registered for the game's image ID
   ▼
-NitroEnclaveKeyRegistry      ← World Chain addition: 3-state signer lifecycle
+NitroEnclaveKeyRegistry      ← My Chain addition: 3-state signer lifecycle
   │  registerKey() / revokeSigner() / isSignerRegistered()
   │  signer lifecycle: Unknown → Active → Revoked
   ▼
-NitroAttestationVerifier     ← World Chain addition: PCR triple allowlist + timestamps
+NitroAttestationVerifier     ← My Chain addition: PCR triple allowlist + timestamps
   │  parse COSE_Sign1, verify P-384 sig, check PCR0+PCR1+PCR2
   ▼
 NitroValidator               ← Base's library (base/nitro-validator)
@@ -87,8 +87,8 @@ AWS Nitro Root CA (hardcoded)
 
 > **Base comparison:** Base's `AggregateVerifier` pins `TEE_IMAGE_HASH`, while its
 > reusable `TEEVerifier` checks the recovered signer's `signerImageHash` in
-> `TEEProverRegistry`. World Chain follows that split with a game-pinned `teeImageId`, a
-> reusable `NitroProofVerifier`, and `signerImageId` in `NitroEnclaveKeyRegistry`. World Chain
+> `TEEProverRegistry`. My Chain follows that split with a game-pinned `teeImageId`, a
+> reusable `NitroProofVerifier`, and `signerImageId` in `NitroEnclaveKeyRegistry`. My Chain
 > retains its existing PCR0/1/2 approval gate at registration. Like Base, it uses the PCR0 hash as
 > the game image ID; Base currently permits registration before an image is active.
 
@@ -360,7 +360,7 @@ cert chain validation, done once at key registration) from the **cheap operation
 
 > **Base comparison:** Base's op-enclave uses the same two-layer design — one P-384
 > attestation at key registration, then secp256k1 `ecrecover` for every state root
-> proposal. Base's enclave is written in Go; World Chain's is Rust using the Kona
+> proposal. Base's enclave is written in Go; My Chain's is Rust using the Kona
 > derivation pipeline. The NSM API calls and signing/attestation pattern are
 > functionally identical.
 
@@ -396,9 +396,9 @@ when building the Enclave Image File (EIF):
 PCR0 is the **primary identity** — it uniquely identifies the complete enclave image.
 
 > **Base comparison:** Base's `SystemConfigGlobal` registers only **PCR0** (stored as
-> `keccak256(pcr0)` in a boolean mapping). World Chain uses the full **PCR0+PCR1+PCR2
+> `keccak256(pcr0)` in a boolean mapping). My Chain uses the full **PCR0+PCR1+PCR2
 > triple**, which is more precise — PCR1 and PCR2 let you distinguish kernel-only
-> changes from application-only changes. The trade-off: approving a new World Chain
+> changes from application-only changes. The trade-off: approving a new My Chain
 > PCR triple requires three values to be captured and submitted vs Base's single PCR0.
 
 ### Worker PCR Pinning
@@ -470,7 +470,7 @@ NitroProofVerifier
 > enclaveAddress = address(uint160(publicKeyHash))
 > validSigners[enclaveAddress] = true
 > ```
-> World Chain also stores lifecycle state by signer address, but uses a three-state
+> My Chain also stores lifecycle state by signer address, but uses a three-state
 > `SignerStatus` rather than a boolean so revocation remains permanent. The on-chain
 > `ecrecover` check is identical in both systems.
 
@@ -511,7 +511,7 @@ The enclave boots and:
 ### 5. Register the Key
 
 The operator sends a `PublicKey` request to the enclave (via the
-`world-chain-prover-nitro` CLI). The enclave returns an NSM attestation with the
+`my-chain-prover-nitro` CLI). The enclave returns an NSM attestation with the
 ephemeral public key in the `public_key` field.
 
 The operator calls `NitroEnclaveKeyRegistry.registerKey(attestationTbs, signature)`:
@@ -541,10 +541,10 @@ Revocation is necessary when an enclave is decommissioned or compromised.
 
 > **Base comparison:** Base's `SystemConfigGlobal` uses a simple `mapping(address =>
 > bool) validSigners`. Deregistration is `delete validSigners[addr]` — the address
-> can be re-added later with a new attestation. World Chain's `SignerStatus.Revoked` is
+> can be re-added later with a new attestation. My Chain's `SignerStatus.Revoked` is
 > permanent; a revoked signer can never be reactivated. This closes the replay
 > attack window (a captured attestation could re-register a deleted Base key, but not
-> a World Chain `Revoked` one).
+> a My Chain `Revoked` one).
 
 ---
 
@@ -568,7 +568,7 @@ and cache the certificate chain:
 #### Step 1: Get a Bare Attestation
 
 ```bash
-world-chain-prover-nitro get-attestation
+my-chain-prover-nitro get-attestation
 ```
 
 This sends a `GetAttestation` request to the enclave, which issues a bare NSM
@@ -602,7 +602,7 @@ and the PCR set is approved.
 
 > **Base comparison:** Base uses the same `CertManager` pre-warm workflow (it's their
 > contract). Their tooling (`tools/hinted_attestation_calls.js`) is the reference
-> implementation; World Chain uses the same script. The hinted P-384 verification
+> implementation; My Chain uses the same script. The hinted P-384 verification
 > (where modular inverses are computed off-chain and verified on-chain) was introduced
 > by Base in [`nitro-validator` PR #28](https://github.com/base/nitro-validator/pull/28)
 > after the Fusaka upgrade raised `MODEXP` pricing enough that the old fully on-chain
@@ -695,7 +695,7 @@ match the game before collecting a witness or contacting the enclave.
 | Flag / Env Var | Description | Default |
 |----------------|-------------|---------|
 | `--prover-service-url` / `PROVER_SERVICE_URL` | URL of the prover-service API | Required |
-| `--l2-rpc` / `L2_RPC_URL` | World Chain L2 RPC endpoint | Required |
+| `--l2-rpc` / `L2_RPC_URL` | My Chain L2 RPC endpoint | Required |
 | `--l1-rpc` / `L1_RPC_URL` | Ethereum L1 RPC endpoint | Required |
 | `--l1-beacon-rpc` / `L1_BEACON_RPC_URL` | Ethereum L1 Beacon API endpoint | Required |
 | `--network` / `NETWORK` | `worldchain` or `worldchain-sepolia` | `worldchain` |
@@ -723,7 +723,7 @@ match the game before collecting a witness or contacting the enclave.
 Large frames are written to vsock in chunks of at most 28 KiB. The enclave rejects an
 oversized length prefix before allocating its receive buffer.
 
-### `world-chain-prover-nitro` CLI Commands
+### `my-chain-prover-nitro` CLI Commands
 
 | Command | Description |
 |---------|-------------|
@@ -733,7 +733,7 @@ oversized length prefix before allocating its receive buffer.
 | `get-attestation` | Fetch a bare NSM attestation (for CertManager pre-warm) |
 
 > **Note:** `nitro-worker` (the long-running production worker that polls the prover-service)
-> is a separate binary from `world-chain-prover-nitro` (the one-shot CLI tool above).
+> is a separate binary from `my-chain-prover-nitro` (the one-shot CLI tool above).
 
 ---
 

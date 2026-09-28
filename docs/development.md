@@ -3,9 +3,9 @@
 ## Project Structure
 
 ```
-world-chain/
+my-chain/
 ├── crates/
-├── bin/world-chain/                     # Node binary
+├── bin/my-chain/                        # Node binary
 │   ├── primitives/                   # Core types (flashblock payloads, BAL, P2P auth)
 │   ├── cli/                          # CLI args & node configuration
 │   ├── pbh/                          # Priority Bundle Handler (nullifiers, proofs)
@@ -37,29 +37,29 @@ Starts N nodes via P2P, drives block production with `EngineDriver`, optionally 
 
 Custom metrics are exposed via the standard reth metrics endpoint (`/metrics`). Key namespaces:
 
-### Builder (`world-chain-builder`)
+### Builder (`my-chain-builder`)
 - `flashblocks_per_epoch` — Histogram of flashblocks produced per epoch
 - `coordinator.*` — Execution coordinator timing and throughput
 
-### Payload (`world-chain-payload`)
+### Payload (`my-chain-payload`)
 - `payload_build_time` — Time to build a payload
 - `payload_job.*` — Job lifecycle metrics
 
-### P2P (`world-chain-p2p`)
+### P2P (`my-chain-p2p`)
 - `flashblocks_received` — Counter of flashblocks received from peers
 - `flashblocks_sent` — Counter of flashblocks propagated
 - `peer_latency` — Per-peer latency scoring for receive-peer rotation
 
-### Engine (`world-chain-engine`)
+### Engine (`my-chain-engine`)
 - `validation_time` — Time to validate a flashblock
 - `state_root_compute_time` — Parallel state root computation time
 
-## World Chain Snapshots
+## My Chain Snapshots
 
 `reth` snapshots are regularly updated:
 
 ```bash
-BUCKET="world-chain-snapshots" # use world-chain-testnet-snapshots for sepolia
+BUCKET="<your-s3-bucket-name>" # provision your own snapshot bucket; use a separate bucket/prefix for sepolia
 FILE_NAME="reth_archive.tar.lz4" # reth_full.tar.lz4 is available on mainnet only
 OUT_DIR="./"
 VID="$(aws s3api head-object --bucket "$BUCKET" --key "$FILE_NAME" --region eu-central-2 --query 'VersionId' --output text)"

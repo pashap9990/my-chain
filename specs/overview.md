@@ -1,7 +1,7 @@
-# World Chain Specs
+# My Chain Specs
 
-## About World Chain
-[World Chain](https://worldscan.org/) is a blockchain designed for humans. Prioritizing scalability and accessibility for real users, World Chain provides the rails for a frictionless onchain UX.
+## About My Chain
+[My Chain](https://worldscan.org/) is a blockchain designed for humans. Prioritizing scalability and accessibility for real users, My Chain provides the rails for a frictionless onchain UX.
 
 
 ## Site Navigation

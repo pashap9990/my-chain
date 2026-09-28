@@ -1,6 +1,6 @@
-# World Chain Improvement Proposals (WIPs)
+# My Chain Improvement Proposals (WIPs)
 
-World Chain Improvement Proposals (WIPs) are design documents that describe new features, standards, or processes for the World Chain protocol. WIPs provide a structured way to propose changes, collect community feedback, and document design decisions.
+My Chain Improvement Proposals (WIPs) are design documents that describe new features, standards, or processes for the My Chain protocol. WIPs provide a structured way to propose changes, collect community feedback, and document design decisions.
 
 WIPs are modeled after [Ethereum Improvement Proposals (EIPs)](https://github.com/ethereum/EIPs) and follow a similar format and workflow.
 
@@ -42,9 +42,9 @@ Each WIP must declare one of the following types:
 
 | Type              | Description |
 | ----------------- | ----------- |
-| **Standards Track** | Describes a change that affects most or all World Chain implementations, such as a change to the protocol, transaction format, or precompile behavior. Standards Track WIPs are further categorized as `Core`, `Networking`, or `Interface`. |
-| **Meta**          | Describes a process surrounding World Chain or proposes a change to a process. Meta WIPs require community consensus but do not change the protocol itself. |
-| **Informational** | Provides general guidelines, information, or describes a World Chain design issue without proposing a protocol change. Informational WIPs do not necessarily represent community consensus. |
+| **Standards Track** | Describes a change that affects most or all My Chain implementations, such as a change to the protocol, transaction format, or precompile behavior. Standards Track WIPs are further categorized as `Core`, `Networking`, or `Interface`. |
+| **Meta**          | Describes a process surrounding My Chain or proposes a change to a process. Meta WIPs require community consensus but do not change the protocol itself. |
+| **Informational** | Provides general guidelines, information, or describes a My Chain design issue without proposing a protocol change. Informational WIPs do not necessarily represent community consensus. |
 
 ### Standards Track Categories
 
@@ -141,7 +141,7 @@ The following sections are optional but encouraged where applicable:
 
 WIP numbers are assigned sequentially by maintainers when a Draft PR is opened.
 
-- WIPs in the **1000–1999** range cover **Core** protocol features for World Chain.
+- WIPs in the **1000–1999** range cover **Core** protocol features for My Chain.
 - Numbers below 1000 are reserved for future Meta and Informational WIPs.
 
 Do not self-assign a WIP number when initially opening a PR. Use a descriptive branch name (e.g., `wip/account-abstraction`) and a maintainer will assign a number upon review.
@@ -150,9 +150,9 @@ Do not self-assign a WIP number when initially opening a PR. Use a descriptive b
 
 ## How to Contribute
 
-1. **Discuss your idea first.** Open a GitHub Discussion or reach out on the World Chain Discord before writing a full WIP. Early feedback saves time.
+1. **Discuss your idea first.** Open a GitHub Discussion or reach out on the My Chain Discord before writing a full WIP. Early feedback saves time.
 
-2. **Fork and branch.** Fork the [`worldcoin/world-chain`](https://github.com/worldcoin/world-chain) repository and create a branch named `wip/<short-description>`.
+2. **Fork and branch.** Fork the [`pashap9990/my-chain`](https://github.com/pashap9990/my-chain) repository and create a branch named `wip/<short-description>`.
 
 3. **Use the template.** Copy [`wip-template.md`](./wip-template.md) to a new file named `wip-draft_<short_title>.md` (you'll rename it once a number is assigned).
 

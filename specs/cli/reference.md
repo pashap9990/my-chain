@@ -2,14 +2,14 @@
 
 > **Auto-generated** — run `cargo xtask docs` to regenerate.
 
-## `world-chain`
+## `my-chain`
 
-The World Chain node binary. All flags below are passed to `world-chain`.
+The My Chain node binary. All flags below are passed to `my-chain`.
 
 ```text
-World Chain Node
+My Chain Node
 
-Usage: world-chain [OPTIONS]
+Usage: my-chain [OPTIONS]
 
 Options:
   -h, --help
@@ -270,6 +270,6 @@ Flashblocks:
           Comma-separated list of peer IDs to which transactions should be propagated
 
       --worldchain.disable-bootnodes
-          Disable the default World Chain flashblocks sentries
+          Disable the default My Chain flashblocks sentries
 
 ```

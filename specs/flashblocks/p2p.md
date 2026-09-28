@@ -55,7 +55,7 @@ We inherit all terminology from the original Flashblocks spec (Sequencer, Block 
 sequenceDiagram
     participant ON as op-node<br/>(Sequencer)
     participant RB as rollup-boost<br/>(Authorizer)
-    participant B as world-chain reth<br/>(Builder)
+    participant B as my-chain reth<br/>(Builder)
     participant P2P as P2P Peers<br/>(Receiving Nodes)
 
     Note over ON,P2P: ── Slot N (T=0s) ── FCU + Authorization

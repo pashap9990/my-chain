@@ -10,7 +10,7 @@
     <!-- - [PBH Contracts](./pbh/contracts.md)
     - [PBH Bundlers](./pbh/bundlers.md) -->
 - [CLI Reference](./cli/reference.md)
-- [World Chain Improvement Proposals](./wips/README.md)
+- [My Chain Improvement Proposals](./wips/README.md)
     - [WIP-1001: WorldID Native Account Abstraction](./wips/wip-1001.md)
     - [WIP-1002: WorldID Gas Accounting](./wips/wip-1002.md)
     - [WIP-1003: World ID Transaction Subsidies](./wips/wip-1003.md)

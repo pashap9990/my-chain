@@ -1,10 +1,10 @@
-# World Chain prover CLI reference
+# My Chain prover CLI reference
 
 The host-side prover entry points are split by backend. Both binaries share witness generation and
 rollup-config hashing, while backend-specific commands live at the top level of each binary.
 
 ```
-world-chain-prover-sp1 <COMMAND>
+my-chain-prover-sp1 <COMMAND>
 
 Commands:
   hash-rollup-config   Print the rollup config hash used in proofs
@@ -15,7 +15,7 @@ Commands:
 ```
 
 ```
-world-chain-prover-nitro <COMMAND>
+my-chain-prover-nitro <COMMAND>
 
 Commands:
   hash-rollup-config   Print the rollup config hash used in proofs
@@ -29,13 +29,13 @@ Commands:
 
 ```bash
 # SP1 prover
-cargo build -p world-chain-prover-sp1
+cargo build -p my-chain-prover-sp1
 
 # Nitro enclave prover (Linux only, requires AF_VSOCK)
-cargo build -p world-chain-prover-nitro
+cargo build -p my-chain-prover-nitro
 
 # Shared library only
-cargo build -p world-chain-prover --lib
+cargo build -p my-chain-prover --lib
 ```
 
 ## Common environment variables
@@ -45,7 +45,7 @@ All RPC flags accept an environment variable fallback. The full set used across 
 | Variable | Flag | Description |
 |---|---|---|
 | `L1_RPC_URL` | `--l1-rpc` | Ethereum L1 execution RPC |
-| `L2_RPC_URL` | `--l2-rpc` | World Chain L2 execution RPC |
+| `L2_RPC_URL` | `--l2-rpc` | My Chain L2 execution RPC |
 | `L1_BEACON_RPC_URL` | `--l1-beacon-rpc` | Ethereum L1 beacon API |
 | `ROLLUP_CONFIG` | `--rollup-config` | Path to rollup config JSON |
 | `ROLLUP_CONFIG_HASH` | `--rollup-config-hash` | Rollup config hash override |
@@ -65,8 +65,8 @@ A `.env` file in the working directory is loaded automatically.
 Prints the 32-byte rollup config hash that the contracts and proof programs must agree on.
 
 ```
-world-chain-prover-sp1 hash-rollup-config [--rollup-config <FILE> | --l2-rpc <URL>]
-world-chain-prover-nitro hash-rollup-config [--rollup-config <FILE> | --l2-rpc <URL>]
+my-chain-prover-sp1 hash-rollup-config [--rollup-config <FILE> | --l2-rpc <URL>]
+my-chain-prover-nitro hash-rollup-config [--rollup-config <FILE> | --l2-rpc <URL>]
 ```
 
 **Flags**
@@ -81,10 +81,10 @@ One of the two is required; they are mutually exclusive.
 **Example**
 
 ```bash
-world-chain-prover-sp1 hash-rollup-config --rollup-config ./rollup.json
+my-chain-prover-sp1 hash-rollup-config --rollup-config ./rollup.json
 # 0x00821da4d0ba868e5eaa4fd2d6c486161b7bfc0ce3d0644ce79d3317f4f94c50
 
-world-chain-prover-sp1 hash-rollup-config --l2-rpc https://rpc.world.org
+my-chain-prover-sp1 hash-rollup-config --l2-rpc https://rpc.world.org
 ```
 
 ---
@@ -95,8 +95,8 @@ Builds the Kona preimage witness for a block range and writes it to disk. Useful
 witness data or decoupling witness generation from proving.
 
 ```
-world-chain-prover-sp1 witness [RPC flags] --output <FILE>
-world-chain-prover-nitro witness [RPC flags] --output <FILE>
+my-chain-prover-sp1 witness [RPC flags] --output <FILE>
+my-chain-prover-nitro witness [RPC flags] --output <FILE>
 ```
 
 **Flags**
@@ -105,7 +105,7 @@ world-chain-prover-nitro witness [RPC flags] --output <FILE>
 |---|---|---|---|
 | `--start-block <N>` | — | required | Exclusive lower bound of the proved range |
 | `--end-block <N>` | — | required | Inclusive upper bound |
-| `--l2-rpc <URL>` | `L2_RPC_URL` | required | World Chain L2 RPC |
+| `--l2-rpc <URL>` | `L2_RPC_URL` | required | My Chain L2 RPC |
 | `--l1-rpc <URL>` | `L1_RPC_URL` | required | Ethereum L1 RPC |
 | `--l1-beacon-rpc <URL>` | `L1_BEACON_RPC_URL` | required | L1 beacon API |
 | `--rollup-config <FILE>` | `ROLLUP_CONFIG` | — | Rollup config JSON (mutually exclusive with `--rollup-config-hash`) |
@@ -121,7 +121,7 @@ A `<stem>.metadata.json` file is written alongside the output with block metadat
 **Example**
 
 ```bash
-world-chain-prover-sp1 witness \
+my-chain-prover-sp1 witness \
   --start-block 10000000 \
   --end-block   10000100 \
   --l2-rpc      $L2_RPC_URL \
@@ -133,10 +133,10 @@ world-chain-prover-sp1 witness \
 
 ---
 
-## `world-chain-prover-sp1`
+## `my-chain-prover-sp1`
 
 ```
-world-chain-prover-sp1 <COMMAND>
+my-chain-prover-sp1 <COMMAND>
 
 Commands:
   hash-rollup-config   Print the rollup config hash used in proofs
@@ -153,14 +153,14 @@ range ELF locally with SP1 gas calculation enabled. It does not generate or subm
 not require an SP1 private key.
 
 ```
-world-chain-prover-sp1 execute [RPC flags]
+my-chain-prover-sp1 execute [RPC flags]
 ```
 
 | Flag | Env | Default | Description |
 |---|---|---|---|
 | `--start-block <N>` | — | required | Exclusive lower bound of the executed range |
 | `--end-block <N>` | — | required | Inclusive upper bound |
-| `--l2-rpc <URL>` | `L2_RPC_URL` | required | World Chain L2 execution RPC |
+| `--l2-rpc <URL>` | `L2_RPC_URL` | required | My Chain L2 execution RPC |
 | `--l1-rpc <URL>` | `L1_RPC_URL` | required | Ethereum L1 execution RPC |
 | `--l1-beacon-rpc <URL>` | `L1_BEACON_RPC_URL` | required | Ethereum L1 beacon API |
 | `--rollup-config <FILE>` | `ROLLUP_CONFIG` | — | Rollup config JSON |
@@ -173,7 +173,7 @@ world-chain-prover-sp1 execute [RPC flags]
 **Example**
 
 ```bash
-world-chain-prover-sp1 execute \
+my-chain-prover-sp1 execute \
   --start-block 10000000 \
   --end-block   10000010 \
   --l2-rpc      $L2_RPC_URL \
@@ -192,7 +192,7 @@ Generates a compressed range proof and then aggregates it into a final proof, en
 No separate witness step is needed.
 
 ```
-world-chain-prover-sp1 prove [RPC flags] [options]
+my-chain-prover-sp1 prove [RPC flags] [options]
 ```
 
 **Flags**
@@ -234,7 +234,7 @@ recursively verify them with `sp1_lib::verify::verify_sp1_proof`.
 **Example — mock proof (integration test)**
 
 ```bash
-world-chain-prover-sp1 prove \
+my-chain-prover-sp1 prove \
   --start-block 10000000 \
   --end-block   10000010 \
   --l2-rpc      $L2_RPC_URL \
@@ -250,7 +250,7 @@ world-chain-prover-sp1 prove \
 ```bash
 export SP1_PRIVATE_KEY=<your key>
 
-world-chain-prover-sp1 prove \
+my-chain-prover-sp1 prove \
   --start-block 10000000 \
   --end-block   10001000 \
   --l2-rpc      $L2_RPC_URL \
@@ -269,7 +269,7 @@ aggregation vkey. Both are pinned by the `MultiProofGame` implementation. Runs S
 no proving, no RPC, no arguments.
 
 ```
-world-chain-prover-sp1 vkeys [--output <FILE>]
+my-chain-prover-sp1 vkeys [--output <FILE>]
 ```
 
 | Flag | Env | Default | Description |
@@ -299,7 +299,7 @@ just proof-vkeys
 
 **Requirements:** an EC2 instance type with Nitro Enclave support (e.g. `m5.xlarge`) and the
 [AWS Nitro CLI](https://docs.aws.amazon.com/enclaves/latest/user/nitro-enclave-cli-install.html)
-installed. The enclave binary and the `world-chain-prover-nitro prove` command must both run on
+installed. The enclave binary and the `my-chain-prover-nitro prove` command must both run on
 the same instance; vsock (AF_VSOCK) is Linux-only and does not cross machine boundaries.
 
 ### 1. Build the enclave image
@@ -353,7 +353,7 @@ nitro-cli describe-enclaves
 ### 4. Prove from the host
 
 ```bash
-cargo run -p world-chain-prover-nitro -- prove \
+cargo run -p my-chain-prover-nitro -- prove \
   --start-block 29875200 \
   --end-block   29875800 \
   --l2-rpc      $L2_RPC_URL \
@@ -373,10 +373,10 @@ nitro-cli terminate-enclave --enclave-id $(nitro-cli describe-enclaves | jq -r '
 
 ---
 
-## `world-chain-prover-nitro`
+## `my-chain-prover-nitro`
 
 ```
-world-chain-prover-nitro <COMMAND>
+my-chain-prover-nitro <COMMAND>
 
 Commands:
   hash-rollup-config   Print the rollup config hash used in proofs
@@ -395,7 +395,7 @@ writes the artifact to disk.
 **Requires:** Linux host with AF_VSOCK support.
 
 ```
-world-chain-prover-nitro prove [RPC flags] [--cid <N>] [--output <FILE>]
+my-chain-prover-nitro prove [RPC flags] [--cid <N>] [--output <FILE>]
 ```
 
 | Flag | Env | Default | Description |
@@ -417,7 +417,7 @@ attestations to its PCR0/1/2 measurements.
 **Example**
 
 ```bash
-world-chain-prover-nitro prove \
+my-chain-prover-nitro prove \
   --start-block 10000000 \
   --end-block   10000100 \
   --l2-rpc      $L2_RPC_URL \
@@ -449,7 +449,7 @@ This is primarily used for the **CertManager pre-warm** workflow (see below).
 **Requires:** Linux host with AF_VSOCK support and a running Nitro enclave.
 
 ```
-world-chain-prover-nitro get-attestation
+my-chain-prover-nitro get-attestation
 ```
 
 This subcommand takes no flags.
@@ -457,7 +457,7 @@ This subcommand takes no flags.
 **Example**
 
 ```bash
-cargo run -p world-chain-prover-nitro -- get-attestation > /tmp/attestation.hex
+cargo run -p my-chain-prover-nitro -- get-attestation > /tmp/attestation.hex
 ```
 
 ### `register`
@@ -475,7 +475,7 @@ previously a manual `cast` sequence:
    `NitroEnclaveKeyRegistry` and confirm `isSignerRegistered` afterwards.
 
 The command is **idempotent**: if the key is already registered it logs and exits 0. It is
-also available on the long-running worker as `world-chain-proof-nitro-worker register` and as
+also available on the long-running worker as `my-chain-proof-nitro-worker register` and as
 a startup hook (`... run --auto-register`); the infrastructure repo's `proof-register-key <env>`
 recipe wraps the in-pod invocation.
 
@@ -488,7 +488,7 @@ recipe wraps the in-pod invocation.
 **Requires:** Linux host with AF_VSOCK support and a running Nitro enclave.
 
 ```
-world-chain-prover-nitro register \
+my-chain-prover-nitro register \
   --registry <NitroEnclaveKeyRegistry address> \
   --l1-rpc <L1 RPC URL> \
   [--private-key <hex> | --kms-key-id <ID>] \
@@ -507,7 +507,7 @@ world-chain-prover-nitro register \
 **Example**
 
 ```bash
-world-chain-prover-nitro register \
+my-chain-prover-nitro register \
   --registry  0x<NitroEnclaveKeyRegistry> \
   --l1-rpc    $L1_RPC_URL \
   --private-key $REGISTER_PRIVATE_KEY
@@ -545,7 +545,7 @@ section above.
 ### Step 2 — Fetch the attestation document
 
 ```bash
-cargo run -p world-chain-prover-nitro -- get-attestation > /tmp/attestation.hex
+cargo run -p my-chain-prover-nitro -- get-attestation > /tmp/attestation.hex
 ```
 
 The file contains the hex-encoded `COSE_Sign1` attestation bytes.

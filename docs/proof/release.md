@@ -24,8 +24,8 @@ and keeps measurement changes reviewable on their own.
 How the measurements are kept reproducible — the measured workspaces and the Nix enclave
 image — is documented in [reproducible-builds.md](./reproducible-builds.md).
 | `world-chain-range-ethereum`, `world-chain-aggregation`  | SP1 guest ELFs, rebuilt from source in CI via `sp1_build` (no committed binaries, no hash manifest — see [elf-management.md](./elf-management.md)) |
-| `world-chain-proof-<version>-<target>.tar.gz` (+ `.asc`) | GPG-signed `proof` CLI binaries (linux x86_64 / aarch64) |
-| `ghcr.io/worldcoin/world-chain-proof:<version>`          | Multi-arch prover image (sp1 + nitro backends, ELFs baked in) |
+| `my-chain-proof-<version>-<target>.tar.gz` (+ `.asc`) | GPG-signed `proof` CLI binaries (linux x86_64 / aarch64) |
+| `ghcr.io/pashap9990/my-chain-proof:<version>`          | Multi-arch prover image (sp1 + nitro backends, ELFs baked in) |
 
 The draft release notes include a measurements section that diffs the vkeys/PCRs against the
 previous `proofs/v*` release and flags when a new game implementation or PCR approval is required.

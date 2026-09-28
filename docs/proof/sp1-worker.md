@@ -1,6 +1,6 @@
 # SP1 worker
 
-`world-chain-proof-sp1-worker` has separate commands for running the worker and funding its
+`my-chain-proof-sp1-worker` has separate commands for running the worker and funding its
 Succinct proving-network account.
 
 ## Run the worker
@@ -8,7 +8,7 @@ Succinct proving-network account.
 The existing worker arguments follow the `run` command:
 
 ```bash
-world-chain-proof-sp1-worker run \
+my-chain-proof-sp1-worker run \
   --prover-service-url http://prover-service:8545 \
   --l1-rpc "$L1_RPC_URL" \
   --l1-beacon-rpc "$L1_BEACON_RPC_URL" \
@@ -113,7 +113,7 @@ store:
 
 ```bash
 # Settlement configuration and exactly one of SP1_PRIVATE_KEY or SP1_KMS_KEY_ID are injected.
-world-chain-proof-sp1-worker deposit --amount 1000
+my-chain-proof-sp1-worker deposit --amount 1000
 ```
 
 The amount is human-readable PROVE using PROVE's fixed 18 decimals. The command validates the

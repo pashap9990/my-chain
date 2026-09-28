@@ -1,5 +1,5 @@
 # PBH Architecture
-World Chain is an OP Stack chain that enables Priority Blockspace for Humans (PBH) through the World Chain Builder. World Chain leverages [rollup-boost](https://github.com/flashbots/rollup-boost) to support external block production, allowing the builder to propose PBH blocks to the sequencer while remaining fully compatible with the OP Stack.
+My Chain is an OP Stack chain that enables Priority Blockspace for Humans (PBH) through the My Chain Builder. My Chain leverages [rollup-boost](https://github.com/flashbots/rollup-boost) to support external block production, allowing the builder to propose PBH blocks to the sequencer while remaining fully compatible with the OP Stack.
 
  
  ## Block Production on the OP Stack
@@ -91,11 +91,11 @@ In addition to Engine API requests, `rollup-boost` will proxy all RPC calls from
  
  </br>
  
- ## Block Production on World Chain
+ ## Block Production on My Chain
 
-World Chain leverages `rollup-boost` to enable external block production and integrates the World Chain Builder as a block builder in the network. The World Chain Builder implements a custom block ordering policy (ie. PBH) to provide priority inclusion for transactions with a valid World ID proof. Note that the custom ordering policy adheres to the OP Stack spec. 
+My Chain leverages `rollup-boost` to enable external block production and integrates the My Chain Builder as a block builder in the network. The My Chain Builder implements a custom block ordering policy (ie. PBH) to provide priority inclusion for transactions with a valid World ID proof. Note that the custom ordering policy adheres to the OP Stack spec. 
 
-Each block has a "PBH blockspace capacity", which determines how many PBH transactions will be included in the block. Blocks on World Chain will always reserve a percentage of blockspace for non-PBH transactions to ensure inclusion for automated systems and non-verified users. If there are not enough pending PBH transactions to fill the entirety of PBH blockspace, standard transactions will be used to fill the remainder of the block. 
+Each block has a "PBH blockspace capacity", which determines how many PBH transactions will be included in the block. Blocks on My Chain will always reserve a percentage of blockspace for non-PBH transactions to ensure inclusion for automated systems and non-verified users. If there are not enough pending PBH transactions to fill the entirety of PBH blockspace, standard transactions will be used to fill the remainder of the block. 
 
 <br>
 <div style="display: flex; justify-content: center; gap: 40px;">

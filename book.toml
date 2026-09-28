@@ -2,7 +2,7 @@
 authors = [""]
 language = "en"
 src = "specs"
-title = "World Chain Specs"
+title = "My Chain Specs"
 
 
 [preprocessor.strip-front-matter]

@@ -4,13 +4,13 @@
 >
 > Any external security audits conducted prior to the completion of development will not be valid. Please do not rely on this code for production use until a full audit has been completed and development is finalized.
 
-# World Chain Contracts
+# My Chain Contracts
 
-This repository contains smart contracts for World Chain, including PBH (Priority Blockspace for Humans) and Fee Vault contracts.
+This repository contains smart contracts for My Chain, including PBH (Priority Blockspace for Humans) and Fee Vault contracts.
 
 ## Proof System Bond Claims
 
-WIP-1006 proposal and challenge bonds use a deployment-selected token held one-to-one in the upgradeable `ERC20StakingVault`; World Chain configures WLD as that bond token. Participants deposit the token once, without leaving a standing allowance. The stock `DisputeGameFactory` remains unchanged and its type-1006 ETH initialization bond is zero. A proposer calls the stock factory directly; during `initialize` the vault authenticates the clone against the factory's deterministic deployment address and locks the bond from `gameCreator`'s available balance.
+WIP-1006 proposal and challenge bonds use a deployment-selected token held one-to-one in the upgradeable `ERC20StakingVault`; My Chain configures WLD as that bond token. Participants deposit the token once, without leaving a standing allowance. The stock `DisputeGameFactory` remains unchanged and its type-1006 ETH initialization bond is zero. A proposer calls the stock factory directly; during `initialize` the vault authenticates the clone against the factory's deterministic deployment address and locks the bond from `gameCreator`'s available balance.
 
 `MultiProofGame.resolve()` records the outcome and payout credits without moving funds. After ASR finality, `closeGame()` selects normal or refund mode and atomically credits the complete game pot to recipients' reusable vault balances. Each account may later request a token withdrawal and transfer it after the vault delay; new requests reset the delay for the full pending amount.
 
@@ -20,12 +20,12 @@ The vault is WIP-1006-only and supports old registered game implementations afte
 
 The compatibility target is `OptimismPortal2` 5.6.1 shipped by the devnet's version-tagged `op-deployer:v0.7.1` image. Solidity imports are pinned separately to [`op-contracts/v7.0.0` at `a7c88c8`](https://github.com/ethereum-optimism/optimism/tree/a7c88c8d636ceb9944ea0edaf7d033da258778ab/packages/contracts-bedrock), which exposes the same Portal version and the stock dispute interfaces compiled by this repository. `MultiProofGame` implements the Portal-facing `IDisputeGame` ABI and adds the WIP-1006 proof-lane API. The withdrawal E2E runs these compiled game contracts against the Portal, factory, and registry deployed from the pinned `op-deployer` image.
 
-| Portal phase | Required calls | World Chain implementation |
+| Portal phase | Required calls | My Chain implementation |
 | --- | --- | --- |
 | Discover | `disputeGameFactory()`, `gameAtIndex(index)` | Stock OP `AnchorStateRegistry` and `DisputeGameFactory`, filtered to game type `1006` |
 | Prove | `isGameProper`, `isGameRespected`, `status`, `createdAt`, `gameType`, `rootClaim` | A proper, respected game may be used while it is still in progress |
 | Finalize | `isGameClaimValid` | Requires a proper, respected, non-blacklisted, finalized `DEFENDER_WINS` game after the registry finality delay |
-| Emergency controls | `pause`, `blacklistDisputeGame`, `updateRetirementTimestamp` | Stock OP guardian controls; no World Chain registry fork |
+| Emergency controls | `pause`, `blacklistDisputeGame`, `updateRetirementTimestamp` | Stock OP guardian controls; no My Chain registry fork |
 
 `proveWithdrawalTransaction()` selects and records a dispute game, but does not finalize that game or advance the anchor. `finalizeWithdrawalTransaction()` later asks the registry whether the recorded game claim is valid. `closeGame()` is a separate permissionless maintenance call that attempts to advance the anchor used by future WIP-1006 games.
 
@@ -70,7 +70,7 @@ Bytes [65 * signatureThreshold + 12 : 65 * signatureThreshold + 364] ABI Encoded
 
 ## Fee Vault Contracts
 
-The Fee Vault contracts manage the distribution and burning of sequencer fees on World Chain.
+The Fee Vault contracts manage the distribution and burning of sequencer fees on My Chain.
 
 *FeeRecipient*
 

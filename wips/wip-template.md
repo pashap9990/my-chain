@@ -13,7 +13,7 @@ requires: <WIP number(s) or EIP number(s)> # Only required when you reference an
 <!--
   READ wips/README.md BEFORE USING THIS TEMPLATE!
 
-  This is the template for new World Chain Improvement Proposals (WIPs).
+  This is the template for new My Chain Improvement Proposals (WIPs).
   After filling in the required fields, delete all HTML comment blocks like this one.
 
   Note that a WIP number will be assigned by a maintainer. When opening a pull request

@@ -4,10 +4,10 @@ Linear: [PROTO-4718 — witness data oracle: design](https://linear.app/worldcoi
 
 ## Summary
 
-The World Chain proof system builds a range witness (`WorldRangeWitnessData` =
+The My Chain proof system builds a range witness (`WorldRangeWitnessData` =
 `PreimageStore` + `BlobData` + schedule) by driving a Kona single-chain host against live
 L1/L2 RPC. This is the dominant latency in proof generation. This document specifies a
-**live pre-image witness oracle**: an opt-in mode in which the World Chain L2 node captures
+**live pre-image witness oracle**: an opt-in mode in which the My Chain L2 node captures
 each block's execution witness *during normal block import* (zero re-execution), caches it in
 a bounded in-memory buffer, and serves an entire block range in a single RPC call. The Kona
 host pre-seeds its key/value store from that response, so only the small, bounded L1
@@ -64,7 +64,7 @@ a range in one call. The Kona host pre-seeds its KV store from that response; on
 portion still hits the network.
 
 ```
-              ┌─────────────────────── World Chain L2 node (--witness.collect) ──────────┐
+              ┌─────────────────────── My Chain L2 node (--witness.collect) ──────────┐
  engine       │  newPayload ─▶ WitnessCapturingEvmConfig (delegates to OpEvmConfig)       │
  newPayload ──┼─▶ execute block ─▶ ExecutionWitnessRecord::from_executed_state(&state)    │
               │       │                  │ (zero re-execution; live revm State cache)      │

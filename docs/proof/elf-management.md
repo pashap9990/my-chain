@@ -1,6 +1,6 @@
 # SP1 guest ELF management
 
-The World Chain fault-proof system runs two SP1 guest programs:
+The My Chain fault-proof system runs two SP1 guest programs:
 
 | Program | Purpose | Crate |
 |:---|:---|:---|
@@ -8,7 +8,7 @@ The World Chain fault-proof system runs two SP1 guest programs:
 | `world-chain-proof-succinct-aggregation`     | Aggregates many range proofs into one     | `proofs/measured/sp1-programs/aggregation`     |
 
 Both are compiled to RISC-V ELFs by `cargo prove build` (the SP1 toolchain) and are consumed by
-the `world-chain-prover-sp1` CLI, the SP1 worker, and the devnet's full-stack tests. They are also
+the `my-chain-prover-sp1` CLI, the SP1 worker, and the devnet's full-stack tests. They are also
 referenced on chain indirectly via the SP1 vkeys — the vkeys are deterministic over the ELF bytes,
 so the ELF bytes **are** the governance anchor for the proof lane.
 
@@ -25,10 +25,10 @@ We use the OP Succinct upstream pattern (see [succinctlabs/op-succinct/utils/bui
 3. `proofs/backends/sp1/elfs/src/lib.rs` calls
    [`sp1_sdk::include_elf!`](https://docs.rs/sp1-sdk/latest/sp1_sdk/macro.include_elf.html)
    which expands to `include_bytes!(env!("SP1_ELF_<package>"))`, embedding the ELF bytes into
-   the prover binary at link time via the `world-chain-proof-sp1-elfs` crate.
+   the prover binary at link time via the `my-chain-proof-sp1-elfs` crate.
 
 Net effect: the ELFs are never on disk for the host crate to find — they're statically baked
-into every binary that links `world-chain-proof-sp1-elfs` (e.g. `world-chain-proof-sp1-worker`).
+into every binary that links `my-chain-proof-sp1-elfs` (e.g. `my-chain-proof-sp1-worker`).
 There is no committed ELF blob. The derived vkeys and ELF SHA-256s are recorded in the `.sp1`
 half of `proofs/measurements.json`. The on-chain governance anchor is the SP1 vkey computed from the
 embedded bytes (`just proof-vkeys`), which is pinned in the `MultiProofGame` implementation.
@@ -36,7 +36,7 @@ embedded bytes (`just proof-vkeys`), which is pinned in the `MultiProofGame` imp
 ## Reproducibility
 
 `sp1_build::build_program_with_args` uses Docker by default with the SP1 v6.8.1 linux/amd64
-image pinned by digest. A `cargo build -p world-chain-prover-sp1` from a clean checkout therefore
+image pinned by digest. A `cargo build -p my-chain-prover-sp1` from a clean checkout therefore
 produces bit-for-bit identical ELFs and vkeys regardless of host toolchain.
 
 Set `SP1_BUILD_DOCKER=false` to switch to a locally-installed `cargo-prove` instead. This is the
@@ -45,7 +45,7 @@ guest sections and rotate the vkeys even when the Rust source and SP1 version ar
 
 The production `sp1-worker` target in `Dockerfile.prover` builds the guests in the same pinned
 SP1 image and `/root/program` layout as the default local build. The
-`world-chain-proof-sp1-guest-builder` binary calls the pinned `sp1-build` library, so the Docker
+`my-chain-proof-sp1-guest-builder` binary calls the pinned `sp1-build` library, so the Docker
 build and local build share Succinct's compiler flags instead of maintaining a second compilation
 recipe. The image then copies those exact ELFs into the host builder and sets
 `SP1_SKIP_PROGRAM_BUILD=true`, so the worker embeds them without a second compilation. The image
@@ -57,8 +57,8 @@ build fails unless the ELF hashes and vkeys computed from the final worker binar
 Nothing extra is required:
 
 ```bash
-cargo build -p world-chain-prover-sp1   # builds guest ELFs (first time only) and the host CLI
-cargo build -p world-chain-proof-sp1-worker   # likewise
+cargo build -p my-chain-prover-sp1   # builds guest ELFs (first time only) and the host CLI
+cargo build -p my-chain-proof-sp1-worker   # likewise
 just proof-vkeys                         # prints the on-chain vkey commitments
 ```
 
@@ -77,8 +77,8 @@ Build the production worker with its dedicated target:
 
 ```bash
 docker build --target sp1-worker \
-  --build-arg PROVER_PACKAGE=world-chain-proof-sp1-worker \
-  --build-arg PROVER_BIN=world-chain-proof-sp1-worker \
+  --build-arg PROVER_PACKAGE=my-chain-proof-sp1-worker \
+  --build-arg PROVER_BIN=my-chain-proof-sp1-worker \
   -f Dockerfile.prover .
 ```
 
@@ -104,7 +104,7 @@ The workflow is just normal source-control:
 
 1. Edit the guest source or bump the matching SP1 image reference in
    `proofs/backends/sp1/elfs/build.rs` and `Dockerfile.prover`.
-2. `cargo build -p world-chain-prover-sp1` to confirm the new ELFs build.
+2. `cargo build -p my-chain-prover-sp1` to confirm the new ELFs build.
 3. `just proof-vkeys` to print the new vkey commitments.
 4. Mention the rotated vkeys in the PR description and link the matching game-implementation
    deployment.
@@ -113,20 +113,20 @@ The workflow is just normal source-control:
 
 The `verify-measurements.yml` workflow recomputes the manifest through the canonical Docker path. The
 `docker-proof.yml` SP1 worker job uses the dedicated `sp1-worker` target and runs
-`world-chain-proof-sp1-worker vkeys --check` against the linked binary before publishing it.
+`my-chain-proof-sp1-worker vkeys --check` against the linked binary before publishing it.
 
 ## Comparison with op-succinct
 
 [succinctlabs/op-succinct](https://github.com/succinctlabs/op-succinct) is the upstream SP1
-proof system that World Chain's proof system is based on. It uses exactly the same pattern:
+proof system that My Chain's proof system is based on. It uses exactly the same pattern:
 `sp1_build::build_program_with_args` in `build.rs` compiles the guest ELF at host `cargo build`
 time, and `sp1_sdk::include_elf!()` embeds it into the host binary. No ELF binaries are committed
 to source control; the derived vkeys and hashes in `proofs/measurements.json` can be reproduced with the pinned
 `cargo-prove` toolchain.
 
-World Chain follows this pattern directly:
+My Chain follows this pattern directly:
 
-| Layer | op-succinct | World Chain proof system |
+| Layer | op-succinct | My Chain proof system |
 |:---|:---|:---|
 | Source-of-truth artifact | SP1 guest ELF | SP1 guest ELF |
 | Build reproducibility    | `build_program_with_args` + pinned SP1 toolchain tag | Digest-pinned SP1 image and canonical workspace layout |
@@ -134,7 +134,7 @@ World Chain follows this pattern directly:
 | Where the artifact lives | **Embedded into the host binary via `include_elf!()`** | **Embedded into the host binary via `include_elf!()`** |
 | Committed ELF blob       | None | None |
 
-For World Chain's Nitro lane (`proofs/backends/nitro/`), a separate PCR-commit pattern is used for the
+For My Chain's Nitro lane (`proofs/backends/nitro/`), a separate PCR-commit pattern is used for the
 TEE enclave image; the SP1 lane follows the op-succinct embed-at-compile-time pattern, which
 avoids carrying any ELF artifacts (committed bytes or committed SHA-256s) in source control.
 
