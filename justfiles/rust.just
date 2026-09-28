@@ -4,15 +4,15 @@
 build:
     docker buildx build \
         --build-arg VERGEN_GIT_SHA="$(git rev-parse HEAD)" \
-        -t world-chain:latest .
+        -t my-chain:latest .
 
 [group('build')]
-build-world-chain-bin:
-    cargo build -p world-chain
+build-my-chain-bin:
+    cargo build -p my-chain
 
 [group('build')]
 install *args='':
-    cargo install --path bin/world-chain --locked $@
+    cargo install --path bin/my-chain --locked $@
 
 # Generate CLI reference docs for the mdbook
 [group('build')]
@@ -26,12 +26,12 @@ test *args='':
 # Test with flashblocks debug tracing
 [group('test')]
 test-dev *args='':
-    RUST_LOG="info,flashblocks=debug,world_chain=info" cargo nextest run --workspace $@
+    RUST_LOG="info,flashblocks=debug,my_chain=info" cargo nextest run --workspace $@
 
 # Test with verbose flashblocks tracing (all subsystems at trace level)
 [group('test')]
 test-verbose *args='':
-    RUST_LOG="info,flashblocks=trace,world_chain=trace,bal_executor=trace,payload_builder=trace,engine::tree=trace" cargo nextest run --workspace $@
+    RUST_LOG="info,flashblocks=trace,my_chain=trace,bal_executor=trace,payload_builder=trace,engine::tree=trace" cargo nextest run --workspace $@
 
 [group('lint')]
 clippy:

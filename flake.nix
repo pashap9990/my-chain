@@ -1,5 +1,5 @@
 {
-  description = "World Chain — reproducible Nitro enclave image";
+  description = "My Chain — reproducible Nitro enclave image";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";

@@ -143,11 +143,11 @@ jobs:
       fail-fast: false
       matrix:
         service:
-          - { suffix: -sp1-worker, package: world-chain-proof-sp1-worker, bin: world-chain-proof-sp1-worker, prefix: digests-sp1-worker, target: sp1-worker }
-          - { suffix: -proposer, package: world-chain-proposer, bin: world-chain-proposer, prefix: digests-proposer, target: final }
-          - { suffix: -challenger, package: world-chain-challenger, bin: world-chain-challenger, prefix: digests-challenger, target: final }
-          - { suffix: -defender, package: world-chain-defender, bin: world-chain-defender, prefix: digests-defender, target: final }
-          - { suffix: -prover-service, package: world-chain-prover-service, bin: world-chain-prover-service, prefix: digests-prover-service, target: final }
+          - { suffix: -sp1-worker, package: my-chain-proof-sp1-worker, bin: my-chain-proof-sp1-worker, prefix: digests-sp1-worker, target: sp1-worker }
+          - { suffix: -proposer, package: my-chain-proposer, bin: my-chain-proposer, prefix: digests-proposer, target: final }
+          - { suffix: -challenger, package: my-chain-challenger, bin: my-chain-challenger, prefix: digests-challenger, target: final }
+          - { suffix: -defender, package: my-chain-defender, bin: my-chain-defender, prefix: digests-defender, target: final }
+          - { suffix: -prover-service, package: my-chain-prover-service, bin: my-chain-prover-service, prefix: digests-prover-service, target: final }
         platform:
           - { runner: arc-public-8xlarge-amd64-runner, platform: linux/amd64 }
           - { runner: ubuntu-24.04-arm, platform: linux/arm64 }
@@ -231,8 +231,8 @@ jobs:
           sccache_bucket: ${{ env.SCCACHE_BUCKET }}
           dockerfile: Dockerfile.prover
           build_args: |
-            PROVER_PACKAGE=world-chain-proof-nitro-worker
-            PROVER_BIN=world-chain-proof-nitro-worker
+            PROVER_PACKAGE=my-chain-proof-nitro-worker
+            PROVER_BIN=my-chain-proof-nitro-worker
           digest_artifact_prefix: digests-nitro-worker
 
   merge-nitro-worker-image:

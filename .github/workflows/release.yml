@@ -145,12 +145,12 @@ jobs:
             target: x86_64-unknown-linux-gnu
             os: linux
             arch: x86_64
-            binary: world-chain
+            binary: my-chain
           - runner: ubuntu-24.04-arm
             target: aarch64-unknown-linux-gnu
             os: linux
             arch: arm64
-            binary: world-chain
+            binary: my-chain
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -249,11 +249,11 @@ jobs:
           | <img src="https://simpleicons.org/icons/linux.svg" style="width: 32px;"/> | aarch64 | [${{ env.REPO_NAME }}-${{ env.VERSION }}-aarch64-unknown-linux-gnu.tar.gz](https://github.com/${{ env.REPO_NAME }}/releases/download/${{ env.VERSION }}/${{ env.REPO_NAME }}-${{ env.VERSION }}-aarch64-unknown-linux-gnu.tar.gz) | [${{ env.REPO_NAME }}-${{ env.VERSION }}-aarch64-unknown-linux-gnu.tar.gz.asc](https://github.com/${{ env.REPO_NAME }}/releases/download/${{ env.VERSION }}/${{ env.REPO_NAME }}-${{ env.VERSION }}-aarch64-unknown-linux-gnu.tar.gz.asc) |
           | | | |
           | **System** | **Option** | **Resource** |
-          | <img src="https://simpleicons.org/icons/docker.svg" style="width: 32px;"/> | Docker | [${{ env.IMAGE_NAME }}](https://github.com/worldcoin/world-chain/pkgs/container/world-chain) |
+          | <img src="https://simpleicons.org/icons/docker.svg" style="width: 32px;"/> | Docker | [${{ env.IMAGE_NAME }}](https://github.com/pashap9990/my-chain/pkgs/container/my-chain) |
           ENDBODY
           )
           assets=()
-          for asset in ./*world-chain-*.tar.gz*; do
+          for asset in ./*my-chain-*.tar.gz*; do
               assets+=("$asset/$asset")
           done
           tag_name="${{ env.VERSION }}"

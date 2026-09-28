@@ -19,7 +19,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "bin/world-chain/**"
+      - "bin/my-chain/**"
       - "crates/**"
       - "Cargo.toml"
       - "Cargo.lock"

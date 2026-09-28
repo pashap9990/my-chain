@@ -18,7 +18,7 @@ permissions: {}
 
 jobs:
   sync:
-    if: github.repository == 'worldcoin/world-chain'
+    if: github.repository == 'pashap9990/my-chain'
     name: sync (${{ matrix.chain.bin }})
     # we use ubuntu-latest and not our self-hosted runners because with our runners the node is not
     # able to reach external peers therefore it cannot sync at all and the job fails after 1 hour.
@@ -33,7 +33,7 @@ jobs:
       matrix:
         chain:
           - build: install
-            bin: world-chain
+            bin: my-chain
             features: jemalloc
             chain: worldchain
             tip: "0x836c22335a115e76cb023f53de6fa7e17fc1c5bf3c207bae288084dba5343913"

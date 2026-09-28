@@ -1,6 +1,6 @@
 name: deploy-alphanet
 
-# Maintainer-triggered deploy of a PR's code to the world-chain-alphanet devnet.
+# Maintainer-triggered deploy of a PR's code to the my-chain-alphanet devnet.
 # Comment `/deploy-alphanet` on a PR to build that PR's HEAD into a tagged image and
 # publish it to the mutable `alphanet` image tag watched by Argo CD Image Updater.
 #

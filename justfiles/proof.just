@@ -29,7 +29,7 @@
 #
 # Required env vars (varies by target):
 #   PRIVATE_KEY, OWNER, OWNER_KEY, L1_RPC_URL,
-#   WORLD_CHAIN_L2_CHAIN_ID, ROLLUP_CONFIG_HASH,
+#   MY_CHAIN_L2_CHAIN_ID, ROLLUP_CONFIG_HASH,
 #   AGGREGATION_VKEY, RANGE_VKEY_COMMITMENT, TEE_IMAGE_ID,
 #   CERT_MANAGER_ADDRESS, NITRO_ATTESTATION_VERIFIER,
 #   DISPUTE_GAME_FACTORY, ANCHOR_STATE_REGISTRY, SYSTEM_CONFIG,
@@ -59,7 +59,7 @@ prove *args='':
 [doc("Print the on-chain verification keys for the SP1 proof ELFs.")]
 [group('proof')]
 proof-vkeys *args='':
-    cargo run --release -p world-chain-prover-sp1 -- vkeys $@
+    cargo run --release -p my-chain-prover-sp1 -- vkeys $@
 
 # Recompute vkeys from the embedded ELFs and update the `.sp1` half of
 # proofs/measurements.json. The `.nitro` half is left alone: it is measured by
@@ -68,7 +68,7 @@ proof-vkeys *args='':
 [doc("Recompute vkeys from the embedded ELFs and update measurements.json.")]
 [group('proof')]
 update-proof-vkeys:
-    cargo run -p world-chain-prover-sp1 -- vkeys --output /tmp/vkeys-update.json
+    cargo run -p my-chain-prover-sp1 -- vkeys --output /tmp/vkeys-update.json
     jq -S --slurpfile sp1 /tmp/vkeys-update.json '.sp1 = $sp1[0]' proofs/measurements.json > /tmp/measurements-update.json
     mv /tmp/measurements-update.json proofs/measurements.json
 
@@ -87,7 +87,7 @@ update-measurements: update-proof-vkeys
 [doc("Assert the sp1 half of measurements.json matches what the source produces. Used by CI.")]
 [group('proof')]
 verify-proof-vkeys:
-    cargo run -p world-chain-prover-sp1 -- vkeys --output /tmp/vkeys-actual.json
+    cargo run -p my-chain-prover-sp1 -- vkeys --output /tmp/vkeys-actual.json
     jq -S .sp1 proofs/measurements.json > /tmp/vkeys-committed.json
     jq -S . /tmp/vkeys-actual.json > /tmp/vkeys-actual-normalized.json
     diff /tmp/vkeys-committed.json /tmp/vkeys-actual-normalized.json || (echo "ERROR: the sp1 half of proofs/measurements.json is out of date. Run 'just update-proof-vkeys' to regenerate." && exit 1)
@@ -116,14 +116,14 @@ proof-rollup-config-hash env="alphanet":
     set -euo pipefail
     if [ -n "${L2_RPC_URL:-}" ]; then
         echo "Fetching rollup config from op-node at ${L2_RPC_URL}…" >&2
-        cargo run -p world-chain-prover-nitro -- hash-rollup-config --l2-rpc "$L2_RPC_URL"
+        cargo run -p my-chain-prover-nitro -- hash-rollup-config --l2-rpc "$L2_RPC_URL"
     elif [ -n "${ROLLUP_CONFIG_URL:-}" ]; then
         echo "Downloading rollup config from ${ROLLUP_CONFIG_URL}…" >&2
         curl -sfSL "$ROLLUP_CONFIG_URL" -o /tmp/rollup.json
-        cargo run -p world-chain-prover-nitro -- hash-rollup-config --rollup-config /tmp/rollup.json
+        cargo run -p my-chain-prover-nitro -- hash-rollup-config --rollup-config /tmp/rollup.json
     elif [ -n "${ROLLUP_CONFIG:-}" ]; then
         echo "Using local rollup config: $ROLLUP_CONFIG" >&2
-        cargo run -p world-chain-prover-nitro -- hash-rollup-config --rollup-config "$ROLLUP_CONFIG"
+        cargo run -p my-chain-prover-nitro -- hash-rollup-config --rollup-config "$ROLLUP_CONFIG"
     else
         echo "Error: set one of L2_RPC_URL, ROLLUP_CONFIG_URL or ROLLUP_CONFIG." >&2
         echo "  For a deployed env, use the infrastructure repo's 'proof-rollup-config-hash {{env}}'," >&2
@@ -215,7 +215,7 @@ proof-deploy-system env="alphanet":
     set -euo pipefail
     : "${PRIVATE_KEY:?PRIVATE_KEY is required}"
     : "${L1_RPC_URL:?L1_RPC_URL is required}"
-    : "${WORLD_CHAIN_L2_CHAIN_ID:?WORLD_CHAIN_L2_CHAIN_ID is required}"
+    : "${MY_CHAIN_L2_CHAIN_ID:?MY_CHAIN_L2_CHAIN_ID is required}"
     : "${ROLLUP_CONFIG_HASH:?ROLLUP_CONFIG_HASH is required}"
     : "${AGGREGATION_VKEY:?AGGREGATION_VKEY is required}"
     : "${RANGE_VKEY_COMMITMENT:?RANGE_VKEY_COMMITMENT is required}"

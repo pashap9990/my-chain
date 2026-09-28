@@ -80,9 +80,9 @@ jobs:
         run: |
           git checkout --detach "$BASE_SHA"
           if [ -f "crates/validator/benches/${BENCH_NAME}.rs" ]; then
-            BENCH_PACKAGE=world-chain-validator
+            BENCH_PACKAGE=my-chain-validator
           elif [ -f "crates/builder/benches/${BENCH_NAME}.rs" ]; then
-            BENCH_PACKAGE=world-chain-builder
+            BENCH_PACKAGE=my-chain-builder
           else
             echo "::error::Could not find ${BENCH_NAME} benchmark"
             exit 1
@@ -97,9 +97,9 @@ jobs:
         run: |
           git checkout --detach "$PR_SHA"
           if [ -f "crates/validator/benches/${BENCH_NAME}.rs" ]; then
-            BENCH_PACKAGE=world-chain-validator
+            BENCH_PACKAGE=my-chain-validator
           elif [ -f "crates/builder/benches/${BENCH_NAME}.rs" ]; then
-            BENCH_PACKAGE=world-chain-builder
+            BENCH_PACKAGE=my-chain-builder
           else
             echo "::error::Could not find ${BENCH_NAME} benchmark"
             exit 1
@@ -111,9 +111,9 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: |
           if [ -f "crates/validator/benches/${BENCH_NAME}.rs" ]; then
-            BENCH_PACKAGE=world-chain-validator
+            BENCH_PACKAGE=my-chain-validator
           elif [ -f "crates/builder/benches/${BENCH_NAME}.rs" ]; then
-            BENCH_PACKAGE=world-chain-builder
+            BENCH_PACKAGE=my-chain-builder
           else
             echo "::error::Could not find ${BENCH_NAME} benchmark"
             exit 1

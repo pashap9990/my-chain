@@ -1,6 +1,6 @@
 name: deploy-alphanet-build
 
-# Build + push a world-chain image for a pinned commit to the mutable `alphanet`
+# Build + push a my-chain image for a pinned commit to the mutable `alphanet`
 # tag. Argo CD Image Updater watches that tag and handles the rollout.
 # Triggered (workflow_dispatch) by deploy-alphanet.yml after it has authorized
 # the commenter and resolved the PR head. It receives the PR number plus an

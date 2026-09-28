@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   build-and-push:
-    if: github.repository == 'worldcoin/world-chain'
+    if: github.repository == 'pashap9990/my-chain'
     timeout-minutes: 120
     environment:
       name: dev

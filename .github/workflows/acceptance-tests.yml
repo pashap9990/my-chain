@@ -145,7 +145,7 @@ jobs:
         id: build
         if: ${{ (inputs.network == 'all' && matrix.include_in_all) || inputs.network == matrix.network }}
         continue-on-error: ${{ matrix.allow_failure }}
-        run: cargo nextest run --profile ci -p world-chain-tests -E 'package(world-chain-tests) & binary(world-chain-tests) & test(/acceptance_tests::test_network/)' --no-run
+        run: cargo nextest run --profile ci -p my-chain-tests -E 'package(my-chain-tests) & binary(my-chain-tests) & test(/acceptance_tests::test_network/)' --no-run
 
       - name: Run acceptance tests
         id: run
@@ -173,7 +173,7 @@ jobs:
           ACCEPTANCE_BLOCK_ADVANCE_TIMEOUT_SECS: "60"
           ACCEPTANCE_BLOCK_POLL_INTERVAL_SECS: "2"
           ACCEPTANCE_4337_PROFILE: ${{ matrix.acceptance_profile }}
-        run: cargo nextest run --profile ci -p world-chain-tests -E 'package(world-chain-tests) & binary(world-chain-tests) & test(/acceptance_tests::test_network/)' --no-capture
+        run: cargo nextest run --profile ci -p my-chain-tests -E 'package(my-chain-tests) & binary(my-chain-tests) & test(/acceptance_tests::test_network/)' --no-capture
 
       - name: Report allowed build failure
         if: ${{ ((inputs.network == 'all' && matrix.include_in_all) || inputs.network == matrix.network) && matrix.allow_failure && steps.build.outcome == 'failure' }}

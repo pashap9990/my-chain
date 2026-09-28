@@ -6,11 +6,11 @@ default:
 
 # Spawns the devnet
 devnet-up:
-    kurtosis run . --args-file network_params.yaml --enclave world-chain
+    kurtosis run . --args-file network_params.yaml --enclave my-chain
 
 # Stops the devnet **This will prune all docker containers**
 devnet-down:
-    kurtosis enclave rm -f world-chain
+    kurtosis enclave rm -f my-chain
     kurtosis clean
 
 # Restarts the devnet (down + up)

@@ -31,7 +31,7 @@ RUN curl -L https://foundry.paradigm.xyz | bash && \
   /root/.foundry/bin/foundryup --install 1.5.1
 
 
-ARG WORLD_CHAIN_BUILDER_BIN="world-chain"
+ARG MY_CHAIN_BUILDER_BIN="my-chain"
 ARG PROFILE="maxperf"
 ARG FEATURES="jemalloc"
 ARG SCCACHE_BUCKET
@@ -52,7 +52,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=secret,id=aws_secret_access_key,env=AWS_SECRET_ACCESS_KEY \
     --mount=type=secret,id=aws_session_token,env=AWS_SESSION_TOKEN \
     if [ -z "$SCCACHE_BUCKET" ]; then unset SCCACHE_BUCKET SCCACHE_REGION SCCACHE_S3_KEY_PREFIX; fi && \
-    cargo chef cook --locked --profile ${PROFILE} --bin ${WORLD_CHAIN_BUILDER_BIN} --features ${FEATURES} --recipe-path recipe.json
+    cargo chef cook --locked --profile ${PROFILE} --bin ${MY_CHAIN_BUILDER_BIN} --features ${FEATURES} --recipe-path recipe.json
 
 ARG VERGEN_GIT_SHA
 COPY . .
@@ -64,7 +64,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=secret,id=aws_secret_access_key,env=AWS_SECRET_ACCESS_KEY \
     --mount=type=secret,id=aws_session_token,env=AWS_SESSION_TOKEN \
     if [ -z "$SCCACHE_BUCKET" ]; then unset SCCACHE_BUCKET SCCACHE_REGION SCCACHE_S3_KEY_PREFIX; fi && \
-    cargo build --locked --profile ${PROFILE} --features ${FEATURES} --bin ${WORLD_CHAIN_BUILDER_BIN}
+    cargo build --locked --profile ${PROFILE} --features ${FEATURES} --bin ${MY_CHAIN_BUILDER_BIN}
 
 # Deployments depend on sh wget and awscli v2
 FROM public.ecr.aws/docker/library/debian:bookworm-slim AS runtime
@@ -94,9 +94,9 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/aws
 RUN curl -L "https://github.com/Dzejkop/s3fcp/releases/download/v0.3.0/s3fcp-linux-x86_64" -o "/usr/local/bin/s3fcp" && \
   chmod +x /usr/local/bin/s3fcp
 
-ARG WORLD_CHAIN_BUILDER_BIN="world-chain"
+ARG MY_CHAIN_BUILDER_BIN="my-chain"
 ARG PROFILE="maxperf"
-COPY --from=builder /app/target/${PROFILE}/${WORLD_CHAIN_BUILDER_BIN} /usr/local/bin/
+COPY --from=builder /app/target/${PROFILE}/${MY_CHAIN_BUILDER_BIN} /usr/local/bin/
 
 COPY --from=builder /root/.foundry/bin/cast /usr/local/bin/
 
@@ -108,4 +108,4 @@ RUN cast --version
 
 EXPOSE 30303 30303/udp 9001 8545 8546
 
-ENTRYPOINT ["/usr/local/bin/world-chain"]
+ENTRYPOINT ["/usr/local/bin/my-chain"]
